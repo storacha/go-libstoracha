@@ -6,8 +6,50 @@ type Range struct {
 }
 
 type LocationCaveats struct {
-	content Bytes
+	content  Any
 	location [String]
-	range optional Range
+	range    optional Range
 	space optional DID
+}
+
+type Digest struct {
+  digest Bytes
+}
+
+type InclusionCaveats struct {
+	content  Any
+	includes &Any
+	range    optional &Any
+}
+
+type IndexCaveats struct {
+	content  &Any
+	index &Any
+}
+
+type PartitionCaveats struct {
+	content  Any
+	blocks 	 optional &Any
+	parts    [&Any]
+}
+
+type RelationPartInclusion struct {
+	content &Any
+	parts   optional [&Any]
+}
+
+type RelationPart struct {
+	Content  &Any
+	Includes optional RelationPartInclusion
+}
+
+type RelationCaveats struct {
+	Content  Any
+	Children [&Any]
+	Parts    [RelationPart]
+}
+
+type EqualsCaveats struct {
+	Content Any
+	Equals &Any
 }
