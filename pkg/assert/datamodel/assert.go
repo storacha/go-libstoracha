@@ -10,12 +10,12 @@ import (
 )
 
 //go:embed assert.ipldsch
-var assert []byte
+var assertSchema []byte
 
 var assertTS *schema.TypeSystem
 
 func init() {
-	ts, err := ipld.LoadSchemaBytes(assert)
+	ts, err := ipld.LoadSchemaBytes(assertSchema)
 	if err != nil {
 		panic(fmt.Errorf("loading assert schema: %w", err))
 	}

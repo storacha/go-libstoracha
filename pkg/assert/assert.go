@@ -16,11 +16,6 @@ import (
 	"github.com/storacha/go-ucanto/validator"
 )
 
-// export const assert = capability({
-//   can: 'assert/*',
-//   with: URI.match({ protocol: 'did:' })
-// })
-
 type HasMultihash interface {
 	hasMultihash()
 	ToIPLD() (datamodel.Node, error)
