@@ -167,29 +167,31 @@ func (ic InclusionCaveats) ToIPLD() (datamodel.Node, error) {
 
 const InclusionAbility = "assert/inclusion"
 
+var InclusionCaveatsReader = schema.Mapped(schema.Struct[adm.InclusionCaveatsModel](adm.InclusionCaveatsType(), nil), func(model adm.InclusionCaveatsModel) (InclusionCaveats, failure.Failure) {
+	hasMultihash, err := linkOrDigest.Read(model.Content)
+	if err != nil {
+		return InclusionCaveats{}, err
+	}
+	includes, err := schema.Link(schema.WithVersion(1)).Read(model.Includes)
+	if err != nil {
+		return InclusionCaveats{}, err
+	}
+	proof := model.Proof
+	if proof != nil {
+		output, err := schema.Link(schema.WithVersion(1)).Read(*model.Proof)
+		if err != nil {
+			return InclusionCaveats{}, err
+		}
+		proof = &output
+	}
+	return InclusionCaveats{
+		Content:  hasMultihash,
+		Includes: includes,
+		Proof:    proof}, nil
+})
+
 var Inclusion = validator.NewCapability(InclusionAbility, schema.DIDString(),
-	schema.Mapped(schema.Struct[adm.InclusionCaveatsModel](adm.InclusionCaveatsType(), nil), func(model adm.InclusionCaveatsModel) (InclusionCaveats, failure.Failure) {
-		hasMultihash, err := linkOrDigest.Read(model.Content)
-		if err != nil {
-			return InclusionCaveats{}, err
-		}
-		includes, err := schema.Link(schema.WithVersion(1)).Read(model.Includes)
-		if err != nil {
-			return InclusionCaveats{}, err
-		}
-		proof := model.Proof
-		if proof != nil {
-			output, err := schema.Link(schema.WithVersion(1)).Read(*model.Proof)
-			if err != nil {
-				return InclusionCaveats{}, err
-			}
-			proof = &output
-		}
-		return InclusionCaveats{
-			Content:  hasMultihash,
-			Includes: includes,
-			Proof:    proof}, nil
-	}), nil)
+	InclusionCaveatsReader, nil)
 
 /**
  * Claims that a content graph can be found in blob(s) that are identified and
@@ -252,36 +254,38 @@ func (pc PartitionCaveats) ToIPLD() (datamodel.Node, error) {
 
 const PartitionAbility = "assert/partition"
 
-var Partition = validator.NewCapability(
-	PartitionAbility,
-	schema.DIDString(),
-	schema.Mapped(schema.Struct[adm.PartitionCaveatsModel](adm.PartitionCaveatsType(), nil), func(model adm.PartitionCaveatsModel) (PartitionCaveats, failure.Failure) {
-		hasMultihash, err := linkOrDigest.Read(model.Content)
+var PartitionCaveatsReader = schema.Mapped(schema.Struct[adm.PartitionCaveatsModel](adm.PartitionCaveatsType(), nil), func(model adm.PartitionCaveatsModel) (PartitionCaveats, failure.Failure) {
+	hasMultihash, err := linkOrDigest.Read(model.Content)
+	if err != nil {
+		return PartitionCaveats{}, err
+	}
+
+	blocks := model.Blocks
+	if blocks != nil {
+		output, err := schema.Link(schema.WithVersion(1)).Read(*model.Blocks)
 		if err != nil {
 			return PartitionCaveats{}, err
 		}
+		blocks = &output
+	}
+	parts := make([]ipld.Link, 0, len(model.Parts))
+	for _, p := range model.Parts {
+		part, err := schema.Link(schema.WithVersion(1)).Read(p)
+		if err != nil {
+			return PartitionCaveats{}, err
+		}
+		parts = append(parts, part)
+	}
+	return PartitionCaveats{
+		Content: hasMultihash,
+		Blocks:  blocks,
+		Parts:   parts}, nil
+})
 
-		blocks := model.Blocks
-		if blocks != nil {
-			output, err := schema.Link(schema.WithVersion(1)).Read(*model.Blocks)
-			if err != nil {
-				return PartitionCaveats{}, err
-			}
-			blocks = &output
-		}
-		parts := make([]ipld.Link, 0, len(model.Parts))
-		for _, p := range model.Parts {
-			part, err := schema.Link(schema.WithVersion(1)).Read(p)
-			if err != nil {
-				return PartitionCaveats{}, err
-			}
-			parts = append(parts, part)
-		}
-		return PartitionCaveats{
-			Content: hasMultihash,
-			Blocks:  blocks,
-			Parts:   parts}, nil
-	}), nil)
+var Partition = validator.NewCapability(
+	PartitionAbility,
+	schema.DIDString(),
+	PartitionCaveatsReader, nil)
 
 /**
  * Claims that a CID links to other CIDs.
@@ -333,53 +337,55 @@ func (rc RelationCaveats) ToIPLD() (datamodel.Node, error) {
 
 const RelationAbility = "assert/relation"
 
-var Relation = validator.NewCapability(
-	RelationAbility,
-	schema.DIDString(),
-	schema.Mapped(schema.Struct[adm.RelationCaveatsModel](adm.RelationCaveatsType(), nil), func(model adm.RelationCaveatsModel) (RelationCaveats, failure.Failure) {
-		hasMultihash, err := linkOrDigest.Read(model.Content)
-		if err != nil {
-			return RelationCaveats{}, err
-		}
-		parts := make([]RelationPart, 0, len(model.Parts))
-		for _, part := range model.Parts {
-			var includes *RelationPartInclusion
-			if part.Includes != nil {
-				content, err := schema.Link(schema.WithVersion(1)).Read(part.Content)
-				if err != nil {
-					return RelationCaveats{}, err
-				}
-				var parts *[]ipld.Link
-				if part.Includes.Parts != nil {
-					*parts = make([]datamodel.Link, 0, len(*part.Includes.Parts))
-					for _, p := range *part.Includes.Parts {
-						part, err := schema.Link(schema.WithVersion(1)).Read(p)
-						if err != nil {
-							return RelationCaveats{}, err
-						}
-						*parts = append(*parts, part)
-					}
-				}
-				includes = &RelationPartInclusion{
-					Content: content,
-					Parts:   parts,
-				}
-			}
+var RelationCaveatsReader = schema.Mapped(schema.Struct[adm.RelationCaveatsModel](adm.RelationCaveatsType(), nil), func(model adm.RelationCaveatsModel) (RelationCaveats, failure.Failure) {
+	hasMultihash, err := linkOrDigest.Read(model.Content)
+	if err != nil {
+		return RelationCaveats{}, err
+	}
+	parts := make([]RelationPart, 0, len(model.Parts))
+	for _, part := range model.Parts {
+		var includes *RelationPartInclusion
+		if part.Includes != nil {
 			content, err := schema.Link(schema.WithVersion(1)).Read(part.Content)
 			if err != nil {
 				return RelationCaveats{}, err
 			}
-			parts = append(parts, RelationPart{
-				Content:  content,
-				Includes: includes,
-			})
+			var parts *[]ipld.Link
+			if part.Includes.Parts != nil {
+				*parts = make([]datamodel.Link, 0, len(*part.Includes.Parts))
+				for _, p := range *part.Includes.Parts {
+					part, err := schema.Link(schema.WithVersion(1)).Read(p)
+					if err != nil {
+						return RelationCaveats{}, err
+					}
+					*parts = append(*parts, part)
+				}
+			}
+			includes = &RelationPartInclusion{
+				Content: content,
+				Parts:   parts,
+			}
 		}
-		return RelationCaveats{
-			Content:  hasMultihash,
-			Children: model.Children,
-			Parts:    parts,
-		}, nil
-	}),
+		content, err := schema.Link(schema.WithVersion(1)).Read(part.Content)
+		if err != nil {
+			return RelationCaveats{}, err
+		}
+		parts = append(parts, RelationPart{
+			Content:  content,
+			Includes: includes,
+		})
+	}
+	return RelationCaveats{
+		Content:  hasMultihash,
+		Children: model.Children,
+		Parts:    parts,
+	}, nil
+})
+
+var Relation = validator.NewCapability(
+	RelationAbility,
+	schema.DIDString(),
+	RelationCaveatsReader,
 	nil,
 )
 
@@ -407,18 +413,20 @@ func (ec EqualsCaveats) ToIPLD() (datamodel.Node, error) {
 
 const EqualsAbility = "assert/equals"
 
+var EqualsCaveatsReader = schema.Mapped(schema.Struct[adm.EqualsCaveatsModel](adm.EqualsCaveatsType(), nil), func(model adm.EqualsCaveatsModel) (EqualsCaveats, failure.Failure) {
+	hasMultihash, err := linkOrDigest.Read(model.Content)
+	if err != nil {
+		return EqualsCaveats{}, err
+	}
+	return EqualsCaveats{
+		Content: hasMultihash,
+		Equals:  model.Equals,
+	}, nil
+})
+
 var Equals = validator.NewCapability(
 	EqualsAbility,
 	schema.DIDString(),
-	schema.Mapped(schema.Struct[adm.EqualsCaveatsModel](adm.EqualsCaveatsType(), nil), func(model adm.EqualsCaveatsModel) (EqualsCaveats, failure.Failure) {
-		hasMultihash, err := linkOrDigest.Read(model.Content)
-		if err != nil {
-			return EqualsCaveats{}, err
-		}
-		return EqualsCaveats{
-			Content: hasMultihash,
-			Equals:  model.Equals,
-		}, nil
-	}),
+	EqualsCaveatsReader,
 	nil,
 )
