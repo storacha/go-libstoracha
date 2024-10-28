@@ -64,13 +64,13 @@ type AllocateOkModel struct {
 	Address *AddressModel
 }
 
-type ResultModel struct {
+type AwaitModel struct {
 	Selector string
 	Link     ipld.Link
 }
 
 type PromiseModel struct {
-	UcanAwait ResultModel
+	UcanAwait AwaitModel
 }
 
 type AcceptCaveatsModel struct {

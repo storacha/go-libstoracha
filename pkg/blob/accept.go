@@ -16,13 +16,13 @@ import (
 
 const AcceptAbility = "blob/accept"
 
-type Result struct {
+type Await struct {
 	Selector string
 	Link     ipld.Link
 }
 
 type Promise struct {
-	UcanAwait Result
+	UcanAwait Await
 }
 
 type AcceptCaveats struct {
@@ -41,7 +41,7 @@ func (ac AcceptCaveats) ToIPLD() (datamodel.Node, error) {
 		},
 		Expires: int64(ac.Expires),
 		Put: bdm.PromiseModel{
-			UcanAwait: bdm.ResultModel{
+			UcanAwait: bdm.AwaitModel{
 				Selector: ac.Put.UcanAwait.Selector,
 				Link:     ac.Put.UcanAwait.Link,
 			},
@@ -81,7 +81,7 @@ var Accept = validator.NewCapability(
 			},
 			Expires: uint64(model.Expires),
 			Put: Promise{
-				UcanAwait: Result{
+				UcanAwait: Await{
 					Selector: model.Put.UcanAwait.Selector,
 					Link:     model.Put.UcanAwait.Link,
 				},

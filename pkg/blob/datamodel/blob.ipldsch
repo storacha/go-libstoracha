@@ -22,13 +22,13 @@ type AllocateOk struct {
   address optional Address
 }
 
-type Result struct {
+type Await struct {
   selector String
   link Link
 } representation tuple
 
 type Promise struct {
-  ucanAwait Result (rename "ucan/await")
+  ucanAwait Await (rename "ucan/await")
 }
 
 type AcceptCaveats struct {
