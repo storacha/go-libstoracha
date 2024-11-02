@@ -63,6 +63,12 @@ func (p pieceLink) V1Link() datamodel.Link {
 	return cidlink.Link{Cid: v1}
 }
 
+func (p pieceLink) MarshalJSON() ([]byte, error) {
+	return json.MarshalIndent(map[string]interface{}{
+		"link": p.V1Link(),
+		"size": p.PaddedSize(),
+	}, "", " ")
+}
 func FromPieceDigest(pd digest.PieceDigest) PieceLink {
 	return pieceLink(cidlink.Link{Cid: cid.NewCidV1(cid.Raw, pd.Bytes())})
 }

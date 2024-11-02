@@ -73,3 +73,7 @@ func UnpaddedSizeToV1TreeHeightAndPadding(dataSize uint64) (uint8, uint64, error
 func HeightToPaddedSize(height uint8) uint64 {
 	return uint64(32) << height
 }
+
+func MaxDataSize(size uint64) uint64 {
+	return size / 128 * 127
+}
