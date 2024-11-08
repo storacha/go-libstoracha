@@ -34,7 +34,6 @@ type Promise struct {
 type AcceptCaveats struct {
   space DID
   blob Blob
-  expires Int
   put Promise (rename "_put")
 }
 

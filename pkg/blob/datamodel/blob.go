@@ -74,10 +74,9 @@ type PromiseModel struct {
 }
 
 type AcceptCaveatsModel struct {
-	Space   []byte
-	Blob    BlobModel
-	Expires int64
-	Put     PromiseModel
+	Space []byte
+	Blob  BlobModel
+	Put   PromiseModel
 }
 
 type AcceptOkModel struct {

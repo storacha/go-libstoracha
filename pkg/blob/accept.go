@@ -26,10 +26,9 @@ type Promise struct {
 }
 
 type AcceptCaveats struct {
-	Space   did.DID
-	Blob    Blob
-	Expires uint64
-	Put     Promise
+	Space did.DID
+	Blob  Blob
+	Put   Promise
 }
 
 func (ac AcceptCaveats) ToIPLD() (datamodel.Node, error) {
@@ -39,7 +38,6 @@ func (ac AcceptCaveats) ToIPLD() (datamodel.Node, error) {
 			Digest: ac.Blob.Digest,
 			Size:   int64(ac.Blob.Size),
 		},
-		Expires: int64(ac.Expires),
 		Put: bdm.PromiseModel{
 			UcanAwait: bdm.AwaitModel{
 				Selector: ac.Put.UcanAwait.Selector,
@@ -59,34 +57,30 @@ func (ao AcceptOk) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(md, bdm.AcceptOkType())
 }
 
-var Accept = validator.NewCapability(
-	AcceptAbility,
-	schema.DIDString(),
-	schema.Mapped(schema.Struct[bdm.AcceptCaveatsModel](bdm.AcceptCaveatsType(), nil), func(model bdm.AcceptCaveatsModel) (AcceptCaveats, failure.Failure) {
-		space, err := did.Decode(model.Space)
-		if err != nil {
-			return AcceptCaveats{}, failure.FromError(fmt.Errorf("decoding space DID: %w", err))
-		}
+var AcceptCaveatsReader = schema.Mapped(schema.Struct[bdm.AcceptCaveatsModel](bdm.AcceptCaveatsType(), nil), func(model bdm.AcceptCaveatsModel) (AcceptCaveats, failure.Failure) {
+	space, err := did.Decode(model.Space)
+	if err != nil {
+		return AcceptCaveats{}, failure.FromError(fmt.Errorf("decoding space DID: %w", err))
+	}
 
-		digest, err := multihash.Cast(model.Blob.Digest)
-		if err != nil {
-			return AcceptCaveats{}, failure.FromError(fmt.Errorf("decoding digest: %w", err))
-		}
+	digest, err := multihash.Cast(model.Blob.Digest)
+	if err != nil {
+		return AcceptCaveats{}, failure.FromError(fmt.Errorf("decoding digest: %w", err))
+	}
 
-		return AcceptCaveats{
-			Space: space,
-			Blob: Blob{
-				Digest: digest,
-				Size:   uint64(model.Blob.Size),
+	return AcceptCaveats{
+		Space: space,
+		Blob: Blob{
+			Digest: digest,
+			Size:   uint64(model.Blob.Size),
+		},
+		Put: Promise{
+			UcanAwait: Await{
+				Selector: model.Put.UcanAwait.Selector,
+				Link:     model.Put.UcanAwait.Link,
 			},
-			Expires: uint64(model.Expires),
-			Put: Promise{
-				UcanAwait: Await{
-					Selector: model.Put.UcanAwait.Selector,
-					Link:     model.Put.UcanAwait.Link,
-				},
-			},
-		}, nil
-	}),
-	validator.DefaultDerives,
-)
+		},
+	}, nil
+})
+
+var Accept = validator.NewCapability(AcceptAbility, schema.DIDString(), AcceptCaveatsReader, validator.DefaultDerives)

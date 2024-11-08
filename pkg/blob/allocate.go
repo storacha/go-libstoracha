@@ -88,28 +88,25 @@ func (ao AllocateOk) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(md, bdm.AllocateOkType())
 }
 
-var Allocate = validator.NewCapability(
-	AllocateAbility,
-	schema.DIDString(),
-	schema.Mapped(schema.Struct[bdm.AllocateCaveatsModel](bdm.AllocateCaveatsType(), nil), func(model bdm.AllocateCaveatsModel) (AllocateCaveats, failure.Failure) {
-		space, err := did.Decode(model.Space)
-		if err != nil {
-			return AllocateCaveats{}, failure.FromError(fmt.Errorf("decoding space DID: %w", err))
-		}
+var AllocateCaveatsReader = schema.Mapped(schema.Struct[bdm.AllocateCaveatsModel](bdm.AllocateCaveatsType(), nil), func(model bdm.AllocateCaveatsModel) (AllocateCaveats, failure.Failure) {
+	space, err := did.Decode(model.Space)
+	if err != nil {
+		return AllocateCaveats{}, failure.FromError(fmt.Errorf("decoding space DID: %w", err))
+	}
 
-		digest, err := multihash.Cast(model.Blob.Digest)
-		if err != nil {
-			return AllocateCaveats{}, failure.FromError(fmt.Errorf("decoding digest: %w", err))
-		}
+	digest, err := multihash.Cast(model.Blob.Digest)
+	if err != nil {
+		return AllocateCaveats{}, failure.FromError(fmt.Errorf("decoding digest: %w", err))
+	}
 
-		return AllocateCaveats{
-			Space: space,
-			Blob: Blob{
-				Digest: digest,
-				Size:   uint64(model.Blob.Size),
-			},
-			Cause: model.Cause,
-		}, nil
-	}),
-	validator.DefaultDerives,
-)
+	return AllocateCaveats{
+		Space: space,
+		Blob: Blob{
+			Digest: digest,
+			Size:   uint64(model.Blob.Size),
+		},
+		Cause: model.Cause,
+	}, nil
+})
+
+var Allocate = validator.NewCapability(AllocateAbility, schema.DIDString(), AllocateCaveatsReader, validator.DefaultDerives)
