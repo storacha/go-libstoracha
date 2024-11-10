@@ -94,9 +94,6 @@ func FromV1LinkAndSize(link datamodel.Link, unpaddedDataSize uint64) (PieceLink,
 	if !ok {
 		return nil, ErrWrongLinkType
 	}
-	if cl.Cid.Prefix().Codec != cid.Raw {
-		return nil, ErrWrongCodec
-	}
 	commitment, err := commcid.CIDToDataCommitmentV1(cl.Cid)
 	if err != nil {
 		return nil, err
