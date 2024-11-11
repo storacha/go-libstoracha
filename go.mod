@@ -1,22 +1,28 @@
 module github.com/storacha/go-capabilities
 
-go 1.23
+go 1.23.0
 
 toolchain go1.23.2
 
 require (
 	github.com/ipfs/go-cid v0.4.1
-	github.com/ipld/go-ipld-prime v0.21.0
+	github.com/ipld/go-ipld-prime v0.21.1-0.20240917223228-6148356a4c2e
 	github.com/multiformats/go-multiaddr v0.13.0
 	github.com/multiformats/go-multihash v0.2.3
-	github.com/storacha/go-ucanto v0.1.1-0.20241018155815-175193fb3b33
+	github.com/storacha/go-ucanto v0.2.1-0.20241105025747-aa8566a3a3fb
 	github.com/stretchr/testify v1.9.0
+)
+
+require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 )
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/filecoin-project/go-data-segment v0.0.1
+	github.com/filecoin-project/go-fil-commcid v0.2.0 // indirect
 	github.com/francoispqt/gojay v1.2.13 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -51,6 +57,7 @@ require (
 	github.com/multiformats/go-base32 v0.1.0 // indirect
 	github.com/multiformats/go-base36 v0.2.0 // indirect
 	github.com/multiformats/go-multibase v0.2.0 // indirect
+	github.com/multiformats/go-multicodec v0.9.0 // indirect
 	github.com/multiformats/go-varint v0.0.7 // indirect
 	github.com/onsi/ginkgo/v2 v2.20.2 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
@@ -65,13 +72,13 @@ require (
 	github.com/pion/stun v0.6.1 // indirect
 	github.com/pion/transport/v2 v2.2.10 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/polydawn/refmt v0.89.0 // indirect
+	github.com/polydawn/refmt v0.89.1-0.20231129105047-37766d95467a // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.60.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
+	github.com/storacha/go-piece v0.0.0-20241102032446-a7c497f05d55
 	github.com/ucan-wg/go-ucan v0.0.0-20240916120445-37f52863156c // indirect
 	github.com/whyrusleeping/cbor-gen v0.1.2 // indirect
 	go.opentelemetry.io/otel v1.30.0 // indirect

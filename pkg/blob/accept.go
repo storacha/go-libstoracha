@@ -1,13 +1,9 @@
 package blob
 
 import (
-	"fmt"
-
 	"github.com/ipld/go-ipld-prime/datamodel"
-	"github.com/multiformats/go-multihash"
-	bdm "github.com/storacha/go-capabilities/pkg/blob/datamodel"
+	"github.com/storacha/go-capabilities/pkg/types"
 	"github.com/storacha/go-ucanto/core/ipld"
-	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/did"
 	"github.com/storacha/go-ucanto/ucan"
@@ -32,55 +28,22 @@ type AcceptCaveats struct {
 }
 
 func (ac AcceptCaveats) ToIPLD() (datamodel.Node, error) {
-	md := &bdm.AcceptCaveatsModel{
-		Space: ac.Space.Bytes(),
-		Blob: bdm.BlobModel{
-			Digest: ac.Blob.Digest,
-			Size:   int64(ac.Blob.Size),
-		},
-		Put: bdm.PromiseModel{
-			UcanAwait: bdm.AwaitModel{
-				Selector: ac.Put.UcanAwait.Selector,
-				Link:     ac.Put.UcanAwait.Link,
-			},
-		},
-	}
-	return ipld.WrapWithRecovery(md, bdm.AcceptCaveatsType())
+	return ipld.WrapWithRecovery(&ac, AcceptCaveatsType(), types.Converters...)
 }
 
 type AcceptOk struct {
 	Site ucan.Link
+	PDP  *ucan.Link
 }
 
 func (ao AcceptOk) ToIPLD() (datamodel.Node, error) {
-	md := &bdm.AcceptOkModel{Site: ao.Site}
-	return ipld.WrapWithRecovery(md, bdm.AcceptOkType())
+	return ipld.WrapWithRecovery(&ao, AcceptOkType(), types.Converters...)
 }
 
-var AcceptCaveatsReader = schema.Mapped(schema.Struct[bdm.AcceptCaveatsModel](bdm.AcceptCaveatsType(), nil), func(model bdm.AcceptCaveatsModel) (AcceptCaveats, failure.Failure) {
-	space, err := did.Decode(model.Space)
-	if err != nil {
-		return AcceptCaveats{}, failure.FromError(fmt.Errorf("decoding space DID: %w", err))
-	}
-
-	digest, err := multihash.Cast(model.Blob.Digest)
-	if err != nil {
-		return AcceptCaveats{}, failure.FromError(fmt.Errorf("decoding digest: %w", err))
-	}
-
-	return AcceptCaveats{
-		Space: space,
-		Blob: Blob{
-			Digest: digest,
-			Size:   uint64(model.Blob.Size),
-		},
-		Put: Promise{
-			UcanAwait: Await{
-				Selector: model.Put.UcanAwait.Selector,
-				Link:     model.Put.UcanAwait.Link,
-			},
-		},
-	}, nil
-})
-
-var Accept = validator.NewCapability(AcceptAbility, schema.DIDString(), AcceptCaveatsReader, validator.DefaultDerives)
+var AcceptCaveatsReader = schema.Struct[AcceptCaveats](AcceptCaveatsType(), nil, types.Converters...)
+var Accept = validator.NewCapability(
+	AcceptAbility,
+	schema.DIDString(),
+	AcceptCaveatsReader,
+	validator.DefaultDerives,
+)

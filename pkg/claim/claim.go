@@ -1,49 +1,52 @@
 package claim
 
 import (
+	// for go:embed
+	_ "embed"
+	"fmt"
+
+	ipldprime "github.com/ipld/go-ipld-prime"
 	"github.com/ipld/go-ipld-prime/datamodel"
+	ipldschema "github.com/ipld/go-ipld-prime/schema"
 	"github.com/multiformats/go-multiaddr"
-	cdm "github.com/storacha/go-capabilities/pkg/claim/datamodel"
+	"github.com/storacha/go-capabilities/pkg/types"
 	"github.com/storacha/go-ucanto/core/ipld"
-	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/validator"
 )
 
-type CacheCaveats struct {
-	Claim    ipld.Link
-	Provider Provider
+//go:embed claim.ipldsch
+var claimSchema []byte
+
+var claimTypeSystem = mustLoadTS()
+
+func mustLoadTS() *ipldschema.TypeSystem {
+	ts, err := ipldprime.LoadSchemaBytes(claimSchema)
+	if err != nil {
+		panic(fmt.Errorf("loading claim schema: %w", err))
+	}
+	return ts
+}
+
+func CacheCaveatsType() ipldschema.Type {
+	return claimTypeSystem.TypeByName("CacheCaveats")
 }
 
 type Provider struct {
 	Addresses []multiaddr.Multiaddr
 }
 
-func (cc CacheCaveats) ToIPLD() (datamodel.Node, error) {
-	var addrs [][]byte
-	for _, addr := range cc.Provider.Addresses {
-		addrs = append(addrs, addr.Bytes())
-	}
+type CacheCaveats struct {
+	Claim    ipld.Link
+	Provider Provider
+}
 
-	model := cdm.CacheCaveatsModel{
-		Claim:    cc.Claim,
-		Provider: cdm.ProviderModel{Addresses: addrs},
-	}
-	return ipld.WrapWithRecovery(&model, cdm.CacheCaveatsType())
+func (cc CacheCaveats) ToIPLD() (datamodel.Node, error) {
+	return ipld.WrapWithRecovery(&cc, CacheCaveatsType(), types.Converters...)
 }
 
 const CacheAbility = "claim/cache"
 
-var CacheCaveatsReader = schema.Mapped(schema.Struct[cdm.CacheCaveatsModel](cdm.CacheCaveatsType(), nil), func(model cdm.CacheCaveatsModel) (CacheCaveats, failure.Failure) {
-	provider := Provider{}
-	for _, bytes := range model.Provider.Addresses {
-		addr, err := multiaddr.NewMultiaddrBytes(bytes)
-		if err != nil {
-			return CacheCaveats{}, failure.FromError(err)
-		}
-		provider.Addresses = append(provider.Addresses, addr)
-	}
-	return CacheCaveats{model.Claim, provider}, nil
-})
+var CacheCaveatsReader = schema.Struct[CacheCaveats](CacheCaveatsType(), nil, types.Converters...)
 
 var Cache = validator.NewCapability(CacheAbility, schema.DIDString(), CacheCaveatsReader, nil)

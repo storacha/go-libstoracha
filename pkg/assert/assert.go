@@ -1,14 +1,16 @@
 package assert
 
 import (
+	"fmt"
 	"net/url"
 
+	// for schema embed
+	_ "embed"
+
+	ipldprime "github.com/ipld/go-ipld-prime"
 	"github.com/ipld/go-ipld-prime/datamodel"
-	"github.com/ipld/go-ipld-prime/fluent/qp"
-	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
-	basicnode "github.com/ipld/go-ipld-prime/node/basic"
-	mh "github.com/multiformats/go-multihash"
-	adm "github.com/storacha/go-capabilities/pkg/assert/datamodel"
+	ipldschema "github.com/ipld/go-ipld-prime/schema"
+	"github.com/storacha/go-capabilities/pkg/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
@@ -16,53 +18,42 @@ import (
 	"github.com/storacha/go-ucanto/validator"
 )
 
-type HasMultihash interface {
-	hasMultihash()
-	ToIPLD() (datamodel.Node, error)
-	Hash() mh.Multihash
+//go:embed assert.ipldsch
+var assertSchema []byte
+
+var assertTS = mustLoadTS()
+
+func mustLoadTS() *ipldschema.TypeSystem {
+	ts, err := ipldprime.LoadSchemaBytes(assertSchema)
+	if err != nil {
+		panic(fmt.Errorf("loading assert schema: %w", err))
+	}
+	return ts
 }
 
-type link struct {
-	link datamodel.Link
+func LocationCaveatsType() ipldschema.Type {
+	return assertTS.TypeByName("LocationCaveats")
 }
 
-func (l link) hasMultihash() {}
-
-func (l link) Hash() mh.Multihash {
-	return l.link.(cidlink.Link).Cid.Hash()
+func InclusionCaveatsType() ipldschema.Type {
+	return assertTS.TypeByName("InclusionCaveats")
 }
 
-func (l link) ToIPLD() (datamodel.Node, error) {
-	return basicnode.NewLink(l.link), nil
+func IndexCaveatsType() ipldschema.Type {
+	return assertTS.TypeByName("IndexCaveats")
 }
 
-func Link(l datamodel.Link) (HasMultihash, failure.Failure) {
-	return link{l}, nil
+func PartitionCaveatsType() ipldschema.Type {
+	return assertTS.TypeByName("PartitionCaveats")
 }
 
-type digest mh.Multihash
-
-func (d digest) hasMultihash() {}
-
-func (d digest) Hash() mh.Multihash {
-	return mh.Multihash(d)
+func RelationCaveatsType() ipldschema.Type {
+	return assertTS.TypeByName("RelationCaveats")
 }
 
-func (d digest) ToIPLD() (datamodel.Node, error) {
-	return qp.BuildMap(basicnode.Prototype.Map, 1, func(ma datamodel.MapAssembler) {
-		qp.MapEntry(ma, "digest", qp.Bytes(d))
-	})
+func EqualsCaveatsType() ipldschema.Type {
+	return assertTS.TypeByName("EqualsCaveats")
 }
-
-func Digest(d adm.DigestModel) (HasMultihash, failure.Failure) {
-	return digest(d.Digest), nil
-}
-
-func FromHash(mh mh.Multihash) HasMultihash {
-	return digest(mh)
-}
-
-var linkOrDigest = schema.Or(schema.Mapped(schema.Link(), Link), schema.Mapped(schema.Struct[adm.DigestModel](adm.DigestType(), nil), Digest))
 
 type Range struct {
 	Offset uint64
@@ -70,74 +61,37 @@ type Range struct {
 }
 
 type LocationCaveats struct {
-	Content  HasMultihash
+	Content  types.HasMultihash
 	Location []url.URL
 	Range    *Range
 	Space    did.DID
 }
 
+// Space field used to be optional, so we maintain compatibility
+type LegacyLocationCaveats struct {
+	Content  types.HasMultihash
+	Location []url.URL
+	Range    *Range
+	Space    *did.DID
+}
+
 func (lc LocationCaveats) ToIPLD() (datamodel.Node, error) {
-	cn, err := lc.Content.ToIPLD()
-	if err != nil {
-		return nil, err
-	}
 
-	asStrings := make([]string, 0, len(lc.Location))
-	for _, location := range lc.Location {
-		asStrings = append(asStrings, location.String())
-	}
-
-	md := &adm.LocationCaveatsModel{
-		Content:  cn,
-		Location: asStrings,
-		Space:    lc.Space.Bytes(),
-	}
-	if lc.Range != nil {
-		md.Range = &adm.RangeModel{
-			Offset: lc.Range.Offset,
-			Length: lc.Range.Length,
-		}
-	}
-	return ipld.WrapWithRecovery(md, adm.LocationCaveatsType())
+	return ipld.WrapWithRecovery(&LegacyLocationCaveats{
+		lc.Content, lc.Location, lc.Range, &lc.Space,
+	}, LocationCaveatsType(), types.Converters...)
 }
 
 const LocationAbility = "assert/location"
 
-var LocationCaveatsReader = schema.Mapped(schema.Struct[adm.LocationCaveatsModel](adm.LocationCaveatsType(), nil), func(model adm.LocationCaveatsModel) (LocationCaveats, failure.Failure) {
-	hasMultihash, err := linkOrDigest.Read(model.Content)
-	if err != nil {
-		return LocationCaveats{}, err
-	}
-	location := make([]url.URL, 0, len(model.Location))
-	for _, l := range model.Location {
-		url, err := schema.URI().Read(l)
-		if err != nil {
-			return LocationCaveats{}, err
+var LocationCaveatsReader = schema.Mapped(schema.Struct[LegacyLocationCaveats](LocationCaveatsType(), nil, types.Converters...),
+	func(llc LegacyLocationCaveats) (LocationCaveats, failure.Failure) {
+		space := did.Undef
+		if llc.Space != nil {
+			space = *llc.Space
 		}
-		location = append(location, url)
-	}
-
-	space := did.Undef
-	if len(model.Space) > 0 {
-		var serr error
-		space, serr = did.Decode(model.Space)
-		if serr != nil {
-			return LocationCaveats{}, failure.FromError(serr)
-		}
-	}
-	lc := LocationCaveats{
-		Content:  hasMultihash,
-		Location: location,
-		Space:    space,
-	}
-	if model.Range != nil {
-		lc.Range = &Range{
-			Offset: model.Range.Offset,
-			Length: model.Range.Length,
-		}
-	}
-	return lc, nil
-})
+		return LocationCaveats{llc.Content, llc.Location, llc.Range, space}, nil
+	})
 
 var Location = validator.NewCapability(LocationAbility, schema.DIDString(), LocationCaveatsReader, nil)
 
@@ -146,49 +100,18 @@ var Location = validator.NewCapability(LocationAbility, schema.DIDString(), Loca
  */
 
 type InclusionCaveats struct {
-	Content  HasMultihash
+	Content  types.HasMultihash
 	Includes ipld.Link
 	Proof    *ipld.Link
 }
 
 func (ic InclusionCaveats) ToIPLD() (datamodel.Node, error) {
-	cn, err := ic.Content.ToIPLD()
-	if err != nil {
-		return nil, err
-	}
-
-	md := &adm.InclusionCaveatsModel{
-		Content:  cn,
-		Includes: ic.Includes,
-		Proof:    ic.Proof,
-	}
-	return ipld.WrapWithRecovery(md, adm.InclusionCaveatsType())
+	return ipld.WrapWithRecovery(&ic, InclusionCaveatsType(), types.Converters...)
 }
 
 const InclusionAbility = "assert/inclusion"
 
-var InclusionCaveatsReader = schema.Mapped(schema.Struct[adm.InclusionCaveatsModel](adm.InclusionCaveatsType(), nil), func(model adm.InclusionCaveatsModel) (InclusionCaveats, failure.Failure) {
-	hasMultihash, err := linkOrDigest.Read(model.Content)
-	if err != nil {
-		return InclusionCaveats{}, err
-	}
-	includes, err := schema.Link(schema.WithVersion(1)).Read(model.Includes)
-	if err != nil {
-		return InclusionCaveats{}, err
-	}
-	proof := model.Proof
-	if proof != nil {
-		output, err := schema.Link(schema.WithVersion(1)).Read(*model.Proof)
-		if err != nil {
-			return InclusionCaveats{}, err
-		}
-		proof = &output
-	}
-	return InclusionCaveats{
-		Content:  hasMultihash,
-		Includes: includes,
-		Proof:    proof}, nil
-})
+var InclusionCaveatsReader = schema.Struct[InclusionCaveats](InclusionCaveatsType(), nil, types.Converters...)
 
 var Inclusion = validator.NewCapability(InclusionAbility, schema.DIDString(),
 	InclusionCaveatsReader, nil)
@@ -204,27 +127,12 @@ type IndexCaveats struct {
 }
 
 func (ic IndexCaveats) ToIPLD() (datamodel.Node, error) {
-
-	md := &adm.IndexCaveatsModel{
-		Content: ic.Content,
-		Index:   ic.Index,
-	}
-	return ipld.WrapWithRecovery(md, adm.IndexCaveatsType())
+	return ipld.WrapWithRecovery(&ic, IndexCaveatsType(), types.Converters...)
 }
 
 const IndexAbility = "assert/index"
 
-var IndexCaveatsReader = schema.Mapped(schema.Struct[adm.IndexCaveatsModel](adm.IndexCaveatsType(), nil), func(model adm.IndexCaveatsModel) (IndexCaveats, failure.Failure) {
-	content, err := schema.Link().Read(model.Content)
-	if err != nil {
-		return IndexCaveats{}, err
-	}
-	index, err := schema.Link(schema.WithVersion(1)).Read(model.Index)
-	if err != nil {
-		return IndexCaveats{}, err
-	}
-	return IndexCaveats{content, index}, nil
-})
+var IndexCaveatsReader = schema.Struct[IndexCaveats](IndexCaveatsType(), nil, types.Converters...)
 
 var Index = validator.NewCapability(IndexAbility, schema.DIDString(), IndexCaveatsReader, nil)
 
@@ -233,55 +141,18 @@ var Index = validator.NewCapability(IndexAbility, schema.DIDString(), IndexCavea
  */
 
 type PartitionCaveats struct {
-	Content HasMultihash
+	Content types.HasMultihash
 	Blocks  *ipld.Link
 	Parts   []ipld.Link
 }
 
 func (pc PartitionCaveats) ToIPLD() (datamodel.Node, error) {
-	cn, err := pc.Content.ToIPLD()
-	if err != nil {
-		return nil, err
-	}
-
-	md := &adm.PartitionCaveatsModel{
-		Content: cn,
-		Blocks:  pc.Blocks,
-		Parts:   pc.Parts,
-	}
-	return ipld.WrapWithRecovery(md, adm.PartitionCaveatsType())
+	return ipld.WrapWithRecovery(&pc, PartitionCaveatsType(), types.Converters...)
 }
 
 const PartitionAbility = "assert/partition"
 
-var PartitionCaveatsReader = schema.Mapped(schema.Struct[adm.PartitionCaveatsModel](adm.PartitionCaveatsType(), nil), func(model adm.PartitionCaveatsModel) (PartitionCaveats, failure.Failure) {
-	hasMultihash, err := linkOrDigest.Read(model.Content)
-	if err != nil {
-		return PartitionCaveats{}, err
-	}
-
-	blocks := model.Blocks
-	if blocks != nil {
-		output, err := schema.Link(schema.WithVersion(1)).Read(*model.Blocks)
-		if err != nil {
-			return PartitionCaveats{}, err
-		}
-		blocks = &output
-	}
-	parts := make([]ipld.Link, 0, len(model.Parts))
-	for _, p := range model.Parts {
-		part, err := schema.Link(schema.WithVersion(1)).Read(p)
-		if err != nil {
-			return PartitionCaveats{}, err
-		}
-		parts = append(parts, part)
-	}
-	return PartitionCaveats{
-		Content: hasMultihash,
-		Blocks:  blocks,
-		Parts:   parts}, nil
-})
-
+var PartitionCaveatsReader = schema.Struct[PartitionCaveats](PartitionCaveatsType(), nil, types.Converters...)
 var Partition = validator.NewCapability(
 	PartitionAbility,
 	schema.DIDString(),
@@ -302,85 +173,18 @@ type RelationPart struct {
 }
 
 type RelationCaveats struct {
-	Content  HasMultihash
+	Content  types.HasMultihash
 	Children []ipld.Link
 	Parts    []RelationPart
 }
 
 func (rc RelationCaveats) ToIPLD() (datamodel.Node, error) {
-	cn, err := rc.Content.ToIPLD()
-	if err != nil {
-		return nil, err
-	}
-
-	parts := make([]adm.RelationPartModel, 0, len(rc.Parts))
-	for _, part := range rc.Parts {
-		var includes *adm.RelationPartInclusionModel
-		if part.Includes != nil {
-			includes = &adm.RelationPartInclusionModel{
-				Content: part.Includes.Content,
-				Parts:   part.Includes.Parts,
-			}
-		}
-		parts = append(parts, adm.RelationPartModel{
-			Content:  part.Content,
-			Includes: includes,
-		})
-	}
-	md := &adm.RelationCaveatsModel{
-		Content:  cn,
-		Children: rc.Children,
-		Parts:    parts,
-	}
-	return ipld.WrapWithRecovery(md, adm.RelationCaveatsType())
+	return ipld.WrapWithRecovery(&rc, RelationCaveatsType(), types.Converters...)
 }
 
 const RelationAbility = "assert/relation"
 
-var RelationCaveatsReader = schema.Mapped(schema.Struct[adm.RelationCaveatsModel](adm.RelationCaveatsType(), nil), func(model adm.RelationCaveatsModel) (RelationCaveats, failure.Failure) {
-	hasMultihash, err := linkOrDigest.Read(model.Content)
-	if err != nil {
-		return RelationCaveats{}, err
-	}
-	parts := make([]RelationPart, 0, len(model.Parts))
-	for _, part := range model.Parts {
-		var includes *RelationPartInclusion
-		if part.Includes != nil {
-			content, err := schema.Link(schema.WithVersion(1)).Read(part.Content)
-			if err != nil {
-				return RelationCaveats{}, err
-			}
-			var parts *[]ipld.Link
-			if part.Includes.Parts != nil {
-				*parts = make([]datamodel.Link, 0, len(*part.Includes.Parts))
-				for _, p := range *part.Includes.Parts {
-					part, err := schema.Link(schema.WithVersion(1)).Read(p)
-					if err != nil {
-						return RelationCaveats{}, err
-					}
-					*parts = append(*parts, part)
-				}
-			}
-			includes = &RelationPartInclusion{
-				Content: content,
-				Parts:   parts,
-			}
-		}
-		content, err := schema.Link(schema.WithVersion(1)).Read(part.Content)
-		if err != nil {
-			return RelationCaveats{}, err
-		}
-		parts = append(parts, RelationPart{
-			Content:  content,
-			Includes: includes,
-		})
-	}
-	return RelationCaveats{
-		Content:  hasMultihash,
-		Children: model.Children,
-		Parts:    parts,
-	}, nil
-})
+var RelationCaveatsReader = schema.Struct[RelationCaveats](RelationCaveatsType(), nil, types.Converters...)
 
 var Relation = validator.NewCapability(
 	RelationAbility,
@@ -394,35 +198,17 @@ var Relation = validator.NewCapability(
  */
 
 type EqualsCaveats struct {
-	Content HasMultihash
+	Content types.HasMultihash
 	Equals  ipld.Link
 }
 
 func (ec EqualsCaveats) ToIPLD() (datamodel.Node, error) {
-	content, err := ec.Content.ToIPLD()
-	if err != nil {
-		return nil, err
-	}
-
-	md := &adm.EqualsCaveatsModel{
-		Content: content,
-		Equals:  ec.Equals,
-	}
-	return ipld.WrapWithRecovery(md, adm.EqualsCaveatsType())
+	return ipld.WrapWithRecovery(&ec, EqualsCaveatsType(), types.Converters...)
 }
 
 const EqualsAbility = "assert/equals"
 
-var EqualsCaveatsReader = schema.Mapped(schema.Struct[adm.EqualsCaveatsModel](adm.EqualsCaveatsType(), nil), func(model adm.EqualsCaveatsModel) (EqualsCaveats, failure.Failure) {
-	hasMultihash, err := linkOrDigest.Read(model.Content)
-	if err != nil {
-		return EqualsCaveats{}, err
-	}
-	return EqualsCaveats{
-		Content: hasMultihash,
-		Equals:  model.Equals,
-	}, nil
-})
+var EqualsCaveatsReader = schema.Struct[EqualsCaveats](EqualsCaveatsType(), nil, types.Converters...)
 
 var Equals = validator.NewCapability(
 	EqualsAbility,

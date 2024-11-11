@@ -1,7 +1,9 @@
 type DID bytes
+type Multihash bytes
+type URL string
 
 type Blob struct {
-  digest Bytes
+  digest Multihash
   size Int
 }
 
@@ -11,9 +13,11 @@ type AllocateCaveats struct {
   cause Link
 }
 
+type HTTPHeaders any
+
 type Address struct {
-  url String
-  headers {String:String}
+  URL URL (rename "url")
+  headers HTTPHeaders
   expires Int
 }
 
@@ -39,4 +43,5 @@ type AcceptCaveats struct {
 
 type AcceptOk struct {
   site Link
+  PDP optional Link
 }
