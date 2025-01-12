@@ -76,9 +76,12 @@ type LegacyLocationCaveats struct {
 }
 
 func (lc LocationCaveats) ToIPLD() (datamodel.Node, error) {
-
+	space := &lc.Space
+	if lc.Space == did.Undef {
+		space = nil
+	}
 	return ipld.WrapWithRecovery(&LegacyLocationCaveats{
-		lc.Content, lc.Location, lc.Range, &lc.Space,
+		lc.Content, lc.Location, lc.Range, space,
 	}, LocationCaveatsType(), types.Converters...)
 }
 

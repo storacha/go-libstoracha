@@ -33,7 +33,12 @@ var HasMultihashConverter = options.NamedAnyConverter("HasMultihash", func(nd da
 	return h.ToIPLD()
 })
 
-var DIDConverter = options.NamedBytesConverter("DID", did.Decode, func(did did.DID) ([]byte, error) { return did.Bytes(), nil })
+var DIDConverter = options.NamedBytesConverter("DID", func(bytes []byte) (did.DID, error) {
+	if len(bytes) == 0 {
+		return did.Undef, nil
+	}
+	return did.Decode(bytes)
+}, func(did did.DID) ([]byte, error) { return did.Bytes(), nil })
 
 var URLConverter = options.NamedStringConverter("URL",
 	func(s string) (url.URL, error) { return schema.URI().Read(s) },

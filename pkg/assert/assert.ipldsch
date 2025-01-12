@@ -38,17 +38,17 @@ type RelationPartInclusion struct {
 }
 
 type RelationPart struct {
-	Content  V1Link
-	Includes optional RelationPartInclusion
+	content  V1Link
+	includes optional RelationPartInclusion
 }
 
 type RelationCaveats struct {
-	Content  HasMultihash
-	Children [Link]
-	Parts    [RelationPart]
+	content  HasMultihash
+	children [Link]
+	parts    [RelationPart]
 }
 
 type EqualsCaveats struct {
-	Content HasMultihash
-	Equals Link
+	content HasMultihash
+	equals Link
 }
