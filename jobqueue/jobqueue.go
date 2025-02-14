@@ -32,7 +32,6 @@ type (
 	config struct {
 		jobTimeout      time.Duration
 		shutdownTimeout time.Duration
-		multiprocessor  bool
 		errorHandler    func(error)
 		buffer          int
 		concurrency     int
