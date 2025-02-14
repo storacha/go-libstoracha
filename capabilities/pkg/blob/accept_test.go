@@ -3,7 +3,7 @@ package blob
 import (
 	"testing"
 
-	"github.com/storacha/go-capabilities/pkg/internal/testutil"
+	"github.com/storacha/go-libstoracha/capabilities/pkg/internal/testutil"
 	"github.com/stretchr/testify/require"
 )
 

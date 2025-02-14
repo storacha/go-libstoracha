@@ -1,16 +1,10 @@
-# ipni-publisher
+# ipnipublisher
 
 A library to create, sign and publish adverts to a local IPNI chain, and announce them to other indexers.
 
-## Install
-
-```sh
-go get github.com/storacha/ipni-publisher
-```
-
 ## Usage
 
-See [example_test.go](example_test.go).
+See [example_test.go](./example_test.go).
 
 ## Contributing
 

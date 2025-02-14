@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"io"
 
-	cid "github.com/ipfs/go-cid"
+	"github.com/ipfs/go-cid"
 	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
+	"github.com/storacha/go-libstoracha/ipnipublisher/pkg/store"
 	"github.com/storacha/go-ucanto/core/ipld"
-	"github.com/storacha/ipni-publisher/pkg/store"
 )
 
 const remoteHeadPrefix = "head/remote/"

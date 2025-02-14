@@ -14,7 +14,7 @@ import (
 	"github.com/ipni/go-libipni/find/model"
 	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/peer"
-	"github.com/storacha/ipni-publisher/pkg/internal/testutil"
+	"github.com/storacha/go-libstoracha/ipnipublisher/pkg/internal/testutil"
 	"github.com/stretchr/testify/require"
 )
 

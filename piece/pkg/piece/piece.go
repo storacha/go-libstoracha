@@ -9,8 +9,8 @@ import (
 	"github.com/ipld/go-ipld-prime"
 	"github.com/ipld/go-ipld-prime/datamodel"
 	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
-	"github.com/storacha/go-piece/pkg/digest"
-	"github.com/storacha/go-piece/pkg/size"
+	"github.com/storacha/go-libstoracha/piece/pkg/digest"
+	"github.com/storacha/go-libstoracha/piece/pkg/size"
 )
 
 var ErrWrongLinkType = errors.New("must be a cid link")

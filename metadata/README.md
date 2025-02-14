@@ -1,12 +1,6 @@
-# go-metadata
+# metadata
 
 IPNI metadata used by the Storacha Network.
-
-## Usage
-
-```sh
-go get github.com/storacha/go-metadata
-```
 
 ## Contributing
 
