@@ -10,7 +10,7 @@ A unified Go library (monorepo) for Storacha functionality. This repository host
     - **Description:** A reliable and parallelizable job queue.
 - [ipnipublisher](./ipnipublisher)
     - **Description**: A library to create, sign, and publish adverts to a local IPNI chain, then announce them to other indexers.
-    - **Usage**: See the [example_test.go](./ipnipublisher/example_test.go) file within this subpackage for a quick start.
+    - **Usage**: See the [example_test.go](./ipnipublisher/examples/example_test.go) file within this subpackage for a quick start.
 - [piece](./piece)
     - **Description**: TODO
 
