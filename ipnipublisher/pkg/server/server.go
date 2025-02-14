@@ -8,7 +8,7 @@ import (
 
 	"github.com/ipfs/go-cid"
 	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
-	"github.com/storacha/ipni-publisher/pkg/store"
+	"github.com/storacha/go-libstoracha/ipnipublisher/pkg/store"
 )
 
 const (

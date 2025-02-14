@@ -12,7 +12,7 @@ import (
 	ipnifind "github.com/ipni/go-libipni/find/client"
 	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/peer"
-	"github.com/storacha/ipni-publisher/pkg/store"
+	"github.com/storacha/go-libstoracha/ipnipublisher/pkg/store"
 )
 
 var log = logging.Logger("notifier")

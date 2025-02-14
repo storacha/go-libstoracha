@@ -1,12 +1,6 @@
-# go-jobqueue
+# jobqueue
 
-A reliable and parallizable job queue
-
-## Usage
-
-```sh
-go get github.com/storacha/go-jobqueue
-```
+A reliable and parallizable job queue.
 
 ## Contributing
 

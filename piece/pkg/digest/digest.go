@@ -5,7 +5,7 @@ import (
 
 	"github.com/multiformats/go-multihash"
 	"github.com/multiformats/go-varint"
-	"github.com/storacha/go-piece/pkg/size"
+	"github.com/storacha/go-libstoracha/piece/pkg/size"
 )
 
 const FR32_SHA256_TRUNC254_PADDED_BINARY_TREE_CODE = 0x1011

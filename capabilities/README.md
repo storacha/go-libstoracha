@@ -1,12 +1,6 @@
-# go-capabilities
+# capabilities
 
 UCAN capability definitions.
-
-## Usage
-
-```sh
-go get github.com/storacha/go-capabilities
-```
 
 ## Contributing
 

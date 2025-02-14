@@ -15,8 +15,8 @@ import (
 	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/multiformats/go-multihash"
-	"github.com/storacha/ipni-publisher/pkg/internal/testutil"
-	"github.com/storacha/ipni-publisher/pkg/store"
+	"github.com/storacha/go-libstoracha/ipnipublisher/pkg/internal/testutil"
+	"github.com/storacha/go-libstoracha/ipnipublisher/pkg/store"
 	"github.com/stretchr/testify/require"
 )
 

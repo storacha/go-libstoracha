@@ -9,10 +9,10 @@ import (
 	"github.com/ipfs/go-datastore/namespace"
 	"github.com/ipld/go-ipld-prime"
 	"github.com/libp2p/go-libp2p/core/crypto"
-	"github.com/storacha/ipni-publisher/pkg/notifier"
-	"github.com/storacha/ipni-publisher/pkg/publisher"
-	"github.com/storacha/ipni-publisher/pkg/server"
-	"github.com/storacha/ipni-publisher/pkg/store"
+	"github.com/storacha/go-libstoracha/ipnipublisher/pkg/notifier"
+	"github.com/storacha/go-libstoracha/ipnipublisher/pkg/publisher"
+	"github.com/storacha/go-libstoracha/ipnipublisher/pkg/server"
+	"github.com/storacha/go-libstoracha/ipnipublisher/pkg/store"
 )
 
 var ipniNamespace = datastore.NewKey("ipni/")

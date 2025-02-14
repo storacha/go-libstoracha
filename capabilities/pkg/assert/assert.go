@@ -10,7 +10,7 @@ import (
 	ipldprime "github.com/ipld/go-ipld-prime"
 	"github.com/ipld/go-ipld-prime/datamodel"
 	ipldschema "github.com/ipld/go-ipld-prime/schema"
-	"github.com/storacha/go-capabilities/pkg/types"
+	"github.com/storacha/go-libstoracha/capabilities/pkg/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"

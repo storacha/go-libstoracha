@@ -6,7 +6,7 @@ import (
 
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/multiformats/go-multihash"
-	"github.com/storacha/go-capabilities/pkg/types"
+	"github.com/storacha/go-libstoracha/capabilities/pkg/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/did"

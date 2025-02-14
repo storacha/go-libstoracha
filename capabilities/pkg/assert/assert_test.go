@@ -8,8 +8,8 @@ import (
 
 	"github.com/ipld/go-ipld-prime/codec/dagjson"
 	basicnode "github.com/ipld/go-ipld-prime/node/basic"
-	"github.com/storacha/go-capabilities/pkg/internal/testutil"
-	"github.com/storacha/go-capabilities/pkg/types"
+	"github.com/storacha/go-libstoracha/capabilities/pkg/internal/testutil"
+	"github.com/storacha/go-libstoracha/capabilities/pkg/types"
 	"github.com/stretchr/testify/require"
 )
 
