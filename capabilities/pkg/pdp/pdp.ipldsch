@@ -1,0 +1,31 @@
+type Node bytes
+type PieceLink link
+
+type AcceptCaveats struct {
+	piece   PieceLink
+}
+
+type ProofData struct {
+	path  [Node]
+	index Int
+}
+
+type AcceptOk struct {
+	aggregate      PieceLink
+	inclusionProof ProofData
+	piece          PieceLink
+}
+
+type InfoCaveats struct {
+	piece   PieceLink
+}
+
+type InfoAcceptedAggregate struct {
+	aggregate 		 PieceLink
+	inclusionProof ProofData
+}
+
+type InfoOk struct {
+	piece          PieceLink
+	aggregates     [InfoAcceptedAggregate]
+}

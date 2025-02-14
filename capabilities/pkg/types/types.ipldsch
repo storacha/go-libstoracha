@@ -1,0 +1,4 @@
+type Headers {String:String}
+type Digest struct {
+  digest Bytes
+}

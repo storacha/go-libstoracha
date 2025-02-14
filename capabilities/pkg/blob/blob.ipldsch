@@ -1,0 +1,47 @@
+type DID bytes
+type Multihash bytes
+type URL string
+
+type Blob struct {
+  digest Multihash
+  size Int
+}
+
+type AllocateCaveats struct {
+  space DID
+  blob Blob
+  cause Link
+}
+
+type HTTPHeaders any
+
+type Address struct {
+  URL URL (rename "url")
+  headers HTTPHeaders
+  expires Int
+}
+
+type AllocateOk struct {
+  size Int
+  address optional Address
+}
+
+type Await struct {
+  selector String
+  link Link
+} representation tuple
+
+type Promise struct {
+  ucanAwait Await (rename "ucan/await")
+}
+
+type AcceptCaveats struct {
+  space DID
+  blob Blob
+  put Promise (rename "_put")
+}
+
+type AcceptOk struct {
+  site Link
+  PDP optional Link
+}
