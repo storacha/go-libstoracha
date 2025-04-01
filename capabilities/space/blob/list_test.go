@@ -33,14 +33,14 @@ func TestRoundTripListOk(t *testing.T) {
 				Digest: testutil.RandomMultihash(t),
 				Size:   uint64(1024),
 			},
-			InsertedAt: time.Now().Truncate(time.Second),
+			InsertedAt: time.Now().UTC().Truncate(time.Second),
 		},
 		{
 			Blob: blob.Blob{
 				Digest: testutil.RandomMultihash(t),
 				Size:   uint64(2048),
 			},
-			InsertedAt: time.Now().Truncate(time.Second),
+			InsertedAt: time.Now().UTC().Truncate(time.Second),
 		},
 	}
 	ok := blob.ListOk{

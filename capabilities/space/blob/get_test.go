@@ -31,7 +31,7 @@ func TestRoundTripGetOk(t *testing.T) {
 			Size:   uint64(1024),
 		},
 		Cause:      testutil.RandomCID(t),
-		InsertedAt: time.Now().Truncate(time.Second),
+		InsertedAt: time.Now().UTC().Truncate(time.Second),
 	}
 
 	node, err := ok.ToIPLD()
