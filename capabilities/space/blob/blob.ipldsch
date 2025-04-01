@@ -12,3 +12,11 @@ type AddCaveats struct {
 type AddOk struct {
     receipt Link
 }
+
+type RemoveCaveats struct {
+    digest Multihash
+}
+
+type RemoveOk struct {
+    size Int
+}

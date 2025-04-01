@@ -17,12 +17,6 @@ import (
 
 const AddAbility = "space/blob/add"
 
-// AddCaveats represents the caveats required to perform a space/blob/add invocation.
-type AddCaveats struct {
-	// Blob is the blob to be stored.
-	Blob Blob
-}
-
 // Blob represents a blob to be stored.
 type Blob struct {
 	// Digest is the multihash of the blob payload bytes, uniquely identifying the blob.
@@ -33,9 +27,17 @@ type Blob struct {
 	Size uint64
 }
 
+// AddCaveats represents the caveats required to perform a space/blob/add invocation.
+type AddCaveats struct {
+	// Blob is the blob to be stored.
+	Blob Blob
+}
+
 func (ac AddCaveats) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&ac, AddCaveatsType(), types.Converters...)
 }
+
+var AddCaveatsReader = schema.Struct[AddCaveats](AddCaveatsType(), nil, types.Converters...)
 
 // AddOk represents the result of a successful space/blob/add invocation.
 type AddOk struct {
@@ -50,13 +52,12 @@ func (ao AddOk) ToIPLD() (datamodel.Node, error) {
 // Add is a capability that allows the agent to store a Blob into a space identified by did:key in the `with` field.
 // The agent should compute the blob's multihash and size and provide it under the `nb.blob` field, allowing a
 // service to provision a write location for the agent to PUT the desired blob into.
-var AddCaveatsReader = schema.Struct[AddCaveats](AddCaveatsType(), nil, types.Converters...)
 var Add = validator.NewCapability(
 	AddAbility,
 	schema.DIDString(),
 	AddCaveatsReader,
 	func(claimed, delegated ucan.Capability[AddCaveats]) failure.Failure {
-		fail := validator.DefaultDerives(claimed, delegated)
+		fail := equalWith(claimed, delegated)
 		if fail != nil {
 			return fail
 		}
@@ -64,6 +65,18 @@ var Add = validator.NewCapability(
 		return equalBlob(claimed, delegated)
 	},
 )
+
+// equalWith validates that the claimed capability's `with` field matches the delegated one.
+func equalWith(claimed, delegated ucan.Capability[AddCaveats]) failure.Failure {
+	if claimed.With() != delegated.With() {
+		return schema.NewSchemaError(fmt.Sprintf(
+			"Resource '%s' doesn't match delegated '%s'",
+			claimed.With(), delegated.With(),
+		))
+	}
+
+	return nil
+}
 
 // equalBlob validates that the claimed blob capability matches the delegated one.
 func equalBlob(claimed, delegated ucan.Capability[AddCaveats]) failure.Failure {

@@ -33,3 +33,11 @@ func AddOkType() schema.Type {
 func AddErrorType() schema.Type {
 	return blobTS.TypeByName("AddError")
 }
+
+func RemoveCaveatsType() schema.Type {
+	return blobTS.TypeByName("RemoveCaveats")
+}
+
+func RemoveOkType() schema.Type {
+	return blobTS.TypeByName("RemoveOk")
+}
