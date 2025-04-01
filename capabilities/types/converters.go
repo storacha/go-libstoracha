@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"slices"
+	"time"
 
 	"github.com/filecoin-project/go-data-segment/merkletree"
 	"github.com/ipfs/go-cid"
@@ -108,4 +109,22 @@ var MerkleNodeConverter = options.NamedBytesConverter("Node", func(b []byte) (me
 	return n[:], nil
 })
 
-var Converters = []bindnode.Option{MultiaddrConverter, HasMultihashConverter, DIDConverter, URLConverter, HTTPHeaderConverter, Version1LinkConverter, PieceLinkConverter, MerkleNodeConverter}
+var ISO8601DateConverter = options.NamedStringConverter("ISO8601Date",
+	func(s string) (time.Time, error) {
+		return time.Parse(time.RFC3339, s)
+	},
+	func(t time.Time) (string, error) {
+		return t.Format(time.RFC3339), nil
+	})
+
+var Converters = []bindnode.Option{
+	MultiaddrConverter,
+	HasMultihashConverter,
+	DIDConverter,
+	URLConverter,
+	HTTPHeaderConverter,
+	Version1LinkConverter,
+	PieceLinkConverter,
+	MerkleNodeConverter,
+	ISO8601DateConverter,
+}

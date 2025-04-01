@@ -1,0 +1,61 @@
+type Multihash bytes
+
+type Blob struct {
+    digest Multihash
+    size Int
+}
+
+type AddCaveats struct {
+    blob Blob
+}
+
+type AddOk struct {
+    site Promise
+}
+
+type Promise struct {
+  ucanAwait Await (rename "ucan/await")
+}
+
+type Await struct {
+  selector String
+  link Link
+} representation tuple
+
+type RemoveCaveats struct {
+    digest Multihash
+}
+
+type RemoveOk struct {
+    size Int
+}
+
+type ListCaveats struct {
+    cursor optional String
+    size optional Int
+}
+
+type ListOk struct {
+    cursor optional String
+    before optional String
+    after optional String
+    size Int
+    results [ListBlobItem]
+}
+
+type ListBlobItem struct {
+    blob Blob
+    insertedAt ISO8601Date
+}
+
+type ISO8601Date string
+
+type GetCaveats struct {
+    digest Multihash
+}
+
+type GetOk struct {
+    blob Blob
+    cause Link
+    insertedAt ISO8601Date
+}
