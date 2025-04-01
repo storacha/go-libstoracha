@@ -19,6 +19,11 @@ func RandomCID(t *testing.T) ipld.Link {
 	return cidlink.Link{Cid: cid.NewCidV1(cid.Raw, digest)}
 }
 
+func RandomMultihash(t *testing.T) multihash.Multihash {
+	mh, _ := RandomBytes(t, 10)
+	return mh
+}
+
 func RandomBytes(t *testing.T, size int) (multihash.Multihash, []byte) {
 	bytes := make([]byte, size)
 	_, err := crand.Read(bytes)

@@ -20,3 +20,23 @@ type RemoveCaveats struct {
 type RemoveOk struct {
     size Int
 }
+
+type ListCaveats struct {
+    cursor optional String
+    size optional Int
+}
+
+type ListOk struct {
+    cursor optional String
+    before optional String
+    after optional String
+    size Int
+    results [ListBlobItem]
+}
+
+type ListBlobItem struct {
+    blob Blob
+    insertedAt ISO8601Date
+}
+
+type ISO8601Date string
