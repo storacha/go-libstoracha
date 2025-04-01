@@ -40,3 +40,13 @@ type ListBlobItem struct {
 }
 
 type ISO8601Date string
+
+type GetCaveats struct {
+    digest Multihash
+}
+
+type GetOk struct {
+    blob Blob
+    cause Link
+    insertedAt ISO8601Date
+}

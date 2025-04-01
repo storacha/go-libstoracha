@@ -49,3 +49,11 @@ func ListCaveatsType() schema.Type {
 func ListOkType() schema.Type {
 	return blobTS.TypeByName("ListOk")
 }
+
+func GetCaveatsType() schema.Type {
+	return blobTS.TypeByName("GetCaveats")
+}
+
+func GetOkType() schema.Type {
+	return blobTS.TypeByName("GetOk")
+}
