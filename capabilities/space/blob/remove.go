@@ -61,7 +61,7 @@ var Remove = validator.NewCapability(
 				claimedDigest, _ := multibase.Encode(multibase.Base58BTC, claimed.Nb().Digest)
 				delegatedDigest, _ := multibase.Encode(multibase.Base58BTC, delegated.Nb().Digest)
 				return schema.NewSchemaError(fmt.Sprintf(
-					"Link %s violates imposed %s constraint",
+					"Claimed digest '%s' doesn't match delegated '%s'",
 					claimedDigest, delegatedDigest,
 				))
 			}

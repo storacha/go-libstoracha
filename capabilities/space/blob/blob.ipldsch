@@ -10,8 +10,17 @@ type AddCaveats struct {
 }
 
 type AddOk struct {
-    receipt Link
+    site Promise
 }
+
+type Promise struct {
+  ucanAwait Await (rename "ucan/await")
+}
+
+type Await struct {
+  selector String
+  link Link
+} representation tuple
 
 type RemoveCaveats struct {
     digest Multihash

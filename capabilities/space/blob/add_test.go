@@ -26,9 +26,14 @@ func TestRoundTripAddCaveats(t *testing.T) {
 }
 
 func TestRoundTripAddOk(t *testing.T) {
-	receipt := testutil.RandomCID(t)
+	site := blob.Promise{
+		UcanAwait: blob.Await{
+			Selector: ".out.ok",
+			Link:     testutil.RandomCID(t),
+		},
+	}
 	ok := blob.AddOk{
-		Receipt: receipt,
+		Site: site,
 	}
 
 	node, err := ok.ToIPLD()
