@@ -1,4 +1,3 @@
-type Multiaddr bytes
 type CacheCaveats struct {
 	claim Link
   provider Provider

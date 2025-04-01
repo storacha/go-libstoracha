@@ -1,7 +1,3 @@
-type DID bytes
-type Multihash bytes
-type URL string
-
 type Blob struct {
   digest Multihash
   size Int
@@ -13,8 +9,6 @@ type AllocateCaveats struct {
   cause Link
 }
 
-type HTTPHeaders any
-
 type Address struct {
   URL URL (rename "url")
   headers HTTPHeaders
@@ -24,15 +18,6 @@ type Address struct {
 type AllocateOk struct {
   size Int
   address optional Address
-}
-
-type Await struct {
-  selector String
-  link Link
-} representation tuple
-
-type Promise struct {
-  ucanAwait Await (rename "ucan/await")
 }
 
 type AcceptCaveats struct {

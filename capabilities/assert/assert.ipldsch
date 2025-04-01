@@ -1,8 +1,3 @@
-type DID bytes
-type HasMultihash any
-type URL string
-type V1Link link
-
 type Range struct {
 	offset Int
 	length optional Int
