@@ -1,0 +1,14 @@
+type Multihash bytes
+
+type Blob struct {
+    digest Multihash
+    size Int
+}
+
+type AddCaveats struct {
+    blob Blob
+}
+
+type AddOk struct {
+    receipt Link
+}
