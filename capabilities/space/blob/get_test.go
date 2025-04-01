@@ -37,7 +37,7 @@ func TestRoundTripGetOk(t *testing.T) {
 	node, err := ok.ToIPLD()
 	require.NoError(t, err)
 
-	rnb, err := blob.GetOkReader.Read(node)
+	rok, err := blob.GetOkReader.Read(node)
 	require.NoError(t, err)
-	require.Equal(t, ok, rnb)
+	require.Equal(t, ok, rok)
 }

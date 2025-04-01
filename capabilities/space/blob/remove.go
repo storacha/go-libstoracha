@@ -39,6 +39,8 @@ func (ro RemoveOk) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&ro, RemoveOkType(), types.Converters...)
 }
 
+var RemoveOkReader = schema.Struct[RemoveOk](RemoveOkType(), nil, types.Converters...)
+
 // Remove is a capability that allows the agent to remove a Blob from a space identified by did:key in the `with` field.
 var Remove = validator.NewCapability(
 	RemoveAbility,

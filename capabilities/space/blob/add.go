@@ -49,6 +49,8 @@ func (ao AddOk) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&ao, AddOkType(), types.Converters...)
 }
 
+var AddOkReader = schema.Struct[AddOk](AddOkType(), nil, types.Converters...)
+
 // Add is a capability that allows the agent to store a Blob into a space identified by did:key in the `with` field.
 // The agent should compute the blob's multihash and size and provide it under the `nb.blob` field, allowing a
 // service to provision a write location for the agent to PUT the desired blob into.
