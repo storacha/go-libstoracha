@@ -30,3 +30,9 @@ type AcceptOk struct {
   site Link
   PDP optional Link
 }
+
+type ReplicateCaveats struct {
+  blob Blob
+  replicas Int
+  location Link
+}

@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/ipld/go-ipld-prime/schema"
+
 	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
@@ -36,4 +37,8 @@ func AcceptCaveatsType() schema.Type {
 
 func AcceptOkType() schema.Type {
 	return blobTS.TypeByName("AcceptOk")
+}
+
+func ReplicateCaveatsType() schema.Type {
+	return blobTS.TypeByName("ReplicateCaveats")
 }
