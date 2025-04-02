@@ -2,6 +2,7 @@ package jobqueue_test
 
 import (
 	"context"
+	"slices"
 	"sync"
 	"testing"
 	"time"
@@ -202,4 +203,36 @@ func TestJobQueueBuffer(t *testing.T) {
 
 	// We expect all 4 jobs to eventually be processed
 	assert.Len(t, processed, 4, "all jobs should have processed")
+}
+
+func TestJobQueueStress(t *testing.T) {
+	ctx := context.Background()
+	var mu sync.Mutex
+	var processed []int
+
+	h := jobqueue.JobHandler(func(ctx context.Context, j int) error {
+		time.Sleep(1 * time.Millisecond)
+		mu.Lock()
+		defer mu.Unlock()
+		processed = append(processed, j)
+		return nil
+	})
+
+	q := jobqueue.NewJobQueue[int](h,
+		jobqueue.WithBuffer(5),
+		jobqueue.WithConcurrency(5),
+	)
+
+	q.Startup()
+
+	for i := range 10_000 {
+		require.NoError(t, q.Queue(ctx, i))
+	}
+
+	require.NoError(t, q.Shutdown(ctx))
+
+	require.Equal(t, len(processed), 10_000)
+	for i := range 10_000 {
+		require.True(t, slices.Contains(processed, i))
+	}
 }
