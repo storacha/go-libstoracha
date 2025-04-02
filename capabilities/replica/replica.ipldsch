@@ -1,0 +1,17 @@
+type Blob struct {
+  digest Multihash
+  size Int
+}
+
+type AllocateCaveats struct {
+  space DID
+  blob Blob
+  location Multihash
+  cause Link
+}
+
+type TransferCaveats struct {
+  blob Blob
+  location Multihash
+  cause Link
+}
