@@ -1,0 +1,7 @@
+type ConcludeCaveats struct {
+    receipt Link
+}
+
+type ConcludeOk struct {
+    time UnixTimeMilli
+}
