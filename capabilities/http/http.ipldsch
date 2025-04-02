@@ -1,0 +1,13 @@
+type PutCaveats struct {
+    URL Promise (rename "url")
+    headers Promise
+    body Body
+}
+
+type Body struct {
+    digest Multihash
+    size Int
+}
+
+type PutOk struct {
+}
