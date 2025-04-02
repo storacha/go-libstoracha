@@ -1,0 +1,50 @@
+type AddCaveats struct {
+    root Link
+    shards [Link] (optional)
+}
+
+type AddOk struct {
+    root Link
+    shards [Link] (optional)
+}
+
+type GetCaveats struct {
+    root Link (optional)
+}
+
+type GetOk struct {
+    root Link
+    shards [Link] (optional)
+    insertedAt String
+    updatedAt String
+}
+
+type RemoveCaveats struct {
+    root Link
+}
+
+type RemoveOk struct {
+    root Link
+    shards [Link] (optional)
+}
+
+type ListCaveats struct {
+    cursor String (optional)
+    size Int (optional)
+    pre Bool (optional)
+}
+
+type ListItem struct {
+    root Link
+    shards [Link] (optional)
+    insertedAt String
+    updatedAt String
+}
+
+type ListOk struct {
+    cursor String (optional)
+    before String (optional)
+    after String (optional)
+    size Int
+    results [ListItem]
+}
