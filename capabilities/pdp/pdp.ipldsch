@@ -1,12 +1,9 @@
-type Node bytes
-type PieceLink link
-
 type AcceptCaveats struct {
 	piece   PieceLink
 }
 
 type ProofData struct {
-	path  [Node]
+	path  [MerkleNode]
 	index Int
 }
 

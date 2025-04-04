@@ -2,3 +2,23 @@ type Headers {String:String}
 type Digest struct {
   digest Bytes
 }
+
+type Await struct {
+  selector String
+  link Link
+} representation tuple
+
+type Promise struct {
+  ucanAwait Await (rename "ucan/await")
+}
+
+type Multihash bytes
+type Multiaddr bytes
+type HasMultihash any
+type DID bytes
+type URL string
+type HTTPHeaders any
+type V1Link link
+type PieceLink link
+type MerkleNode bytes
+type ISO8601Date string

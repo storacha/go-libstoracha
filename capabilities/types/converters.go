@@ -100,7 +100,7 @@ var PieceLinkConverter = options.NamedLinkConverter("PieceLink", func(c cid.Cid)
 	return p.Link().(cidlink.Link).Cid, nil
 })
 
-var MerkleNodeConverter = options.NamedBytesConverter("Node", func(b []byte) (merkletree.Node, error) {
+var MerkleNodeConverter = options.NamedBytesConverter("MerkleNode", func(b []byte) (merkletree.Node, error) {
 	if len(b) != len(merkletree.Node{}) {
 		return merkletree.Node{}, ErrWrongLength
 	}

@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/filecoin-project/go-data-segment/merkletree"
-	ipldprime "github.com/ipld/go-ipld-prime"
 	"github.com/ipld/go-ipld-prime/datamodel"
 	ipldschema "github.com/ipld/go-ipld-prime/schema"
 	"github.com/storacha/go-libstoracha/capabilities/types"
@@ -24,7 +23,7 @@ var pdpSchema []byte
 var pdpTS = mustLoadTS()
 
 func mustLoadTS() *ipldschema.TypeSystem {
-	ts, err := ipldprime.LoadSchemaBytes(pdpSchema)
+	ts, err := types.LoadSchemaBytes(pdpSchema)
 	if err != nil {
 		panic(fmt.Errorf("loading blob schema: %w", err))
 	}

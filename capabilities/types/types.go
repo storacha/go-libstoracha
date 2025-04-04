@@ -92,4 +92,13 @@ func FromHash(mh mh.Multihash) HasMultihash {
 	return digest(mh)
 }
 
+type Await struct {
+	Selector string
+	Link     ipld.Link
+}
+
+type Promise struct {
+	UcanAwait Await
+}
+
 var linkOrDigest = schema.Or(schema.Mapped(schema.Link(), Link), schema.Mapped(schema.Struct[DigestModel](DigestType(), nil), Digest))
