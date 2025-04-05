@@ -22,3 +22,4 @@ type V1Link link
 type PieceLink link
 type MerkleNode bytes
 type ISO8601Date string
+type UnixTimeMilli int
