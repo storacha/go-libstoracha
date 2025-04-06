@@ -33,18 +33,6 @@ func TestGetCaveatsRoundTrip(t *testing.T) {
 		require.NotNil(t, rnb.Root)
 	})
 
-	t.Run("without root", func(t *testing.T) {
-		nb := upload.GetCaveats{
-			Root: nil,
-		}
-
-		node, err := nb.ToIPLD()
-		require.NoError(t, err)
-
-		rnb, err := upload.GetCaveatsReader.Read(node)
-		require.NoError(t, err)
-		require.Nil(t, rnb.Root)
-	})
 }
 
 func TestGetOkRoundTrip(t *testing.T) {

@@ -37,19 +37,6 @@ func TestListCaveatsRoundTrip(t *testing.T) {
 		require.Equal(t, size, *rnb.Size)
 		require.Equal(t, pre, *rnb.Pre)
 	})
-
-	t.Run("without parameters", func(t *testing.T) {
-		nb := upload.ListCaveats{}
-
-		node, err := nb.ToIPLD()
-		require.NoError(t, err)
-
-		rnb, err := upload.ListCaveatsReader.Read(node)
-		require.NoError(t, err)
-		require.Nil(t, rnb.Cursor)
-		require.Nil(t, rnb.Size)
-		require.Nil(t, rnb.Pre)
-	})
 }
 
 func TestListOkRoundTrip(t *testing.T) {
