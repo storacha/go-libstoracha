@@ -1,7 +1,6 @@
 package upload
 
 import (
-	// for schema embed
 	_ "embed"
 	"fmt"
 
