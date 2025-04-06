@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/url"
 
-	ipldprime "github.com/ipld/go-ipld-prime"
 	"github.com/ipld/go-ipld-prime/datamodel"
 	ipldschema "github.com/ipld/go-ipld-prime/schema"
 	"github.com/storacha/go-libstoracha/capabilities/types"
@@ -23,7 +22,7 @@ var assertSchema []byte
 var assertTS = mustLoadTS()
 
 func mustLoadTS() *ipldschema.TypeSystem {
-	ts, err := ipldprime.LoadSchemaBytes(assertSchema)
+	ts, err := types.LoadSchemaBytes(assertSchema)
 	if err != nil {
 		panic(fmt.Errorf("loading assert schema: %w", err))
 	}

@@ -5,8 +5,8 @@ import (
 	_ "embed"
 	"fmt"
 
-	"github.com/ipld/go-ipld-prime"
 	"github.com/ipld/go-ipld-prime/schema"
+	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
 //go:embed blob.ipldsch
@@ -15,7 +15,7 @@ var blobSchema []byte
 var blobTS = mustLoadTS()
 
 func mustLoadTS() *schema.TypeSystem {
-	ts, err := ipld.LoadSchemaBytes(blobSchema)
+	ts, err := types.LoadSchemaBytes(blobSchema)
 	if err != nil {
 		panic(fmt.Errorf("loading space/blob schema: %w", err))
 	}

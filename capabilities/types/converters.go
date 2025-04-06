@@ -100,7 +100,7 @@ var PieceLinkConverter = options.NamedLinkConverter("PieceLink", func(c cid.Cid)
 	return p.Link().(cidlink.Link).Cid, nil
 })
 
-var MerkleNodeConverter = options.NamedBytesConverter("Node", func(b []byte) (merkletree.Node, error) {
+var MerkleNodeConverter = options.NamedBytesConverter("MerkleNode", func(b []byte) (merkletree.Node, error) {
 	if len(b) != len(merkletree.Node{}) {
 		return merkletree.Node{}, ErrWrongLength
 	}
@@ -117,6 +117,14 @@ var ISO8601DateConverter = options.NamedStringConverter("ISO8601Date",
 		return t.Format(time.RFC3339), nil
 	})
 
+var UnixTimeMilliConverter = options.NamedIntConverter("UnixTimeMilli",
+	func(millis int64) (time.Time, error) {
+		return time.UnixMilli(millis), nil
+	},
+	func(t time.Time) (int64, error) {
+		return t.UnixMilli(), nil
+	})
+
 var Converters = []bindnode.Option{
 	MultiaddrConverter,
 	HasMultihashConverter,
@@ -127,4 +135,5 @@ var Converters = []bindnode.Option{
 	PieceLinkConverter,
 	MerkleNodeConverter,
 	ISO8601DateConverter,
+	UnixTimeMilliConverter,
 }

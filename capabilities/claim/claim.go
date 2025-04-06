@@ -5,7 +5,6 @@ import (
 	_ "embed"
 	"fmt"
 
-	ipldprime "github.com/ipld/go-ipld-prime"
 	"github.com/ipld/go-ipld-prime/datamodel"
 	ipldschema "github.com/ipld/go-ipld-prime/schema"
 	"github.com/multiformats/go-multiaddr"
@@ -21,7 +20,7 @@ var claimSchema []byte
 var claimTypeSystem = mustLoadTS()
 
 func mustLoadTS() *ipldschema.TypeSystem {
-	ts, err := ipldprime.LoadSchemaBytes(claimSchema)
+	ts, err := types.LoadSchemaBytes(claimSchema)
 	if err != nil {
 		panic(fmt.Errorf("loading claim schema: %w", err))
 	}
