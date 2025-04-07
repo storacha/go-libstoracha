@@ -134,9 +134,9 @@ func equalBody(claimed, delegated ucan.Capability[PutCaveats]) failure.Failure {
 	}
 
 	// Check size constraint
-	if claimedBody.Size > delegatedBody.Size {
+	if claimedBody.Size != delegatedBody.Size {
 		return schema.NewSchemaError(fmt.Sprintf(
-			"claimed %d bytes, but only %d were delegated",
+			"claimed body size (%d bytes) doesn't match delegated size (%d bytes)",
 			claimedBody.Size, delegatedBody.Size,
 		))
 	}
