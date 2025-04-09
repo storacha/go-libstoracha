@@ -11,7 +11,7 @@ import (
 
 func TestRoundTripReplicateCaveats(t *testing.T) {
 	expectedSize := uint64(256)
-	expectedReplicas := 8
+	expectedReplicas := uint(8)
 	expectedLocation := testutil.RandomCID(t)
 	expectedDigest, _ := testutil.RandomBytes(t, int(expectedSize))
 

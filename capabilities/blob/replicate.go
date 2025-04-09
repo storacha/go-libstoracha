@@ -15,7 +15,7 @@ var _ ipld.Builder = (*ReplicateCaveats)(nil)
 
 type ReplicateCaveats struct {
 	Blob     Blob
-	Replicas int
+	Replicas uint
 	Location ipld.Link
 }
 
