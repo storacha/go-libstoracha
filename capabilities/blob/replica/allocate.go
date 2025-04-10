@@ -12,7 +12,7 @@ import (
 	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
-const AllocateAbility = "replica/allocate"
+const AllocateAbility = "blob/replica/allocate"
 
 var _ ipld.Builder = (*AllocateCaveats)(nil)
 

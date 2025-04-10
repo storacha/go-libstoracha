@@ -13,7 +13,7 @@ import (
 	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
-const TransferAbility = "replica/transfer"
+const TransferAbility = "blob/replica/transfer"
 
 var _ ipld.Builder = (*TransferCaveats)(nil)
 
