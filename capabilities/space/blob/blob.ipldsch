@@ -46,3 +46,9 @@ type GetOk struct {
     cause Link
     insertedAt ISO8601Date
 }
+
+type ReplicateCaveats struct {
+  blob Blob
+  replicas Int
+  location Link
+}

@@ -5,8 +5,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/storacha/go-libstoracha/capabilities/blob"
 	"github.com/storacha/go-libstoracha/capabilities/internal/testutil"
+	"github.com/storacha/go-libstoracha/capabilities/space/blob"
+	blob2 "github.com/storacha/go-libstoracha/capabilities/space/blob"
 )
 
 func TestRoundTripReplicateCaveats(t *testing.T) {
@@ -15,7 +16,7 @@ func TestRoundTripReplicateCaveats(t *testing.T) {
 	expectedLocation := testutil.RandomCID(t)
 	expectedDigest, _ := testutil.RandomBytes(t, int(expectedSize))
 
-	expectedNb := blob.ReplicateCaveats{
+	expectedNb := blob2.ReplicateCaveats{
 		Blob: blob.Blob{
 			Digest: expectedDigest,
 			Size:   expectedSize,
@@ -27,7 +28,7 @@ func TestRoundTripReplicateCaveats(t *testing.T) {
 	node, err := expectedNb.ToIPLD()
 	require.NoError(t, err)
 
-	actualNb, err := blob.ReplicateCaveatsReader.Read(node)
+	actualNb, err := blob2.ReplicateCaveatsReader.Read(node)
 	require.NoError(t, err)
 	require.Equal(t, expectedNb, actualNb)
 }

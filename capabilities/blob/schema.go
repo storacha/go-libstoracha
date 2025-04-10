@@ -38,7 +38,3 @@ func AcceptCaveatsType() schema.Type {
 func AcceptOkType() schema.Type {
 	return blobTS.TypeByName("AcceptOk")
 }
-
-func ReplicateCaveatsType() schema.Type {
-	return blobTS.TypeByName("ReplicateCaveats")
-}
