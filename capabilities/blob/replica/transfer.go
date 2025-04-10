@@ -9,7 +9,6 @@ import (
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
 
-	"github.com/storacha/go-libstoracha/capabilities/space/blob"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
@@ -21,7 +20,7 @@ type TransferCaveats struct {
 	// Space contains the did to transfer Blob to.
 	Space did.DID
 	// Blob is the blob to be transferred.
-	Blob blob.Blob
+	Blob types.Blob
 	// Location contains a location commitment indicating where the Blob must be
 	// transferred from.
 	Location ucan.Link

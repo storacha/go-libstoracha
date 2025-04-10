@@ -8,7 +8,6 @@ import (
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
 
-	"github.com/storacha/go-libstoracha/capabilities/space/blob"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
@@ -20,7 +19,7 @@ type AllocateCaveats struct {
 	// Space contains the did to allocate Blob in.
 	Space did.DID
 	// Blob is the blob to be allocated.
-	Blob blob.Blob
+	Blob types.Blob
 	// Location contains a location commitment indicating where the Blob must be
 	// fetched from.
 	Location ucan.Link

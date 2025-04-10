@@ -15,7 +15,7 @@ var _ ipld.Builder = (*ReplicateCaveats)(nil)
 
 type ReplicateCaveats struct {
 	// Blob is the blob that must be replicated.
-	Blob Blob
+	Blob types.Blob
 	// Replicas is the number of replicas to ensure.
 	// e.g. Replicas: 2 will ensure 3 copies of the data exist in a network.
 	Replicas uint

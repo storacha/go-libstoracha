@@ -8,12 +8,13 @@ import (
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/multiformats/go-multibase"
 	"github.com/multiformats/go-multihash"
-	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
+
+	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
 const GetAbility = "space/blob/get/0/1"
@@ -33,7 +34,7 @@ var GetCaveatsReader = schema.Struct[GetCaveats](GetCaveatsType(), nil, types.Co
 // GetOk represents the successful response for a space/blob/get/0/1 invocation.
 type GetOk struct {
 	// Blob is the retrieved blob.
-	Blob Blob
+	Blob types.Blob
 
 	// Cause is a link to the task that caused the blob to be added.
 	Cause ucan.Link

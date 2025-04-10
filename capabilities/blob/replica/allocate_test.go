@@ -7,7 +7,7 @@ import (
 
 	"github.com/storacha/go-libstoracha/capabilities/blob/replica"
 	"github.com/storacha/go-libstoracha/capabilities/internal/testutil"
-	"github.com/storacha/go-libstoracha/capabilities/space/blob"
+	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
 func TestRoundTripAllocateCaveats(t *testing.T) {
@@ -19,7 +19,7 @@ func TestRoundTripAllocateCaveats(t *testing.T) {
 
 	expectedNp := replica.AllocateCaveats{
 		Space: expectedSpace,
-		Blob: blob.Blob{
+		Blob: types.Blob{
 			Digest: expectedDigest,
 			Size:   uint64(expectedSize),
 		},
