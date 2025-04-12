@@ -101,4 +101,14 @@ type Promise struct {
 	UcanAwait Await
 }
 
+// Blob represents a blob to be stored.
+type Blob struct {
+	// Digest is the multihash of the blob payload bytes, uniquely identifying the blob.
+	Digest mh.Multihash
+
+	// Size is the number of bytes in the blob. The service will provision a write target for this exact size.
+	// Attempts to write a larger blob will fail.
+	Size uint64
+}
+
 var linkOrDigest = schema.Or(schema.Mapped(schema.Link(), Link), schema.Mapped(schema.Struct[DigestModel](DigestType(), nil), Digest))

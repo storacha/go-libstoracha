@@ -5,25 +5,20 @@ import (
 	"net/url"
 
 	"github.com/ipld/go-ipld-prime/datamodel"
-	"github.com/multiformats/go-multihash"
-	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/did"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
+
+	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
 const AllocateAbility = "blob/allocate"
 
-type Blob struct {
-	Digest multihash.Multihash
-	Size   uint64
-}
-
 type AllocateCaveats struct {
 	Space did.DID
-	Blob  Blob
+	Blob  types.Blob
 	Cause ucan.Link
 }
 

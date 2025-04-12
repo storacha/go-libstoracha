@@ -6,31 +6,21 @@ import (
 
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/multiformats/go-multibase"
-	"github.com/multiformats/go-multihash"
-	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
+
+	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
 const AddAbility = "space/blob/add"
 
-// Blob represents a blob to be stored.
-type Blob struct {
-	// Digest is the multihash of the blob payload bytes, uniquely identifying the blob.
-	Digest multihash.Multihash
-
-	// Size is the number of bytes in the blob. The service will provision a write target for this exact size.
-	// Attempts to write a larger blob will fail.
-	Size uint64
-}
-
 // AddCaveats represents the caveats required to perform a space/blob/add invocation.
 type AddCaveats struct {
 	// Blob is the blob to be stored.
-	Blob Blob
+	Blob types.Blob
 }
 
 func (ac AddCaveats) ToIPLD() (datamodel.Node, error) {
