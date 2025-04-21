@@ -21,7 +21,7 @@ func TestListCaveatsRoundTrip(t *testing.T) {
 		cursor := "abc123"
 		size := 10
 		pre := true
-		
+
 		nb := upload.ListCaveats{
 			Cursor: &cursor,
 			Size:   &size,
@@ -43,16 +43,16 @@ func TestListOkRoundTrip(t *testing.T) {
 	cursor := "abc123"
 	before := "before456"
 	after := "after789"
-	
+
 	rootCid1, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
 	require.NoError(t, err)
-	
+
 	rootCid2, err := cid.Parse("bafybeies3cfa2dlg6pfkuoo7lbdkphpsgpjj7ivyfxs6han37qawtx5inq")
 	require.NoError(t, err)
-	
+
 	shard1Cid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
 	require.NoError(t, err)
-	
+
 	ok := upload.ListOk{
 		Cursor: &cursor,
 		Before: &before,

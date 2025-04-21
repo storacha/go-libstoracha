@@ -19,7 +19,7 @@ func TestRemoveCapability(t *testing.T) {
 func TestRemoveCaveatsRoundTrip(t *testing.T) {
 	rootCid, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
 	require.NoError(t, err)
-	
+
 	nb := upload.RemoveCaveats{
 		Root: rootCid,
 	}
@@ -35,10 +35,10 @@ func TestRemoveCaveatsRoundTrip(t *testing.T) {
 func TestRemoveOkRoundTrip(t *testing.T) {
 	rootCid, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
 	require.NoError(t, err)
-	
+
 	shard1Cid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
 	require.NoError(t, err)
-	
+
 	ok := upload.RemoveOk{
 		Root:   rootCid,
 		Shards: []cid.Cid{shard1Cid},

@@ -48,7 +48,7 @@ var Get = validator.NewCapability(
 		if err := ValidateSpaceDID(claimed.With()); err != nil {
 			return err
 		}
-		
+
 		if fail := equalWith(claimed.With(), delegated.With()); fail != nil {
 			return fail
 		}

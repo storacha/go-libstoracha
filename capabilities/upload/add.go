@@ -47,7 +47,7 @@ var Add = validator.NewCapability(
 		if err := ValidateSpaceDID(claimed.With()); err != nil {
 			return err
 		}
-		
+
 		if fail := equalWith(claimed.With(), delegated.With()); fail != nil {
 			return fail
 		}
@@ -82,7 +82,7 @@ func equalRoot(claimed, delegated cid.Cid) failure.Failure {
 }
 
 func equalShards(claimed, delegated []cid.Cid) failure.Failure {
-	
+
 	delegatedMap := make(map[string]bool)
 	for _, shard := range delegated {
 		delegatedMap[shard.String()] = true

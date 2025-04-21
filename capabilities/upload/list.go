@@ -58,14 +58,14 @@ var List = validator.NewCapability(
 		if err := ValidateSpaceDID(claimed.With()); err != nil {
 			return err
 		}
-		
+
 		if claimed.With() != delegated.With() {
 			return schema.NewSchemaError(fmt.Sprintf(
 				"resource '%s' doesn't match delegated '%s'",
 				claimed.With(), delegated.With(),
 			))
 		}
-		
+
 		return nil
 	},
 )
