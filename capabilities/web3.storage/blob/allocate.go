@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/ipld/go-ipld-prime/datamodel"
-	"github.com/multiformats/go-multihash"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
@@ -18,14 +17,9 @@ import (
 
 const AllocateAbility = "web3.storage/blob/allocate"
 
-type Blob struct {
-	Digest multihash.Multihash
-	Size   uint64
-}
-
 type AllocateCaveats struct {
 	Space did.DID
-	Blob  Blob
+	Blob  types.Blob
 	Cause ucan.Link
 }
 

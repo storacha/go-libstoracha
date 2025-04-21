@@ -15,7 +15,7 @@ const AcceptAbility = "web3.storage/blob/accept"
 
 type AcceptCaveats struct {
 	Space did.DID
-	Blob  Blob
+	Blob  types.Blob
 	TTL   int
 	Put   types.Promise
 }

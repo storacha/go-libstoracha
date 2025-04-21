@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/multiformats/go-multibase"
+	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
@@ -18,7 +19,7 @@ func equalWith(claimed, delegated ucan.Resource) failure.Failure {
 	return nil
 }
 
-func equalBlob(claimed, delegated Blob) failure.Failure {
+func equalBlob(claimed, delegated types.Blob) failure.Failure {
 	// Check if the blob digest matches
 	if !bytes.Equal(delegated.Digest, claimed.Digest) {
 		claimedDigest, _ := multibase.Encode(multibase.Base58BTC, claimed.Digest)
