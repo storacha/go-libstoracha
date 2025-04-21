@@ -10,7 +10,6 @@ import (
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
-
 )
 
 const (
@@ -23,7 +22,7 @@ func ValidateSpaceDID(did string) failure.Failure {
 	if !strings.HasPrefix(did, "did:") {
 		return schema.NewSchemaError(fmt.Sprintf("invalid DID format: %s", did))
 	}
-	
+
 	return nil
 }
 
@@ -76,7 +75,7 @@ func validateFilecoinCapability[T any](
 	if err := ValidateSpaceDID(claimed.With()); err != nil {
 		return err
 	}
-	
+
 	if fail := equalWith(claimed.With(), delegated.With()); fail != nil {
 		return fail
 	}

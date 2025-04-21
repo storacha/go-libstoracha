@@ -25,7 +25,7 @@ func TestAcceptCaveatsRoundTrip(t *testing.T) {
 	pieceCid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
 	require.NoError(t, err)
 	pieceLink := cidlink.Link{Cid: pieceCid}
-	
+
 	nb := filecoin.AcceptCaveats{
 		Content: contentLink,
 		Piece:   pieceLink,
@@ -44,11 +44,11 @@ func TestAcceptOkRoundTrip(t *testing.T) {
 	pieceCid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
 	require.NoError(t, err)
 	pieceLink := cidlink.Link{Cid: pieceCid}
-	
+
 	aggregateCid, err := cid.Parse("bafybeid46f7zggioxjm5p2ze2l6s6wbqvoo4gzbdzuibgwbhe5iopu2aiy")
 	require.NoError(t, err)
 	aggregateLink := cidlink.Link{Cid: aggregateCid}
-	
+
 	ok := filecoin.AcceptOk{
 		Piece:     pieceLink,
 		Aggregate: aggregateLink,

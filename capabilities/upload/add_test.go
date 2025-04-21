@@ -19,13 +19,13 @@ func TestAddCapability(t *testing.T) {
 func TestAddCaveatsRoundTrip(t *testing.T) {
 	rootCid, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
 	require.NoError(t, err)
-	
+
 	shard1Cid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
 	require.NoError(t, err)
-	
+
 	shard2Cid, err := cid.Parse("bafybeid46f7zggioxjm5p2ze2l6s6wbqvoo4gzbdzuibgwbhe5iopu2aiy")
 	require.NoError(t, err)
-	
+
 	t.Run("with shards", func(t *testing.T) {
 		nb := upload.AddCaveats{
 			Root:   rootCid,
@@ -61,10 +61,10 @@ func TestAddCaveatsRoundTrip(t *testing.T) {
 func TestAddOkRoundTrip(t *testing.T) {
 	rootCid, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
 	require.NoError(t, err)
-	
+
 	shard1Cid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
 	require.NoError(t, err)
-	
+
 	ok := upload.AddOk{
 		Root:   rootCid,
 		Shards: []cid.Cid{shard1Cid},

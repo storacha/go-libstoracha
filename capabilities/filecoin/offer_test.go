@@ -25,7 +25,7 @@ func TestOfferCaveatsRoundTrip(t *testing.T) {
 	pieceCid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
 	require.NoError(t, err)
 	pieceLink := cidlink.Link{Cid: pieceCid}
-	
+
 	nb := filecoin.OfferCaveats{
 		Content: contentLink,
 		Piece:   pieceLink,
@@ -44,7 +44,7 @@ func TestOfferOkRoundTrip(t *testing.T) {
 	pieceCid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
 	require.NoError(t, err)
 	pieceLink := cidlink.Link{Cid: pieceCid}
-	
+
 	ok := filecoin.OfferOk{
 		Piece: pieceLink,
 	}

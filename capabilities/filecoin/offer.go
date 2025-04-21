@@ -44,7 +44,7 @@ var Offer = validator.NewCapability(
 			if fail := equalLink(claimedNb.Content, delegatedNb.Content, "content"); fail != nil {
 				return fail
 			}
-			
+
 			return equalPieceLink(claimedNb.Piece, delegatedNb.Piece)
 		})
 	},

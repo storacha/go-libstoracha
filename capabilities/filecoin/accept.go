@@ -25,7 +25,6 @@ func (ac AcceptCaveats) ToIPLD() (datamodel.Node, error) {
 
 var AcceptCaveatsReader = schema.Struct[AcceptCaveats](AcceptCaveatsType(), nil, types.Converters...)
 
-
 type AcceptOk struct {
 	Piece     datamodel.Link `ipld:"piece"`
 	Aggregate datamodel.Link `ipld:"aggregate"`
@@ -39,7 +38,7 @@ func (ao AcceptOk) ToIPLD() (datamodel.Node, error) {
 
 var AcceptOkReader = schema.Struct[AcceptOk](AcceptOkType(), nil, types.Converters...)
 
-// Accept is a capability allowing a Storefront to signal that a submitted piece 
+// Accept is a capability allowing a Storefront to signal that a submitted piece
 // has been accepted in a Filecoin deal. The receipt contains the proof.
 var Accept = validator.NewCapability(
 	AcceptAbility,
@@ -50,7 +49,7 @@ var Accept = validator.NewCapability(
 			if fail := equalLink(claimedNb.Content, delegatedNb.Content, "content"); fail != nil {
 				return fail
 			}
-						return equalPieceLink(claimedNb.Piece, delegatedNb.Piece)
+			return equalPieceLink(claimedNb.Piece, delegatedNb.Piece)
 		})
 	},
 )

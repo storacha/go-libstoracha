@@ -35,7 +35,7 @@ func (so SubmitOk) ToIPLD() (datamodel.Node, error) {
 
 var SubmitOkReader = schema.Struct[SubmitOk](SubmitOkType(), nil, types.Converters...)
 
-// Submit is a capability allowing a Storefront to signal that an offered piece 
+// Submit is a capability allowing a Storefront to signal that an offered piece
 // has been submitted to the filecoin storage pipeline.
 var Submit = validator.NewCapability(
 	SubmitAbility,
@@ -46,7 +46,7 @@ var Submit = validator.NewCapability(
 			if fail := equalLink(claimedNb.Content, delegatedNb.Content, "content"); fail != nil {
 				return fail
 			}
-						return equalPieceLink(claimedNb.Piece, delegatedNb.Piece)
+			return equalPieceLink(claimedNb.Piece, delegatedNb.Piece)
 		})
 	},
 )

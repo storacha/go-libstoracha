@@ -25,7 +25,7 @@ func TestSubmitCaveatsRoundTrip(t *testing.T) {
 	pieceCid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
 	require.NoError(t, err)
 	pieceLink := cidlink.Link{Cid: pieceCid}
-	
+
 	nb := filecoin.SubmitCaveats{
 		Content: contentLink,
 		Piece:   pieceLink,
@@ -44,7 +44,7 @@ func TestSubmitOkRoundTrip(t *testing.T) {
 	pieceCid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
 	require.NoError(t, err)
 	pieceLink := cidlink.Link{Cid: pieceCid}
-	
+
 	ok := filecoin.SubmitOk{
 		Piece: pieceLink,
 	}
