@@ -15,7 +15,7 @@ const (
 	UploadAbility = "upload/*"
 )
 
-func ValidateSpaceDID(did string) failure.Failure {
+func validateSpaceDID(did string) failure.Failure {
 	if !strings.HasPrefix(did, "did:") {
 		return schema.NewSchemaError(fmt.Sprintf("expected did:key but got %s", did))
 	}
@@ -27,7 +27,7 @@ var Upload = validator.NewCapability(
 	schema.DIDString(),
 	schema.Struct[struct{}](nil, nil, types.Converters...),
 	func(claimed, delegated ucan.Capability[struct{}]) failure.Failure {
-		if err := ValidateSpaceDID(claimed.With()); err != nil {
+		if err := validateSpaceDID(claimed.With()); err != nil {
 			return err
 		}
 

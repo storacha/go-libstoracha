@@ -3,7 +3,6 @@ package upload
 import (
 	"fmt"
 
-	"github.com/ipfs/go-cid"
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
@@ -13,13 +12,11 @@ import (
 	"github.com/storacha/go-ucanto/validator"
 )
 
-const (
-	AddAbility = "upload/add"
-)
+const AddAbility = "upload/add"
 
 type AddCaveats struct {
-	Root   cid.Cid   `ipld:"root"`
-	Shards []cid.Cid `ipld:"shards,omitempty"`
+	Root   datamodel.Link   `ipld:"root"`
+	Shards []datamodel.Link `ipld:"shards"`
 }
 
 func (ac AddCaveats) ToIPLD() (datamodel.Node, error) {
@@ -29,8 +26,8 @@ func (ac AddCaveats) ToIPLD() (datamodel.Node, error) {
 var AddCaveatsReader = schema.Struct[AddCaveats](AddCaveatsType(), nil, types.Converters...)
 
 type AddOk struct {
-	Root   cid.Cid   `ipld:"root"`
-	Shards []cid.Cid `ipld:"shards,omitempty"`
+	Root   datamodel.Link   `ipld:"root"`
+	Shards []datamodel.Link `ipld:"shards"`
 }
 
 func (ao AddOk) ToIPLD() (datamodel.Node, error) {
@@ -44,7 +41,7 @@ var Add = validator.NewCapability(
 	schema.DIDString(),
 	AddCaveatsReader,
 	func(claimed, delegated ucan.Capability[AddCaveats]) failure.Failure {
-		if err := ValidateSpaceDID(claimed.With()); err != nil {
+		if err := validateSpaceDID(claimed.With()); err != nil {
 			return err
 		}
 
@@ -53,6 +50,10 @@ var Add = validator.NewCapability(
 		}
 
 		if delegated.Can() == UploadAbility {
+			// Even with parent capability, check that claimed shards are valid
+			if len(claimed.Nb().Shards) > 0 && len(delegated.Nb().Shards) == 0 {
+				return schema.NewSchemaError("cannot claim shards when delegated capability has none")
+			}
 			return nil
 		}
 
@@ -64,14 +65,16 @@ var Add = validator.NewCapability(
 			if fail := equalShards(claimed.Nb().Shards, delegated.Nb().Shards); fail != nil {
 				return fail
 			}
+		} else if len(claimed.Nb().Shards) > 0 {
+			return schema.NewSchemaError("claimed capability includes shards not present in delegation")
 		}
 
 		return nil
 	},
 )
 
-func equalRoot(claimed, delegated cid.Cid) failure.Failure {
-	if !claimed.Equals(delegated) {
+func equalRoot(claimed, delegated datamodel.Link) failure.Failure {
+	if claimed.String() != delegated.String() {
 		return schema.NewSchemaError(fmt.Sprintf(
 			"root '%s' doesn't match delegated '%s'",
 			claimed, delegated,
@@ -81,8 +84,7 @@ func equalRoot(claimed, delegated cid.Cid) failure.Failure {
 	return nil
 }
 
-func equalShards(claimed, delegated []cid.Cid) failure.Failure {
-
+func equalShards(claimed, delegated []datamodel.Link) failure.Failure {
 	delegatedMap := make(map[string]bool)
 	for _, shard := range delegated {
 		delegatedMap[shard.String()] = true

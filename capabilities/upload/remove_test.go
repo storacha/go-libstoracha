@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/ipfs/go-cid"
+	"github.com/ipld/go-ipld-prime/datamodel"
+	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
 	"github.com/storacha/go-libstoracha/capabilities/upload"
 	"github.com/stretchr/testify/require"
 )
@@ -19,9 +21,10 @@ func TestRemoveCapability(t *testing.T) {
 func TestRemoveCaveatsRoundTrip(t *testing.T) {
 	rootCid, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
 	require.NoError(t, err)
+	rootLink := cidlink.Link{Cid: rootCid}
 
 	nb := upload.RemoveCaveats{
-		Root: rootCid,
+		Root: rootLink,
 	}
 
 	node, err := nb.ToIPLD()
@@ -35,13 +38,15 @@ func TestRemoveCaveatsRoundTrip(t *testing.T) {
 func TestRemoveOkRoundTrip(t *testing.T) {
 	rootCid, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
 	require.NoError(t, err)
+	rootLink := cidlink.Link{Cid: rootCid}
 
 	shard1Cid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
 	require.NoError(t, err)
+	shard1Link := cidlink.Link{Cid: shard1Cid}
 
 	ok := upload.RemoveOk{
-		Root:   rootCid,
-		Shards: []cid.Cid{shard1Cid},
+		Root:   rootLink,
+		Shards: []datamodel.Link{shard1Link},
 	}
 
 	node, err := ok.ToIPLD()

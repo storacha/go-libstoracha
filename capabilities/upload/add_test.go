@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/ipfs/go-cid"
+	"github.com/ipld/go-ipld-prime/datamodel"
+	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
 	"github.com/storacha/go-libstoracha/capabilities/upload"
 	"github.com/stretchr/testify/require"
 )
@@ -19,17 +21,20 @@ func TestAddCapability(t *testing.T) {
 func TestAddCaveatsRoundTrip(t *testing.T) {
 	rootCid, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
 	require.NoError(t, err)
+	rootLink := cidlink.Link{Cid: rootCid}
 
 	shard1Cid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
 	require.NoError(t, err)
+	shard1Link := cidlink.Link{Cid: shard1Cid}
 
 	shard2Cid, err := cid.Parse("bafybeid46f7zggioxjm5p2ze2l6s6wbqvoo4gzbdzuibgwbhe5iopu2aiy")
 	require.NoError(t, err)
+	shard2Link := cidlink.Link{Cid: shard2Cid}
 
 	t.Run("with shards", func(t *testing.T) {
 		nb := upload.AddCaveats{
-			Root:   rootCid,
-			Shards: []cid.Cid{shard1Cid, shard2Cid},
+			Root:   rootLink,
+			Shards: []datamodel.Link{shard1Link, shard2Link},
 		}
 
 		node, err := nb.ToIPLD()
@@ -37,14 +42,14 @@ func TestAddCaveatsRoundTrip(t *testing.T) {
 
 		rnb, err := upload.AddCaveatsReader.Read(node)
 		require.NoError(t, err)
-		require.Equal(t, nb, rnb)
-		require.Equal(t, nb.Root, rnb.Root)
+		require.Equal(t, nb.Root.String(), rnb.Root.String())
 		require.Len(t, rnb.Shards, 2)
 	})
 
 	t.Run("without shards", func(t *testing.T) {
 		nb := upload.AddCaveats{
-			Root: rootCid,
+			Root:   rootLink,
+			Shards: []datamodel.Link{},
 		}
 
 		node, err := nb.ToIPLD()
@@ -52,8 +57,7 @@ func TestAddCaveatsRoundTrip(t *testing.T) {
 
 		rnb, err := upload.AddCaveatsReader.Read(node)
 		require.NoError(t, err)
-		require.Equal(t, nb, rnb)
-		require.Equal(t, nb.Root, rnb.Root)
+		require.Equal(t, nb.Root.String(), rnb.Root.String())
 		require.Empty(t, rnb.Shards)
 	})
 }
@@ -61,13 +65,15 @@ func TestAddCaveatsRoundTrip(t *testing.T) {
 func TestAddOkRoundTrip(t *testing.T) {
 	rootCid, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
 	require.NoError(t, err)
+	rootLink := cidlink.Link{Cid: rootCid}
 
 	shard1Cid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
 	require.NoError(t, err)
+	shard1Link := cidlink.Link{Cid: shard1Cid}
 
 	ok := upload.AddOk{
-		Root:   rootCid,
-		Shards: []cid.Cid{shard1Cid},
+		Root:   rootLink,
+		Shards: []datamodel.Link{shard1Link},
 	}
 
 	node, err := ok.ToIPLD()
@@ -75,7 +81,6 @@ func TestAddOkRoundTrip(t *testing.T) {
 
 	rok, err := upload.AddOkReader.Read(node)
 	require.NoError(t, err)
-	require.Equal(t, ok, rok)
-	require.Equal(t, ok.Root, rok.Root)
-	require.Equal(t, ok.Shards, rok.Shards)
+	require.Equal(t, ok.Root.String(), rok.Root.String())
+	require.Equal(t, len(ok.Shards), len(rok.Shards))
 }

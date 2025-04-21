@@ -3,7 +3,6 @@ package upload
 import (
 	"fmt"
 
-	"github.com/ipfs/go-cid"
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
@@ -13,12 +12,10 @@ import (
 	"github.com/storacha/go-ucanto/validator"
 )
 
-const (
-	GetAbility = "upload/get"
-)
+const GetAbility = "upload/get"
 
 type GetCaveats struct {
-	Root *cid.Cid `ipld:"root,omitempty"`
+	Root datamodel.Link `ipld:"root"`
 }
 
 func (gc GetCaveats) ToIPLD() (datamodel.Node, error) {
@@ -28,10 +25,8 @@ func (gc GetCaveats) ToIPLD() (datamodel.Node, error) {
 var GetCaveatsReader = schema.Struct[GetCaveats](GetCaveatsType(), nil, types.Converters...)
 
 type GetOk struct {
-	Root       cid.Cid   `ipld:"root"`
-	Shards     []cid.Cid `ipld:"shards,omitempty"`
-	InsertedAt string    `ipld:"insertedAt"`
-	UpdatedAt  string    `ipld:"updatedAt"`
+	Root   datamodel.Link   `ipld:"root"`
+	Shards []datamodel.Link `ipld:"shards"`
 }
 
 func (ok GetOk) ToIPLD() (datamodel.Node, error) {
@@ -45,7 +40,7 @@ var Get = validator.NewCapability(
 	schema.DIDString(),
 	GetCaveatsReader,
 	func(claimed, delegated ucan.Capability[GetCaveats]) failure.Failure {
-		if err := ValidateSpaceDID(claimed.With()); err != nil {
+		if err := validateSpaceDID(claimed.With()); err != nil {
 			return err
 		}
 
@@ -57,19 +52,16 @@ var Get = validator.NewCapability(
 			return nil
 		}
 
-		if delegated.Nb().Root != nil {
-			if claimed.Nb().Root == nil {
-				return schema.NewSchemaError("root must be specified for invocation")
-			}
-
-			if !claimed.Nb().Root.Equals(*delegated.Nb().Root) {
-				return schema.NewSchemaError(fmt.Sprintf(
-					"root '%s' doesn't match delegated '%s'",
-					claimed.Nb().Root, delegated.Nb().Root,
-				))
-			}
+		if delegated.Can() == UploadAbility {
+			return nil
 		}
 
+		if claimed.Nb().Root.String() != delegated.Nb().Root.String() {
+			return schema.NewSchemaError(fmt.Sprintf(
+				"root '%s' doesn't match delegated '%s'",
+				claimed.Nb().Root, delegated.Nb().Root,
+			))
+		}
 		return nil
 	},
 )

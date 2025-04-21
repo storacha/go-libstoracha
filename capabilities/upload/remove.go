@@ -1,7 +1,6 @@
 package upload
 
 import (
-	"github.com/ipfs/go-cid"
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
@@ -11,12 +10,10 @@ import (
 	"github.com/storacha/go-ucanto/validator"
 )
 
-const (
-	RemoveAbility = "upload/remove"
-)
+const RemoveAbility = "upload/remove"
 
 type RemoveCaveats struct {
-	Root cid.Cid `ipld:"root"`
+	Root datamodel.Link `ipld:"root"`
 }
 
 func (rc RemoveCaveats) ToIPLD() (datamodel.Node, error) {
@@ -26,8 +23,8 @@ func (rc RemoveCaveats) ToIPLD() (datamodel.Node, error) {
 var RemoveCaveatsReader = schema.Struct[RemoveCaveats](RemoveCaveatsType(), nil, types.Converters...)
 
 type RemoveOk struct {
-	Root   cid.Cid   `ipld:"root"`
-	Shards []cid.Cid `ipld:"shards,omitempty"`
+	Root   datamodel.Link   `ipld:"root"`
+	Shards []datamodel.Link `ipld:"shards"`
 }
 
 func (ro RemoveOk) ToIPLD() (datamodel.Node, error) {
@@ -41,7 +38,7 @@ var Remove = validator.NewCapability(
 	schema.DIDString(),
 	RemoveCaveatsReader,
 	func(claimed, delegated ucan.Capability[RemoveCaveats]) failure.Failure {
-		if err := ValidateSpaceDID(claimed.With()); err != nil {
+		if err := validateSpaceDID(claimed.With()); err != nil {
 			return err
 		}
 
