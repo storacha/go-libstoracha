@@ -2,12 +2,13 @@ package blob
 
 import (
 	"github.com/ipld/go-ipld-prime/datamodel"
-	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/did"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
+
+	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
 const AcceptAbility = "blob/accept"
@@ -23,7 +24,7 @@ type Promise struct {
 
 type AcceptCaveats struct {
 	Space did.DID
-	Blob  Blob
+	Blob  types.Blob
 	Put   Promise
 }
 

@@ -5,6 +5,8 @@ import (
 
 	"github.com/storacha/go-libstoracha/capabilities/blob"
 	"github.com/storacha/go-libstoracha/capabilities/internal/testutil"
+	"github.com/storacha/go-libstoracha/capabilities/types"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -12,7 +14,7 @@ func TestRoundTripAcceptCaveats(t *testing.T) {
 	digest, bytes := testutil.RandomBytes(t, 256)
 	nb := blob.AcceptCaveats{
 		Space: testutil.RandomPrincipal(t).DID(),
-		Blob: blob.Blob{
+		Blob: types.Blob{
 			Digest: digest,
 			Size:   uint64(len(bytes)),
 		},

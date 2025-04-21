@@ -6,6 +6,8 @@ import (
 
 	"github.com/storacha/go-libstoracha/capabilities/internal/testutil"
 	"github.com/storacha/go-libstoracha/capabilities/space/blob"
+	"github.com/storacha/go-libstoracha/capabilities/types"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -29,14 +31,14 @@ func TestRoundTripListOk(t *testing.T) {
 	cursor := "test-cursor"
 	results := []blob.ListBlobItem{
 		{
-			Blob: blob.Blob{
+			Blob: types.Blob{
 				Digest: testutil.RandomMultihash(t),
 				Size:   uint64(1024),
 			},
 			InsertedAt: time.Now().UTC().Truncate(time.Second),
 		},
 		{
-			Blob: blob.Blob{
+			Blob: types.Blob{
 				Digest: testutil.RandomMultihash(t),
 				Size:   uint64(2048),
 			},
