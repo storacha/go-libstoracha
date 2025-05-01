@@ -3,10 +3,15 @@ Package metadata implements protocols for publishing content claims on IPNI.
 
 The goal is to enable partial publishing of content claims to IPNI.
 
+In order to enable faster chaining of requests and general processing,
+we add additional fields in IPNI metadata that enables a client to quickly read
+the record and take action based on information in the claim, before it has
+retrieved the full claim.
+
 The rules for publishing content claims records to IPNI are as follows:
 
-Content claims should be published to IPNI by the original issuer of the content
-claim.
+Content claims should be published to IPNI by the original issuer of the
+content claim.
 
 The ContextID for the content claim should be the CID of the content the claim
 is about, except in the case of a location commitment, where the content ID
@@ -17,12 +22,12 @@ should be:
 The claim record MUST be able to be looked up on IPNI from the content CID
 multihash (or double encryption thereof).
 
-The claim MAY be able to be looked up by additional multihashes, particularly in
-the case of the IndexClaim, where the record should be accessible from any
+The claim MAY be able to be looked up by additional multihashes, particularly
+in the case of the IndexClaim, where the record should be accessible from any
 multihash inside the index.
 
-The metadata for the claim is structured to maximize utility of the record while
-minimizing size.
+The metadata for the claim is structured to maximize utility of the record
+while minimizing size.
 
 To generally respect the 100 byte maximum size for IPNI records, we do not
 encode the claim itself, but rather its CID.
@@ -32,18 +37,17 @@ which contains path segments of the form `{claim}`. To retrieve the claim,
 replace every `{claim}` with the string encoding of the claim CID.
 
 For a location commitment, the content must retrievable through an HTTP
-multiaddr of the provider which contains path segments of the form `{blob}`.
-To retrieve the claim, replace every `{blob}` with a multibase string encoding
-of the shard multihash in the metadata, or if not present, the CIDv1 encoding
-using RAW codec of the multihash used to lookup the record Additionally, if a
-Range parameter is present in the metadata, it should be translated into a range
-HTTP header when retrieving content.
+multiaddr of the provider which contains path segments of the form `{blob}` or
+`{blobCID}`. One or the other or both may be present. To retrieve the claim:
+1. Replace every `{blob}` with a multibase string encoding of the multihash of
+the shard cid in the metadata, or if not present, the multibase encoding of the
+multihash used to lookup the record.
+2. Replace every `{blobCID}` with the default string serialization of the shard
+cid in the metadata, or if not present, the CIDv1 encoding with RAW codec of
+the multihash used to lookup the record.
 
-However, in order to enable faster chaining of requests and general processing,
-we add additional fields to encode specific information from the full claim.
-
-This enables a client to quickly read the record and take action based on
-information in the claim before it has retrieved the full claim.
+Additionally, if Range parameter is present in the metadata, it should be
+translated into a range HTTP header when retrieving content.
 */
 package metadata
 
