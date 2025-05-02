@@ -40,7 +40,7 @@ For a location commitment, the content must retrievable through an HTTP
 multiaddr of the provider which contains path segments of the form `{blob}` or
 `{blobCID}`. One or the other or both may be present. To retrieve the claim:
 1. Replace every `{blob}` with a multibase string encoding of the multihash of
-the shard cid in the metadata, or if not present, the multibase encoding of the
+the shard CID in the metadata, or if not present, the multibase encoding of the
 multihash used to lookup the record.
 2. Replace every `{blobCID}` with the default string serialization of the shard
 cid in the metadata, or if not present, the CIDv1 encoding with RAW codec of
