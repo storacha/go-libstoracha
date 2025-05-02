@@ -1,6 +1,8 @@
 package upload
 
 import (
+	"fmt"
+	
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
@@ -50,6 +52,13 @@ var List = validator.NewCapability(
 		if err := validateSpaceDID(claimed.With()); err != nil {
 			return err
 		}
+
+		if claimed.Can() != ListAbility {
+            return schema.NewSchemaError(fmt.Sprintf(
+                "expected capability '%s' but got '%s'",
+                ListAbility, claimed.Can(),
+            ))
+        }
 
 		if fail := validator.DefaultDerives(claimed, delegated); fail != nil {
 			return fail
