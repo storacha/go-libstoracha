@@ -43,7 +43,7 @@ multiaddr of the provider which contains path segments of the form `{blob}` or
 the shard CID in the metadata, or if not present, the multibase encoding of the
 multihash used to lookup the record.
 2. Replace every `{blobCID}` with the default string serialization of the shard
-cid in the metadata, or if not present, the CIDv1 encoding with RAW codec of
+CID in the metadata, or if not present, the CIDv1 encoding with RAW codec of
 the multihash used to lookup the record.
 
 Additionally, if Range parameter is present in the metadata, it should be
