@@ -16,7 +16,7 @@ const (
 )
 
 func validateSpaceDID(did string) failure.Failure {
-	if !strings.HasPrefix(did, "did:") {
+	if !strings.HasPrefix(did, "did:key:") {
 		return schema.NewSchemaError(fmt.Sprintf("expected did:key but got %s", did))
 	}
 	return nil

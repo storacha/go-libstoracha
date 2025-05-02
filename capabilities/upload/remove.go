@@ -1,7 +1,8 @@
 package upload
 
 import (
-	"github.com/ipld/go-ipld-prime/datamodel"
+	"fmt"
+
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
@@ -13,21 +14,21 @@ import (
 const RemoveAbility = "upload/remove"
 
 type RemoveCaveats struct {
-	Root datamodel.Link `ipld:"root"`
+	Root ipld.Link
 }
 
-func (rc RemoveCaveats) ToIPLD() (datamodel.Node, error) {
+func (rc RemoveCaveats) ToIPLD() (ipld.Node, error) {
 	return ipld.WrapWithRecovery(&rc, RemoveCaveatsType(), types.Converters...)
 }
 
 var RemoveCaveatsReader = schema.Struct[RemoveCaveats](RemoveCaveatsType(), nil, types.Converters...)
 
 type RemoveOk struct {
-	Root   datamodel.Link   `ipld:"root"`
-	Shards []datamodel.Link `ipld:"shards"`
+	Root   ipld.Link
+	Shards []ipld.Link
 }
 
-func (ro RemoveOk) ToIPLD() (datamodel.Node, error) {
+func (ro RemoveOk) ToIPLD() (ipld.Node, error) {
 	return ipld.WrapWithRecovery(&ro, RemoveOkType(), types.Converters...)
 }
 
@@ -42,16 +43,15 @@ var Remove = validator.NewCapability(
 			return err
 		}
 
-		if fail := equalWith(claimed.With(), delegated.With()); fail != nil {
+		if fail := validator.DefaultDerives(claimed, delegated); fail != nil {
 			return fail
 		}
 
-		if delegated.Can() == UploadAbility {
-			return nil
-		}
-
-		if fail := equalRoot(claimed.Nb().Root, delegated.Nb().Root); fail != nil {
-			return fail
+		if claimed.Nb().Root.String() != delegated.Nb().Root.String() {
+			return schema.NewSchemaError(fmt.Sprintf(
+				"root '%s' doesn't match delegated '%s'",
+				claimed.Nb().Root, delegated.Nb().Root,
+			))
 		}
 
 		return nil

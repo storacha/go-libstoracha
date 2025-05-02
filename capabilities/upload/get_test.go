@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	"github.com/ipfs/go-cid"
-	"github.com/ipld/go-ipld-prime/datamodel"
 	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
 	"github.com/storacha/go-libstoracha/capabilities/upload"
+	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/stretchr/testify/require"
 )
 
@@ -37,7 +37,7 @@ func TestGetCaveatsRoundTrip(t *testing.T) {
 	})
 }
 
-func TestGetOkRoundTrip(t *testing.T) {
+func TestGetOkSerialization(t *testing.T) {
 	rootCid, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
 	require.NoError(t, err)
 	rootLink := cidlink.Link{Cid: rootCid}
@@ -48,7 +48,7 @@ func TestGetOkRoundTrip(t *testing.T) {
 
 	ok := upload.GetOk{
 		Root:   rootLink,
-		Shards: []datamodel.Link{shard1Link},
+		Shards: []ipld.Link{shard1Link},
 	}
 
 	node, err := ok.ToIPLD()

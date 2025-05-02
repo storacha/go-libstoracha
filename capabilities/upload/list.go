@@ -1,9 +1,6 @@
 package upload
 
 import (
-	"fmt"
-
-	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
@@ -15,31 +12,31 @@ import (
 const ListAbility = "upload/list"
 
 type ListCaveats struct {
-	Cursor *string `ipld:"cursor,omitempty"`
-	Size   *uint64 `ipld:"size,omitempty"`
-	Pre    *bool   `ipld:"pre,omitempty"`
+	Cursor *string
+	Size   *uint64
+	Pre    *bool
 }
 
-func (lc ListCaveats) ToIPLD() (datamodel.Node, error) {
+func (lc ListCaveats) ToIPLD() (ipld.Node, error) {
 	return ipld.WrapWithRecovery(&lc, ListCaveatsType(), types.Converters...)
 }
 
 var ListCaveatsReader = schema.Struct[ListCaveats](ListCaveatsType(), nil, types.Converters...)
 
 type ListItem struct {
-	Root   datamodel.Link   `ipld:"root"`
-	Shards []datamodel.Link `ipld:"shards"`
+	Root   ipld.Link
+	Shards []ipld.Link
 }
 
 type ListOk struct {
-	Cursor  *string    `ipld:"cursor,omitempty"`
-	Before  *string    `ipld:"before,omitempty"`
-	After   *string    `ipld:"after,omitempty"`
-	Size    uint64     `ipld:"size"`
-	Results []ListItem `ipld:"results"`
+	Cursor  *string
+	Before  *string
+	After   *string
+	Size    uint64
+	Results []ListItem
 }
 
-func (lo ListOk) ToIPLD() (datamodel.Node, error) {
+func (lo ListOk) ToIPLD() (ipld.Node, error) {
 	return ipld.WrapWithRecovery(&lo, ListOkType(), types.Converters...)
 }
 
@@ -54,11 +51,8 @@ var List = validator.NewCapability(
 			return err
 		}
 
-		if claimed.With() != delegated.With() {
-			return schema.NewSchemaError(fmt.Sprintf(
-				"resource '%s' doesn't match delegated '%s'",
-				claimed.With(), delegated.With(),
-			))
+		if fail := validator.DefaultDerives(claimed, delegated); fail != nil {
+			return fail
 		}
 
 		return nil

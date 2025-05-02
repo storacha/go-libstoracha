@@ -3,7 +3,6 @@ package upload
 import (
 	"fmt"
 
-	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
@@ -15,21 +14,21 @@ import (
 const GetAbility = "upload/get"
 
 type GetCaveats struct {
-	Root datamodel.Link `ipld:"root"`
+	Root ipld.Link
 }
 
-func (gc GetCaveats) ToIPLD() (datamodel.Node, error) {
+func (gc GetCaveats) ToIPLD() (ipld.Node, error) {
 	return ipld.WrapWithRecovery(&gc, GetCaveatsType(), types.Converters...)
 }
 
 var GetCaveatsReader = schema.Struct[GetCaveats](GetCaveatsType(), nil, types.Converters...)
 
 type GetOk struct {
-	Root   datamodel.Link   `ipld:"root"`
-	Shards []datamodel.Link `ipld:"shards"`
+	Root   ipld.Link
+	Shards []ipld.Link
 }
 
-func (ok GetOk) ToIPLD() (datamodel.Node, error) {
+func (ok GetOk) ToIPLD() (ipld.Node, error) {
 	return ipld.WrapWithRecovery(&ok, GetOkType(), types.Converters...)
 }
 
@@ -47,13 +46,8 @@ var Get = validator.NewCapability(
 		if fail := equalWith(claimed.With(), delegated.With()); fail != nil {
 			return fail
 		}
-
-		if delegated.Can() == UploadAbility {
-			return nil
-		}
-
-		if delegated.Can() == UploadAbility {
-			return nil
+		if fail := validator.DefaultDerives(claimed, delegated); fail != nil {
+			return fail
 		}
 
 		if claimed.Nb().Root.String() != delegated.Nb().Root.String() {
