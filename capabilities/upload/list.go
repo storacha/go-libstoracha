@@ -2,13 +2,15 @@ package upload
 
 import (
 	"fmt"
-	
-	"github.com/storacha/go-libstoracha/capabilities/types"
+
+	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
+
+	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
 const ListAbility = "upload/list"
@@ -19,7 +21,7 @@ type ListCaveats struct {
 	Pre    *bool
 }
 
-func (lc ListCaveats) ToIPLD() (ipld.Node, error) {
+func (lc ListCaveats) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&lc, ListCaveatsType(), types.Converters...)
 }
 
@@ -38,7 +40,7 @@ type ListOk struct {
 	Results []ListItem
 }
 
-func (lo ListOk) ToIPLD() (ipld.Node, error) {
+func (lo ListOk) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&lo, ListOkType(), types.Converters...)
 }
 
@@ -54,11 +56,11 @@ var List = validator.NewCapability(
 		}
 
 		if claimed.Can() != ListAbility {
-            return schema.NewSchemaError(fmt.Sprintf(
-                "expected capability '%s' but got '%s'",
-                ListAbility, claimed.Can(),
-            ))
-        }
+			return schema.NewSchemaError(fmt.Sprintf(
+				"expected capability '%s' but got '%s'",
+				ListAbility, claimed.Can(),
+			))
+		}
 
 		if fail := validator.DefaultDerives(claimed, delegated); fail != nil {
 			return fail

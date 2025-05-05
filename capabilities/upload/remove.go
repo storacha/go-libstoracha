@@ -3,12 +3,14 @@ package upload
 import (
 	"fmt"
 
-	"github.com/storacha/go-libstoracha/capabilities/types"
+	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
+
+	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
 const RemoveAbility = "upload/remove"
@@ -17,7 +19,7 @@ type RemoveCaveats struct {
 	Root ipld.Link
 }
 
-func (rc RemoveCaveats) ToIPLD() (ipld.Node, error) {
+func (rc RemoveCaveats) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&rc, RemoveCaveatsType(), types.Converters...)
 }
 
@@ -28,7 +30,7 @@ type RemoveOk struct {
 	Shards []ipld.Link
 }
 
-func (ro RemoveOk) ToIPLD() (ipld.Node, error) {
+func (ro RemoveOk) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&ro, RemoveOkType(), types.Converters...)
 }
 

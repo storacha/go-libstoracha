@@ -3,12 +3,14 @@ package upload
 import (
 	"fmt"
 
-	"github.com/storacha/go-libstoracha/capabilities/types"
+	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
+
+	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
 const GetAbility = "upload/get"
@@ -17,7 +19,7 @@ type GetCaveats struct {
 	Root ipld.Link
 }
 
-func (gc GetCaveats) ToIPLD() (ipld.Node, error) {
+func (gc GetCaveats) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&gc, GetCaveatsType(), types.Converters...)
 }
 
@@ -28,7 +30,7 @@ type GetOk struct {
 	Shards []ipld.Link
 }
 
-func (ok GetOk) ToIPLD() (ipld.Node, error) {
+func (ok GetOk) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&ok, GetOkType(), types.Converters...)
 }
 
