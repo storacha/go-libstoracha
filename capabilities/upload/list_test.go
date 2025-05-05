@@ -2,6 +2,7 @@ package upload_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/ipfs/go-cid"
 	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
@@ -70,12 +71,16 @@ func TestListOkMarshaling(t *testing.T) {
 		Size:   2,
 		Results: []upload.ListItem{
 			{
-				Root:   rootLink1,
-				Shards: []ipld.Link{shard1Link},
+				Root:       rootLink1,
+				Shards:     []ipld.Link{shard1Link},
+				InsertedAt: time.Now().UTC().Truncate(time.Second),
+				UpdatedAt:  time.Now().UTC().Truncate(time.Second),
 			},
 			{
-				Root:   rootLink2,
-				Shards: []ipld.Link{},
+				Root:       rootLink2,
+				Shards:     []ipld.Link{},
+				InsertedAt: time.Now().UTC().Truncate(time.Second),
+				UpdatedAt:  time.Now().UTC().Truncate(time.Second),
 			},
 		},
 	}

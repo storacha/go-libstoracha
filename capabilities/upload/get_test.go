@@ -2,6 +2,7 @@ package upload_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/ipfs/go-cid"
 	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
@@ -47,8 +48,10 @@ func TestGetOkSerialization(t *testing.T) {
 	shard1Link := cidlink.Link{Cid: shard1Cid}
 
 	ok := upload.GetOk{
-		Root:   rootLink,
-		Shards: []ipld.Link{shard1Link},
+		Root:       rootLink,
+		Shards:     []ipld.Link{shard1Link},
+		InsertedAt: time.Now().UTC().Truncate(time.Second),
+		UpdatedAt:  time.Now().UTC().Truncate(time.Second),
 	}
 
 	node, err := ok.ToIPLD()

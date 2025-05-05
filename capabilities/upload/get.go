@@ -2,6 +2,7 @@ package upload
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-ucanto/core/ipld"
@@ -26,8 +27,10 @@ func (gc GetCaveats) ToIPLD() (datamodel.Node, error) {
 var GetCaveatsReader = schema.Struct[GetCaveats](GetCaveatsType(), nil, types.Converters...)
 
 type GetOk struct {
-	Root   ipld.Link
-	Shards []ipld.Link
+	Root       ipld.Link
+	Shards     []ipld.Link
+	InsertedAt time.Time
+	UpdatedAt  time.Time
 }
 
 func (ok GetOk) ToIPLD() (datamodel.Node, error) {
