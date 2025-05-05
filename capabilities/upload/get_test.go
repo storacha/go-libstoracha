@@ -6,9 +6,11 @@ import (
 
 	"github.com/ipfs/go-cid"
 	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
-	"github.com/storacha/go-libstoracha/capabilities/upload"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/stretchr/testify/require"
+
+	"github.com/storacha/go-libstoracha/capabilities/internal/testutil"
+	"github.com/storacha/go-libstoracha/capabilities/upload"
 )
 
 func TestGetCapability(t *testing.T) {
@@ -39,17 +41,9 @@ func TestGetCaveatsRoundTrip(t *testing.T) {
 }
 
 func TestGetOkSerialization(t *testing.T) {
-	rootCid, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
-	require.NoError(t, err)
-	rootLink := cidlink.Link{Cid: rootCid}
-
-	shard1Cid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
-	require.NoError(t, err)
-	shard1Link := cidlink.Link{Cid: shard1Cid}
-
 	ok := upload.GetOk{
-		Root:       rootLink,
-		Shards:     []ipld.Link{shard1Link},
+		Root:       testutil.RandomCID(t),
+		Shards:     []ipld.Link{testutil.RandomCID(t)},
 		InsertedAt: time.Now().UTC().Truncate(time.Second),
 		UpdatedAt:  time.Now().UTC().Truncate(time.Second),
 	}

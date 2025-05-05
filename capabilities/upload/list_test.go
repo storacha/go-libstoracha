@@ -4,11 +4,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ipfs/go-cid"
-	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
-	"github.com/storacha/go-libstoracha/capabilities/upload"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/stretchr/testify/require"
+
+	"github.com/storacha/go-libstoracha/capabilities/internal/testutil"
+	"github.com/storacha/go-libstoracha/capabilities/upload"
 )
 
 func TestListCapabilityAbility(t *testing.T) {
@@ -47,42 +47,27 @@ func TestListOkMarshaling(t *testing.T) {
 	before := "before456"
 	after := "after789"
 
-	convertToUcantoLink := func(c cid.Cid) ipld.Link {
-		cidLink := cidlink.Link{Cid: c}
-		return cidLink
+	results := []upload.ListItem{
+		{
+			Root:       testutil.RandomCID(t),
+			Shards:     []ipld.Link{testutil.RandomCID(t)},
+			InsertedAt: time.Now().UTC().Truncate(time.Second),
+			UpdatedAt:  time.Now().UTC().Truncate(time.Second),
+		},
+		{
+			Root:       testutil.RandomCID(t),
+			Shards:     []ipld.Link{},
+			InsertedAt: time.Now().UTC().Truncate(time.Second),
+			UpdatedAt:  time.Now().UTC().Truncate(time.Second),
+		},
 	}
 
-	rootCid1, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
-	require.NoError(t, err)
-	rootLink1 := convertToUcantoLink(rootCid1)
-
-	rootCid2, err := cid.Parse("bafybeies3cfa2dlg6pfkuoo7lbdkphpsgpjj7ivyfxs6han37qawtx5inq")
-	require.NoError(t, err)
-	rootLink2 := convertToUcantoLink(rootCid2)
-
-	shard1Cid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
-	require.NoError(t, err)
-	shard1Link := convertToUcantoLink(shard1Cid)
-
 	ok := upload.ListOk{
-		Cursor: &cursor,
-		Before: &before,
-		After:  &after,
-		Size:   2,
-		Results: []upload.ListItem{
-			{
-				Root:       rootLink1,
-				Shards:     []ipld.Link{shard1Link},
-				InsertedAt: time.Now().UTC().Truncate(time.Second),
-				UpdatedAt:  time.Now().UTC().Truncate(time.Second),
-			},
-			{
-				Root:       rootLink2,
-				Shards:     []ipld.Link{},
-				InsertedAt: time.Now().UTC().Truncate(time.Second),
-				UpdatedAt:  time.Now().UTC().Truncate(time.Second),
-			},
-		},
+		Cursor:  &cursor,
+		Before:  &before,
+		After:   &after,
+		Size:    2,
+		Results: results,
 	}
 
 	node, err := ok.ToIPLD()

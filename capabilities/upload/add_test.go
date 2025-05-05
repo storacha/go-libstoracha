@@ -3,11 +3,11 @@ package upload_test
 import (
 	"testing"
 
-	"github.com/ipfs/go-cid"
-	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
-	"github.com/storacha/go-libstoracha/capabilities/upload"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/stretchr/testify/require"
+
+	"github.com/storacha/go-libstoracha/capabilities/internal/testutil"
+	"github.com/storacha/go-libstoracha/capabilities/upload"
 )
 
 func TestAddCapability(t *testing.T) {
@@ -19,22 +19,10 @@ func TestAddCapability(t *testing.T) {
 }
 
 func TestAddCaveatsRoundTrip(t *testing.T) {
-	rootCid, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
-	require.NoError(t, err)
-	rootLink := cidlink.Link{Cid: rootCid}
-
-	shard1Cid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
-	require.NoError(t, err)
-	shard1Link := cidlink.Link{Cid: shard1Cid}
-
-	shard2Cid, err := cid.Parse("bafybeid46f7zggioxjm5p2ze2l6s6wbqvoo4gzbdzuibgwbhe5iopu2aiy")
-	require.NoError(t, err)
-	shard2Link := cidlink.Link{Cid: shard2Cid}
-
 	t.Run("with shards", func(t *testing.T) {
 		nb := upload.AddCaveats{
-			Root:   rootLink,
-			Shards: []ipld.Link{shard1Link, shard2Link},
+			Root:   testutil.RandomCID(t),
+			Shards: []ipld.Link{testutil.RandomCID(t), testutil.RandomCID(t)},
 		}
 
 		node, err := nb.ToIPLD()
@@ -48,7 +36,7 @@ func TestAddCaveatsRoundTrip(t *testing.T) {
 
 	t.Run("without shards", func(t *testing.T) {
 		nb := upload.AddCaveats{
-			Root:   rootLink,
+			Root:   testutil.RandomCID(t),
 			Shards: []ipld.Link{},
 		}
 
@@ -63,17 +51,9 @@ func TestAddCaveatsRoundTrip(t *testing.T) {
 }
 
 func TestAddOkSerialization(t *testing.T) {
-	rootCid, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
-	require.NoError(t, err)
-	rootLink := cidlink.Link{Cid: rootCid}
-
-	shard1Cid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
-	require.NoError(t, err)
-	shard1Link := cidlink.Link{Cid: shard1Cid}
-
 	ok := upload.AddOk{
-		Root:   rootLink,
-		Shards: []ipld.Link{shard1Link},
+		Root:   testutil.RandomCID(t),
+		Shards: []ipld.Link{testutil.RandomCID(t)},
 	}
 
 	node, err := ok.ToIPLD()
