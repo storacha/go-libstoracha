@@ -9,7 +9,7 @@ type AddCaveats struct {
 # Success response for the upload/add capability
 type AddOk struct {
   root Link
-  shards [Link]
+  shards optional [Link]
 }
 
 # Caveats for the upload/get capability
@@ -20,7 +20,9 @@ type GetCaveats struct {
 # Success response for the upload/get capability
 type GetOk struct {
   root Link
-  shards [Link]
+  shards optional [Link]
+  insertedAt ISO8601Date
+  updatedAt ISO8601Date
 }
 
 # Caveats for the upload/remove capability
@@ -31,7 +33,7 @@ type RemoveCaveats struct {
 # Success response for the upload/remove capability
 type RemoveOk struct {
   root Link
-  shards [Link]
+  shards optional [Link]
 }
 
 # Caveats for the upload/list capability
@@ -44,7 +46,9 @@ type ListCaveats struct {
 # Item in the list results
 type ListItem struct {
   root Link
-  shards [Link]
+  shards optional [Link]
+  insertedAt ISO8601Date
+  updatedAt ISO8601Date
 }
 
 # Success response for the upload/list capability
