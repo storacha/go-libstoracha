@@ -1,8 +1,6 @@
 package upload
 
 import (
-	"fmt"
-
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
@@ -62,32 +60,3 @@ var Add = validator.NewCapability(
 		return nil
 	},
 )
-
-func equalRoot(claimed, delegated ipld.Link) failure.Failure {
-	if claimed.String() != delegated.String() {
-		return schema.NewSchemaError(fmt.Sprintf(
-			"root '%s' doesn't match delegated '%s'",
-			claimed, delegated,
-		))
-	}
-
-	return nil
-}
-
-func equalShards(claimed, delegated []ipld.Link) failure.Failure {
-	delegatedMap := make(map[string]bool)
-	for _, shard := range delegated {
-		delegatedMap[shard.String()] = true
-	}
-
-	for _, shard := range claimed {
-		if !delegatedMap[shard.String()] {
-			return schema.NewSchemaError(fmt.Sprintf(
-				"shard '%s' not found in delegated shards",
-				shard,
-			))
-		}
-	}
-
-	return nil
-}

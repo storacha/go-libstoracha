@@ -1,9 +1,6 @@
 package upload
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
@@ -15,13 +12,6 @@ const (
 	UploadAbility = "upload/*"
 )
 
-func validateSpaceDID(did string) failure.Failure {
-	if !strings.HasPrefix(did, "did:key:") {
-		return schema.NewSchemaError(fmt.Sprintf("expected did:key but got %s", did))
-	}
-	return nil
-}
-
 var Upload = validator.NewCapability(
 	UploadAbility,
 	schema.DIDString(),
@@ -31,22 +21,10 @@ var Upload = validator.NewCapability(
 			return err
 		}
 
-		if claimed.With() != delegated.With() {
-			return schema.NewSchemaError(fmt.Sprintf(
-				"resource '%s' doesn't match delegated '%s'",
-				claimed.With(), delegated.With(),
-			))
+		if fail := validator.DefaultDerives(claimed, delegated); fail != nil {
+			return fail
 		}
+
 		return nil
 	},
 )
-
-func equalWith(claimed, delegated string) failure.Failure {
-	if claimed != delegated {
-		return schema.NewSchemaError(fmt.Sprintf(
-			"resource '%s' doesn't match delegated '%s'",
-			claimed, delegated,
-		))
-	}
-	return nil
-}

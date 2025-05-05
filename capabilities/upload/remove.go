@@ -1,8 +1,6 @@
 package upload
 
 import (
-	"fmt"
-
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
@@ -49,11 +47,8 @@ var Remove = validator.NewCapability(
 			return fail
 		}
 
-		if claimed.Nb().Root.String() != delegated.Nb().Root.String() {
-			return schema.NewSchemaError(fmt.Sprintf(
-				"root '%s' doesn't match delegated '%s'",
-				claimed.Nb().Root, delegated.Nb().Root,
-			))
+		if fail := equalRoot(claimed.Nb().Root, delegated.Nb().Root); fail != nil {
+			return fail
 		}
 
 		return nil

@@ -1,7 +1,6 @@
 package upload
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/ipld/go-ipld-prime/datamodel"
@@ -48,18 +47,12 @@ var Get = validator.NewCapability(
 			return err
 		}
 
-		if fail := equalWith(claimed.With(), delegated.With()); fail != nil {
-			return fail
-		}
 		if fail := validator.DefaultDerives(claimed, delegated); fail != nil {
 			return fail
 		}
 
-		if claimed.Nb().Root.String() != delegated.Nb().Root.String() {
-			return schema.NewSchemaError(fmt.Sprintf(
-				"root '%s' doesn't match delegated '%s'",
-				claimed.Nb().Root, delegated.Nb().Root,
-			))
+		if fail := equalRoot(claimed.Nb().Root, delegated.Nb().Root); fail != nil {
+			return fail
 		}
 		return nil
 	},
