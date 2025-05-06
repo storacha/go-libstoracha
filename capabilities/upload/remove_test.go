@@ -6,8 +6,8 @@ import (
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/stretchr/testify/require"
 
-	"github.com/storacha/go-libstoracha/capabilities/internal/testutil"
 	"github.com/storacha/go-libstoracha/capabilities/upload"
+	"github.com/storacha/go-libstoracha/internal/testutil"
 )
 
 func TestRemoveCapability(t *testing.T) {

@@ -5,9 +5,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/storacha/go-libstoracha/capabilities/internal/testutil"
 	"github.com/storacha/go-libstoracha/capabilities/space/blob"
 	"github.com/storacha/go-libstoracha/capabilities/types"
+	"github.com/storacha/go-libstoracha/internal/testutil"
 )
 
 func TestRoundTripReplicateCaveats(t *testing.T) {

@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/storacha/go-libstoracha/capabilities/internal/testutil"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-libstoracha/capabilities/web3.storage/blob"
+	"github.com/storacha/go-libstoracha/internal/testutil"
 	"github.com/stretchr/testify/require"
 )
 

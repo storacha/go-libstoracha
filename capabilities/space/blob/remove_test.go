@@ -3,8 +3,8 @@ package blob_test
 import (
 	"testing"
 
-	"github.com/storacha/go-libstoracha/capabilities/internal/testutil"
 	"github.com/storacha/go-libstoracha/capabilities/space/blob"
+	"github.com/storacha/go-libstoracha/internal/testutil"
 	"github.com/stretchr/testify/require"
 )
 
