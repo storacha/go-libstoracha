@@ -9,8 +9,8 @@ import (
 	"github.com/ipld/go-ipld-prime/codec/dagjson"
 	basicnode "github.com/ipld/go-ipld-prime/node/basic"
 	"github.com/storacha/go-libstoracha/capabilities/assert"
-	"github.com/storacha/go-libstoracha/capabilities/internal/testutil"
 	"github.com/storacha/go-libstoracha/capabilities/types"
+	"github.com/storacha/go-libstoracha/internal/testutil"
 	"github.com/stretchr/testify/require"
 )
 
