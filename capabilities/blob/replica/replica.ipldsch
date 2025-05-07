@@ -1,7 +1,7 @@
 type AllocateCaveats struct {
   space DID
   blob Blob
-  location Link
+  site Link
   cause Link
 }
 
@@ -12,7 +12,7 @@ type AllocateOk struct {
 type TransferCaveats struct {
   space DID
   blob Blob
-  location Link
+  site Link
   cause Link
 }
 

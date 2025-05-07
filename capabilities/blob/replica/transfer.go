@@ -21,9 +21,9 @@ type TransferCaveats struct {
 	Space did.DID
 	// Blob is the blob to be transferred.
 	Blob types.Blob
-	// Location contains a location commitment indicating where the Blob must be
+	// Site contains a location commitment indicating where the Blob must be
 	// transferred from.
-	Location ucan.Link
+	Site ucan.Link
 	// Cause contains the `blob/replica/allocate` invocation that initiated this transfer.
 	Cause ucan.Link
 }

@@ -19,9 +19,9 @@ type ReplicateCaveats struct {
 	// Replicas is the number of replicas to ensure.
 	// e.g. Replicas: 2 will ensure 3 copies of the data exist in a network.
 	Replicas uint
-	// Location contains a location commitment indicating where the Blob must be
+	// Site contains a location commitment indicating where the Blob must be
 	// fetched from.
-	Location ipld.Link
+	Site ipld.Link
 }
 
 func (rc ReplicateCaveats) ToIPLD() (datamodel.Node, error) {
@@ -29,6 +29,17 @@ func (rc ReplicateCaveats) ToIPLD() (datamodel.Node, error) {
 }
 
 var ReplicateCaveatsReader = schema.Struct[ReplicateCaveats](ReplicateCaveatsType(), nil, types.Converters...)
+
+// ReplicateOk represents the result of a successful space/blob/replicate invocation.
+type ReplicateOk struct {
+	Site []Promise
+}
+
+func (ro ReplicateOk) ToIPLD() (datamodel.Node, error) {
+	return ipld.WrapWithRecovery(&ro, ReplicateOkType(), types.Converters...)
+}
+
+var ReplicateOkReader = schema.Struct[ReplicateOk](ReplicateOkType(), nil, types.Converters...)
 
 // Replicate is a capability that allows an agent to replicate a Blob into a
 // space identified by did:key in the `with` field.

@@ -45,5 +45,9 @@ type GetOk struct {
 type ReplicateCaveats struct {
   blob Blob
   replicas Int
-  location Link
+  site Link
+}
+
+type ReplicateOk struct {
+  site [Promise]
 }

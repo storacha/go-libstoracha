@@ -22,7 +22,7 @@ func TestRoundTripReplicateCaveats(t *testing.T) {
 			Size:   expectedSize,
 		},
 		Replicas: expectedReplicas,
-		Location: expectedLocation,
+		Site:     expectedLocation,
 	}
 
 	node, err := expectedNb.ToIPLD()
@@ -31,4 +31,26 @@ func TestRoundTripReplicateCaveats(t *testing.T) {
 	actualNb, err := blob.ReplicateCaveatsReader.Read(node)
 	require.NoError(t, err)
 	require.Equal(t, expectedNb, actualNb)
+}
+
+func TestRoundTripReplicateOk(t *testing.T) {
+	expectedTask := testutil.RandomCID(t)
+
+	expectedOk := blob.ReplicateOk{
+		Site: []blob.Promise{
+			{
+				UcanAwait: blob.Await{
+					Selector: ".out.ok.site",
+					Link:     expectedTask,
+				},
+			},
+		},
+	}
+
+	node, err := expectedOk.ToIPLD()
+	require.NoError(t, err)
+
+	actualNb, err := blob.ReplicateOkReader.Read(node)
+	require.NoError(t, err)
+	require.Equal(t, expectedOk, actualNb)
 }
