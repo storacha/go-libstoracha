@@ -20,9 +20,9 @@ type AllocateCaveats struct {
 	Space did.DID
 	// Blob is the blob to be allocated.
 	Blob types.Blob
-	// Location contains a location commitment indicating where the Blob must be
+	// Site contains a location commitment indicating where the Blob must be
 	// fetched from.
-	Location ucan.Link
+	Site ucan.Link
 	// Cause contains the `space/blob/replicate` invocation that caused this allocation.
 	Cause ucan.Link
 }

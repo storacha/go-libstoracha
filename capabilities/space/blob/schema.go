@@ -62,3 +62,7 @@ func GetOkType() schema.Type {
 func ReplicateCaveatsType() schema.Type {
 	return blobTS.TypeByName("ReplicateCaveats")
 }
+
+func ReplicateOkType() schema.Type {
+	return blobTS.TypeByName("ReplicateOk")
+}

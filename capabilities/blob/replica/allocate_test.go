@@ -23,8 +23,8 @@ func TestRoundTripAllocateCaveats(t *testing.T) {
 			Digest: expectedDigest,
 			Size:   uint64(expectedSize),
 		},
-		Location: expectedLocation,
-		Cause:    expectedCause,
+		Site:  expectedLocation,
+		Cause: expectedCause,
 	}
 
 	node, err := expectedNp.ToIPLD()
