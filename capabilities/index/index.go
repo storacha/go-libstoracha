@@ -3,22 +3,17 @@ package index
 import (
 	"fmt"
 
-	"github.com/ipfs/go-cid"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
-	"github.com/storacha/go-ucanto/did"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
 )
 
-// SpaceDID represents a DID of a space
-type SpaceDID did.DID
-
-// IndexArgs represents the arguments for the space/index/add capability
-type IndexArgs struct {
+// IndexCaveats represents the arguments for the space/index/add capability
+type IndexCaveats struct {
 	// Link is the Content Archive (CAR) containing the `Index`.
-	Index cid.Cid `json:"index"`
+	Index ucan.Link
 }
 
 var IndexAbility = "space/index/*"
@@ -43,23 +38,22 @@ var Index = validator.NewCapability(
 var Add = validator.NewCapability(
 	AddAbility,
 	schema.DIDString(),
-	schema.Struct[IndexArgs](nil, nil, types.Converters...),
-	func(claimed, delegated ucan.Capability[IndexArgs]) failure.Failure {
+	schema.Struct[IndexCaveats](nil, nil, types.Converters...),
+	func(claimed, delegated ucan.Capability[IndexCaveats]) failure.Failure {
 		// Check if the `with` fields are equal
 		if err := equalWith(claimed.With(), delegated.With()); err != nil {
 			return err
 		}
 
-		claimedArgs := claimed.Nb()
-		delegatedArgs := delegated.Nb()
-
+		claimedCaveats := claimed.Nb()
+		delegatedCaveats := delegated.Nb()
 		// If delegated doesn't specify an index, allow any index
-		if delegatedArgs.Index.Defined() && claimedArgs.Index.Defined() {
-			if !claimedArgs.Index.Equals(delegatedArgs.Index) {
+		if delegatedCaveats.Index != nil && claimedCaveats.Index != nil {
+			if claimedCaveats.Index.String() != delegatedCaveats.Index.String() {
 				return schema.NewSchemaError(fmt.Sprintf(
 					"index '%s' doesn't match delegated '%s'",
-					claimedArgs.Index.String(),
-					delegatedArgs.Index.String(),
+					claimedCaveats.Index.String(),
+					delegatedCaveats.Index.String(),
 				))
 			}
 		}
@@ -78,12 +72,3 @@ func equalWith(claimed, delegated string) failure.Failure {
 	}
 	return nil
 }
-
-// Error constants
-const (
-	ErrIndexNotFound = "IndexNotFound"
-	ErrDecodeFailure = "DecodeFailure"
-	ErrUnknownFormat = "UnknownFormat"
-	ErrShardNotFound = "ShardNotFound"
-	ErrSliceNotFound = "SliceNotFound"
-)
