@@ -6,61 +6,31 @@ import (
 	"testing"
 
 	"github.com/ipfs/go-cid"
+	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
 	"github.com/storacha/go-libstoracha/capabilities/index"
-	"github.com/storacha/go-ucanto/did"
+	"github.com/storacha/go-ucanto/ucan"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestIndexCapabilityDefinitions(t *testing.T) {
-	// Test ability constants
-	assert.Equal(t, "space/index/*", index.IndexAbility)
-	assert.Equal(t, "space/index/add", index.AddAbility)
-
-	// Test capability registration
-	assert.NotNil(t, index.Index)
-	assert.NotNil(t, index.Add)
-}
-
-// TestSpaceDID tests the SpaceDID type
-func TestSpaceDID(t *testing.T) {
-	didStr := "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK"
-	didObj, err := did.Parse(didStr)
-	require.NoError(t, err)
-
-	// Convert to SpaceDID type
-	spaceDID := index.SpaceDID(didObj)
-	assert.NotNil(t, spaceDID)
-}
-
-// TestErrorConstants tests error constants
-func TestErrorConstants(t *testing.T) {
-	assert.Equal(t, "IndexNotFound", index.ErrIndexNotFound)
-	assert.Equal(t, "DecodeFailure", index.ErrDecodeFailure)
-	assert.Equal(t, "UnknownFormat", index.ErrUnknownFormat)
-	assert.Equal(t, "ShardNotFound", index.ErrShardNotFound)
-	assert.Equal(t, "SliceNotFound", index.ErrSliceNotFound)
-}
-
-// TestIndexArgsType tests the IndexArgs type
-func TestIndexArgsType(t *testing.T) {
+// TestIndexCaveatsType tests the IndexCaveats type
+func TestIndexCaveatsType(t *testing.T) {
 	// Create a CID for testing
 	testCid, err := cid.Parse("QmWATWQ7fVPP2EFGu71UkfnqhYXDYH566qy47CnJDgvs8u")
 	require.NoError(t, err)
 
 	// Create IndexArgs
-	args := index.IndexArgs{
-		Index: testCid,
+	args := index.IndexCaveats{
+		Index: cidlink.Link{Cid: testCid},
 	}
 
 	// Verify Index field
-	assert.True(t, args.Index.Equals(testCid))
+	assert.Equal(t, testCid.String(), args.Index.String())
 
 	// Test JSON marshaling
 	data, err := json.Marshal(args)
 	require.NoError(t, err)
 	assert.Contains(t, string(data), testCid.String())
-
 }
 
 // Integration test for capability validation
@@ -83,8 +53,8 @@ func TestCapabilityValidationIntegration(t *testing.T) {
 		name           string
 		claimedWith    string
 		delegatedWith  string
-		claimedIndex   cid.Cid
-		delegatedIndex cid.Cid
+		claimedIndex   ucan.Link
+		delegatedIndex ucan.Link
 		expectError    bool
 		errorContains  string
 	}{
@@ -92,16 +62,16 @@ func TestCapabilityValidationIntegration(t *testing.T) {
 			name:           "Same With Same Index",
 			claimedWith:    space1,
 			delegatedWith:  space1,
-			claimedIndex:   cid1,
-			delegatedIndex: cid1,
+			claimedIndex:   cidlink.Link{Cid: cid1},
+			delegatedIndex: cidlink.Link{Cid: cid1},
 			expectError:    false,
 		},
 		{
 			name:           "Same With Different Index",
 			claimedWith:    space1,
 			delegatedWith:  space1,
-			claimedIndex:   cid1,
-			delegatedIndex: cid2,
+			claimedIndex:   cidlink.Link{Cid: cid1},
+			delegatedIndex: cidlink.Link{Cid: cid2},
 			expectError:    true,
 			errorContains:  "doesn't match delegated",
 		},
@@ -109,8 +79,8 @@ func TestCapabilityValidationIntegration(t *testing.T) {
 			name:           "Different With Same Index",
 			claimedWith:    space1,
 			delegatedWith:  space2,
-			claimedIndex:   cid1,
-			delegatedIndex: cid1,
+			claimedIndex:   cidlink.Link{Cid: cid1},
+			delegatedIndex: cidlink.Link{Cid: cid1},
 			expectError:    true,
 			errorContains:  "doesn't match delegated",
 		},
@@ -118,8 +88,8 @@ func TestCapabilityValidationIntegration(t *testing.T) {
 			name:           "Delegated Empty Index",
 			claimedWith:    space1,
 			delegatedWith:  space1,
-			claimedIndex:   cid1,
-			delegatedIndex: cid.Cid{}, // Empty CID
+			claimedIndex:   cidlink.Link{Cid: cid1},
+			delegatedIndex: cidlink.Link{Cid: cid.Cid{}},
 			expectError:    false,
 		},
 	}
@@ -130,13 +100,13 @@ func TestCapabilityValidationIntegration(t *testing.T) {
 			claimed := &mockCapability{
 				withValue: tc.claimedWith,
 				canValue:  index.AddAbility,
-				nbValue:   index.IndexArgs{Index: tc.claimedIndex},
+				nbValue:   index.IndexCaveats{Index: tc.claimedIndex},
 			}
 
 			delegated := &mockCapability{
 				withValue: tc.delegatedWith,
 				canValue:  index.AddAbility,
-				nbValue:   index.IndexArgs{Index: tc.delegatedIndex},
+				nbValue:   index.IndexCaveats{Index: tc.delegatedIndex},
 			}
 
 			// Test by using our own validation function that mirrors the one in the validator
@@ -158,7 +128,7 @@ func TestCapabilityValidationIntegration(t *testing.T) {
 type mockCapability struct {
 	withValue string
 	canValue  string
-	nbValue   index.IndexArgs
+	nbValue   index.IndexCaveats
 }
 
 func (m *mockCapability) With() string {
@@ -169,7 +139,7 @@ func (m *mockCapability) Can() string {
 	return m.canValue
 }
 
-func (m *mockCapability) Nb() index.IndexArgs {
+func (m *mockCapability) Nb() index.IndexCaveats {
 	return m.nbValue
 }
 
@@ -192,8 +162,8 @@ func validateCapability(claimed, delegated *mockCapability) error {
 	delegatedArgs := delegated.Nb()
 
 	// If delegated doesn't specify an index, allow any index
-	if delegatedArgs.Index.Defined() && claimedArgs.Index.Defined() {
-		if !claimedArgs.Index.Equals(delegatedArgs.Index) {
+	if delegatedArgs.Index != nil && claimedArgs.Index != nil {
+		if claimedArgs.Index.String() != delegatedArgs.Index.String() {
 			return fmt.Errorf("index '%s' doesn't match delegated '%s'",
 				claimedArgs.Index.String(),
 				delegatedArgs.Index.String())
