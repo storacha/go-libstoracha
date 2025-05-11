@@ -28,7 +28,7 @@ var Index = validator.NewCapability(
 	schema.DIDString(),
 	schema.Struct[struct{}](nil, nil, types.Converters...),
 	func(claimed, delegated ucan.Capability[struct{}]) failure.Failure {
-		return equalWith(claimed.With(), delegated.With())
+		return EqualWith(claimed.With(), delegated.With())
 	},
 )
 
@@ -41,7 +41,7 @@ var Add = validator.NewCapability(
 	schema.Struct[IndexCaveats](nil, nil, types.Converters...),
 	func(claimed, delegated ucan.Capability[IndexCaveats]) failure.Failure {
 		// Check if the `with` fields are equal
-		if err := equalWith(claimed.With(), delegated.With()); err != nil {
+		if err := EqualWith(claimed.With(), delegated.With()); err != nil {
 			return err
 		}
 
@@ -63,7 +63,7 @@ var Add = validator.NewCapability(
 )
 
 // equalWith validates that the claimed capability's `with` field matches the delegated one.
-func equalWith(claimed, delegated string) failure.Failure {
+func EqualWith(claimed, delegated string) failure.Failure {
 	if claimed != delegated {
 		return schema.NewSchemaError(fmt.Sprintf(
 			"resource '%s' doesn't match delegated '%s'",
