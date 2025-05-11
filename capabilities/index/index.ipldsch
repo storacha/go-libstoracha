@@ -1,4 +1,0 @@
-type IndexCaveats struct {
-	content  Link
-	index V1Link
-}
