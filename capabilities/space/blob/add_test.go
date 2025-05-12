@@ -28,8 +28,8 @@ func TestRoundTripAddCaveats(t *testing.T) {
 }
 
 func TestRoundTripAddOk(t *testing.T) {
-	site := blob.Promise{
-		UcanAwait: blob.Await{
+	site := types.Promise{
+		UcanAwait: types.Await{
 			Selector: ".out.ok",
 			Link:     testutil.RandomCID(t),
 		},
