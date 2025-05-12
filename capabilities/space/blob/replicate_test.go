@@ -37,9 +37,9 @@ func TestRoundTripReplicateOk(t *testing.T) {
 	expectedTask := testutil.RandomCID(t)
 
 	expectedOk := blob.ReplicateOk{
-		Site: []blob.Promise{
+		Site: []types.Promise{
 			{
-				UcanAwait: blob.Await{
+				UcanAwait: types.Await{
 					Selector: ".out.ok.site",
 					Link:     expectedTask,
 				},

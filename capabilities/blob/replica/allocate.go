@@ -30,11 +30,17 @@ type AllocateCaveats struct {
 type AllocateOk struct {
 	// Size is the number of bytes allocated for a Blob.
 	Size uint64
+	// Site resolves to an additional location for the blob.
+	// The selector MUST be ".out.ok.site" and it links to a receipt of a
+	// "blob/replica/transfer" task.
+	Site types.Promise
 }
 
 func (a AllocateOk) ToIPLD() (ipld.Node, error) {
 	return ipld.WrapWithRecovery(&a, AllocateOkType(), types.Converters...)
 }
+
+var AllocateOkReader = schema.Struct[AllocateOk](AllocateOkType(), nil, types.Converters...)
 
 func (ac AllocateCaveats) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&ac, AllocateCaveatsType(), types.Converters...)

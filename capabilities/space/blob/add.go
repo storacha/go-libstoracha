@@ -32,16 +32,7 @@ var AddCaveatsReader = schema.Struct[AddCaveats](AddCaveatsType(), nil, types.Co
 // AddOk represents the result of a successful space/blob/add invocation.
 type AddOk struct {
 	// Receipt is a link to the receipt of the space/blob/add task.
-	Site Promise
-}
-
-type Promise struct {
-	UcanAwait Await
-}
-
-type Await struct {
-	Selector string
-	Link     ipld.Link
+	Site types.Promise
 }
 
 func (ao AddOk) ToIPLD() (datamodel.Node, error) {

@@ -32,7 +32,10 @@ var ReplicateCaveatsReader = schema.Struct[ReplicateCaveats](ReplicateCaveatsTyp
 
 // ReplicateOk represents the result of a successful space/blob/replicate invocation.
 type ReplicateOk struct {
-	Site []Promise
+	// Site resolves to additional locations for the blob.
+	// Their selector MUST be ".out.ok.site" and they link to a receipt of a
+	// "blob/replica/transfer" task.
+	Site []types.Promise
 }
 
 func (ro ReplicateOk) ToIPLD() (datamodel.Node, error) {
