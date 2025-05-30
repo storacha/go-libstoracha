@@ -2,7 +2,6 @@ package assert_test
 
 import (
 	"bytes"
-	"fmt"
 	"net/url"
 	"testing"
 
@@ -36,8 +35,6 @@ func TestRoundTripLocationCaveats(t *testing.T) {
 	buf := bytes.NewBuffer([]byte{})
 	err = dagjson.Encode(node, buf)
 	require.NoError(t, err)
-
-	fmt.Println(buf.String())
 
 	builder := basicnode.Prototype.Any.NewBuilder()
 	err = dagjson.Decode(builder, buf)
