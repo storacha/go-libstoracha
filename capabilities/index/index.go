@@ -1,23 +1,38 @@
 package index
 
 import (
+	_ "embed"
 	"fmt"
 
+	ipldprime "github.com/ipld/go-ipld-prime"
+	"github.com/ipld/go-ipld-prime/datamodel"
+	ipldschema "github.com/ipld/go-ipld-prime/schema"
 	"github.com/storacha/go-libstoracha/capabilities/types"
+	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
 )
 
-// IndexCaveats represents the arguments for the space/index/add capability
-type IndexCaveats struct {
-	// Link is the Content Archive (CAR) containing the `Index`.
-	Index ucan.Link
+//go:embed index.ipldsch
+var assertSchema []byte
+
+var assertTS = mustLoadTS()
+
+func mustLoadTS() *ipldschema.TypeSystem {
+	ts, err := ipldprime.LoadSchemaBytes(assertSchema)
+	if err != nil {
+		panic(fmt.Errorf("loading assert schema: %w", err))
+	}
+	return ts
+}
+
+func AddCaveatsType() ipldschema.Type {
+	return assertTS.TypeByName("AddCaveats")
 }
 
 var IndexAbility = "space/index/*"
-var AddAbility = "space/index/add"
 
 // Index capability definition
 // This capability can only be delegated (but not invoked) allowing audience to
@@ -32,14 +47,28 @@ var Index = validator.NewCapability(
 	},
 )
 
+// AddCaveats represents the arguments for the space/index/add capability
+type AddCaveats struct {
+	// Link is the Content Archive (CAR) containing the `Index`.
+	Index ucan.Link
+}
+
+func (ic AddCaveats) ToIPLD() (datamodel.Node, error) {
+	return ipld.WrapWithRecovery(&ic, AddCaveatsType(), types.Converters...)
+}
+
+var AddAbility = "space/index/add"
+
+var AddCaveatsReader = schema.Struct[AddCaveats](AddCaveatsType(), nil, types.Converters...)
+
 // Add capability definition
 // This capability allows an agent to submit verifiable claims about content-addressable data
 // to be published on the InterPlanetary Network Indexer (IPNI), making it publicly queryable.
 var Add = validator.NewCapability(
 	AddAbility,
 	schema.DIDString(),
-	schema.Struct[IndexCaveats](nil, nil, types.Converters...),
-	func(claimed, delegated ucan.Capability[IndexCaveats]) failure.Failure {
+	schema.Struct[AddCaveats](nil, nil, types.Converters...),
+	func(claimed, delegated ucan.Capability[AddCaveats]) failure.Failure {
 		// Check if the `with` fields are equal
 		if err := EqualWith(claimed.With(), delegated.With()); err != nil {
 			return err

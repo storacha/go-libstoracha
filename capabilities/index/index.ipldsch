@@ -1,0 +1,5 @@
+type V1Link link
+
+type AddCaveats struct {
+	index V1Link
+}
