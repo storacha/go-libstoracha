@@ -9,71 +9,71 @@ import (
 	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
-//go:embed storefront.ipldsch
-var storefrontSchema []byte
+//go:embed filecoin.ipldsch
+var filecoinSchema []byte
 
-var storefrontTS = mustLoadTS()
+var filecoinTS = mustLoadTS()
 
 func mustLoadTS() *schema.TypeSystem {
-	ts, err := types.LoadSchemaBytes(storefrontSchema)
+	ts, err := types.LoadSchemaBytes(filecoinSchema)
 	if err != nil {
-		panic(fmt.Errorf("loading storefront schema: %w", err))
+		panic(fmt.Errorf("loading filecoin schema: %w", err))
 	}
 	return ts
 }
 
 func OfferCaveatsType() schema.Type {
-	return storefrontTS.TypeByName("OfferCaveats")
+	return filecoinTS.TypeByName("OfferCaveats")
 }
 
 func OfferOkType() schema.Type {
-	return storefrontTS.TypeByName("OfferOk")
+	return filecoinTS.TypeByName("OfferOk")
 }
 
 func SubmitCaveatsType() schema.Type {
-	return storefrontTS.TypeByName("SubmitCaveats")
+	return filecoinTS.TypeByName("SubmitCaveats")
 }
 
 func SubmitOkType() schema.Type {
-	return storefrontTS.TypeByName("SubmitOk")
+	return filecoinTS.TypeByName("SubmitOk")
 }
 
 func AcceptCaveatsType() schema.Type {
-	return storefrontTS.TypeByName("AcceptCaveats")
+	return filecoinTS.TypeByName("AcceptCaveats")
 }
 
 func AcceptOkType() schema.Type {
-	return storefrontTS.TypeByName("AcceptOk")
+	return filecoinTS.TypeByName("AcceptOk")
 }
 
 func InfoCaveatsType() schema.Type {
-	return storefrontTS.TypeByName("InfoCaveats")
+	return filecoinTS.TypeByName("InfoCaveats")
 }
 
 func InfoOkType() schema.Type {
-	return storefrontTS.TypeByName("InfoOk")
+	return filecoinTS.TypeByName("InfoOk")
 }
 
 func InfoAcceptedAggregateType() schema.Type {
-	return storefrontTS.TypeByName("InfoAcceptedAggregate")
+	return filecoinTS.TypeByName("InfoAcceptedAggregate")
 }
 
 func InfoAcceptedDealType() schema.Type {
-	return storefrontTS.TypeByName("InfoAcceptedDeal")
+	return filecoinTS.TypeByName("InfoAcceptedDeal")
 }
 
 func InclusionProofType() schema.Type {
-	return storefrontTS.TypeByName("InclusionProof")
+	return filecoinTS.TypeByName("InclusionProof")
 }
 
 func ProofDataType() schema.Type {
-	return storefrontTS.TypeByName("ProofData")
+	return filecoinTS.TypeByName("ProofData")
 }
 
 func DealMetadataType() schema.Type {
-	return storefrontTS.TypeByName("DealMetadata")
+	return filecoinTS.TypeByName("DealMetadata")
 }
 
 func SingletonMarketSourceType() schema.Type {
-	return storefrontTS.TypeByName("SingletonMarketSource")
+	return filecoinTS.TypeByName("SingletonMarketSource")
 }
