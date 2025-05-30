@@ -1,0 +1,66 @@
+type OfferCaveats struct {
+    content Link
+    piece Link
+}
+
+type OfferOk struct {
+    piece Link
+}
+
+type SubmitCaveats struct {
+    content Link
+    piece Link
+}
+
+type SubmitOk struct {
+    piece Link
+}
+
+type AcceptCaveats struct {
+    content Link
+    piece Link
+}
+
+type AcceptOk struct {
+    piece Link
+    aggregate Link
+    inclusion InclusionProof
+    aux DealMetadata
+}
+
+type InfoCaveats struct {
+    piece Link
+}
+
+type InfoAcceptedAggregate struct {
+    aggregate Link
+    inclusion InclusionProof
+}
+
+type InfoAcceptedDeal struct {
+    aggregate Link
+    aux DealMetadata
+    provider String
+}
+
+type InfoOk struct {
+    piece Link
+    aggregates [InfoAcceptedAggregate]
+    deals [InfoAcceptedDeal]
+}
+
+type InclusionProof struct {
+    subtree ProofData
+    index ProofData
+}
+
+type ProofData bytes
+
+type DealMetadata struct {
+    dataType Int
+    dataSource SingletonMarketSource
+}
+
+type SingletonMarketSource struct {
+    dealID Int
+}
