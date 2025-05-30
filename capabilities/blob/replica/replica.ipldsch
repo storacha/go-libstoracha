@@ -1,0 +1,23 @@
+type AllocateCaveats struct {
+  space DID
+  blob Blob
+  site Link
+  cause Link
+}
+
+type AllocateOk struct {
+  size Int
+  site Promise
+}
+
+type TransferCaveats struct {
+  space DID
+  blob Blob
+  site Link
+  cause Link
+}
+
+type TransferOk struct {
+  site Link
+  pdp optional Link
+}

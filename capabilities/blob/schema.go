@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/ipld/go-ipld-prime/schema"
+
 	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 

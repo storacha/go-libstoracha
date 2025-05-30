@@ -1,24 +1,22 @@
 package upload
 
 import (
-	"fmt"
+	"time"
 
-	"github.com/ipfs/go-cid"
 	"github.com/ipld/go-ipld-prime/datamodel"
-	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
+
+	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
-const (
-	GetAbility = "upload/get"
-)
+const GetAbility = "upload/get"
 
 type GetCaveats struct {
-	Root *cid.Cid `ipld:"root,omitempty"`
+	Root ipld.Link
 }
 
 func (gc GetCaveats) ToIPLD() (datamodel.Node, error) {
@@ -28,10 +26,10 @@ func (gc GetCaveats) ToIPLD() (datamodel.Node, error) {
 var GetCaveatsReader = schema.Struct[GetCaveats](GetCaveatsType(), nil, types.Converters...)
 
 type GetOk struct {
-	Root       cid.Cid   `ipld:"root"`
-	Shards     []cid.Cid `ipld:"shards,omitempty"`
-	InsertedAt string    `ipld:"insertedAt"`
-	UpdatedAt  string    `ipld:"updatedAt"`
+	Root       ipld.Link
+	Shards     []ipld.Link
+	InsertedAt time.Time
+	UpdatedAt  time.Time
 }
 
 func (ok GetOk) ToIPLD() (datamodel.Node, error) {
@@ -45,31 +43,17 @@ var Get = validator.NewCapability(
 	schema.DIDString(),
 	GetCaveatsReader,
 	func(claimed, delegated ucan.Capability[GetCaveats]) failure.Failure {
-		if err := ValidateSpaceDID(claimed.With()); err != nil {
+		if err := validateSpaceDID(claimed.With()); err != nil {
 			return err
 		}
 
-		if fail := equalWith(claimed.With(), delegated.With()); fail != nil {
+		if fail := validator.DefaultDerives(claimed, delegated); fail != nil {
 			return fail
 		}
 
-		if delegated.Can() == UploadAbility {
-			return nil
+		if fail := equalRoot(claimed.Nb().Root, delegated.Nb().Root); fail != nil {
+			return fail
 		}
-
-		if delegated.Nb().Root != nil {
-			if claimed.Nb().Root == nil {
-				return schema.NewSchemaError("root must be specified for invocation")
-			}
-
-			if !claimed.Nb().Root.Equals(*delegated.Nb().Root) {
-				return schema.NewSchemaError(fmt.Sprintf(
-					"root '%s' doesn't match delegated '%s'",
-					claimed.Nb().Root, delegated.Nb().Root,
-				))
-			}
-		}
-
 		return nil
 	},
 )

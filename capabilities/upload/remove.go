@@ -1,22 +1,20 @@
 package upload
 
 import (
-	"github.com/ipfs/go-cid"
 	"github.com/ipld/go-ipld-prime/datamodel"
-	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
+
+	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
-const (
-	RemoveAbility = "upload/remove"
-)
+const RemoveAbility = "upload/remove"
 
 type RemoveCaveats struct {
-	Root cid.Cid `ipld:"root"`
+	Root ipld.Link
 }
 
 func (rc RemoveCaveats) ToIPLD() (datamodel.Node, error) {
@@ -26,8 +24,8 @@ func (rc RemoveCaveats) ToIPLD() (datamodel.Node, error) {
 var RemoveCaveatsReader = schema.Struct[RemoveCaveats](RemoveCaveatsType(), nil, types.Converters...)
 
 type RemoveOk struct {
-	Root   cid.Cid   `ipld:"root"`
-	Shards []cid.Cid `ipld:"shards,omitempty"`
+	Root   ipld.Link
+	Shards []ipld.Link
 }
 
 func (ro RemoveOk) ToIPLD() (datamodel.Node, error) {
@@ -41,16 +39,12 @@ var Remove = validator.NewCapability(
 	schema.DIDString(),
 	RemoveCaveatsReader,
 	func(claimed, delegated ucan.Capability[RemoveCaveats]) failure.Failure {
-		if err := ValidateSpaceDID(claimed.With()); err != nil {
+		if err := validateSpaceDID(claimed.With()); err != nil {
 			return err
 		}
 
-		if fail := equalWith(claimed.With(), delegated.With()); fail != nil {
+		if fail := validator.DefaultDerives(claimed, delegated); fail != nil {
 			return fail
-		}
-
-		if delegated.Can() == UploadAbility {
-			return nil
 		}
 
 		if fail := equalRoot(claimed.Nb().Root, delegated.Nb().Root); fail != nil {

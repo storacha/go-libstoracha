@@ -12,6 +12,11 @@ type Promise struct {
   ucanAwait Await (rename "ucan/await")
 }
 
+type Blob struct {
+    digest Multihash
+    size Int
+}
+
 type Multihash bytes
 type Multiaddr bytes
 type HasMultihash any

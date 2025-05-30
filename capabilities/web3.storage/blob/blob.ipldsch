@@ -1,0 +1,27 @@
+type AllocateCaveats struct {
+  space DID
+  blob Blob
+  cause Link
+}
+
+type Address struct {
+  URL URL (rename "url")
+  headers HTTPHeaders
+  expiresAt ISO8601Date
+}
+
+type AllocateOk struct {
+  size Int
+  address optional Address
+}
+
+type AcceptCaveats struct {
+  space DID
+  blob Blob
+  TTL Int (rename "ttl")
+  put Promise (rename "_put")
+}
+
+type AcceptOk struct {
+  site Link
+}

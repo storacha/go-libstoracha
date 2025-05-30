@@ -5,12 +5,13 @@ import (
 	"time"
 
 	"github.com/ipld/go-ipld-prime/datamodel"
-	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
+
+	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
 const ListAbility = "space/blob/list"
@@ -40,7 +41,7 @@ type ListOk struct {
 }
 
 type ListBlobItem struct {
-	Blob       Blob
+	Blob       types.Blob
 	InsertedAt time.Time
 }
 

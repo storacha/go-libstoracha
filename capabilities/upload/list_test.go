@@ -2,13 +2,16 @@ package upload_test
 
 import (
 	"testing"
+	"time"
 
-	"github.com/ipfs/go-cid"
-	"github.com/storacha/go-libstoracha/capabilities/upload"
+	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/stretchr/testify/require"
+
+	"github.com/storacha/go-libstoracha/capabilities/upload"
+	"github.com/storacha/go-libstoracha/internal/testutil"
 )
 
-func TestListCapability(t *testing.T) {
+func TestListCapabilityAbility(t *testing.T) {
 	capability := upload.List
 
 	t.Run("has correct ability", func(t *testing.T) {
@@ -16,10 +19,10 @@ func TestListCapability(t *testing.T) {
 	})
 }
 
-func TestListCaveatsRoundTrip(t *testing.T) {
+func TestListCaveatsMarshaling(t *testing.T) {
 	t.Run("with all parameters", func(t *testing.T) {
 		cursor := "abc123"
-		size := 10
+		size := uint64(10)
 		pre := true
 
 		nb := upload.ListCaveats{
@@ -39,38 +42,32 @@ func TestListCaveatsRoundTrip(t *testing.T) {
 	})
 }
 
-func TestListOkRoundTrip(t *testing.T) {
+func TestListOkMarshaling(t *testing.T) {
 	cursor := "abc123"
 	before := "before456"
 	after := "after789"
 
-	rootCid1, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
-	require.NoError(t, err)
-
-	rootCid2, err := cid.Parse("bafybeies3cfa2dlg6pfkuoo7lbdkphpsgpjj7ivyfxs6han37qawtx5inq")
-	require.NoError(t, err)
-
-	shard1Cid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
-	require.NoError(t, err)
+	results := []upload.ListItem{
+		{
+			Root:       testutil.RandomCID(t),
+			Shards:     []ipld.Link{testutil.RandomCID(t)},
+			InsertedAt: time.Now().UTC().Truncate(time.Second),
+			UpdatedAt:  time.Now().UTC().Truncate(time.Second),
+		},
+		{
+			Root:       testutil.RandomCID(t),
+			Shards:     []ipld.Link{},
+			InsertedAt: time.Now().UTC().Truncate(time.Second),
+			UpdatedAt:  time.Now().UTC().Truncate(time.Second),
+		},
+	}
 
 	ok := upload.ListOk{
-		Cursor: &cursor,
-		Before: &before,
-		After:  &after,
-		Size:   2,
-		Results: []upload.ListItem{
-			{
-				Root:       rootCid1,
-				Shards:     []cid.Cid{shard1Cid},
-				InsertedAt: "2023-01-01T00:00:00Z",
-				UpdatedAt:  "2023-01-02T00:00:00Z",
-			},
-			{
-				Root:       rootCid2,
-				InsertedAt: "2023-01-03T00:00:00Z",
-				UpdatedAt:  "2023-01-04T00:00:00Z",
-			},
-		},
+		Cursor:  &cursor,
+		Before:  &before,
+		After:   &after,
+		Size:    2,
+		Results: results,
 	}
 
 	node, err := ok.ToIPLD()

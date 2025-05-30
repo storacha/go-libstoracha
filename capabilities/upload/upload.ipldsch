@@ -1,50 +1,61 @@
+# Schema for the upload capabilities
+
+# Caveats for the upload/add capability
 type AddCaveats struct {
-    root Link
-    shards [Link] (optional)
+  root Link
+  shards [Link]
 }
 
+# Success response for the upload/add capability
 type AddOk struct {
-    root Link
-    shards [Link] (optional)
+  root Link
+  shards optional [Link]
 }
 
+# Caveats for the upload/get capability
 type GetCaveats struct {
-    root Link (optional)
+  root Link
 }
 
+# Success response for the upload/get capability
 type GetOk struct {
-    root Link
-    shards [Link] (optional)
-    insertedAt String
-    updatedAt String
+  root Link
+  shards optional [Link]
+  insertedAt ISO8601Date
+  updatedAt ISO8601Date
 }
 
+# Caveats for the upload/remove capability
 type RemoveCaveats struct {
-    root Link
+  root Link
 }
 
+# Success response for the upload/remove capability
 type RemoveOk struct {
-    root Link
-    shards [Link] (optional)
+  root Link
+  shards optional [Link]
 }
 
+# Caveats for the upload/list capability
 type ListCaveats struct {
-    cursor String (optional)
-    size Int (optional)
-    pre Bool (optional)
+  cursor optional String
+  size optional Int
+  pre optional Bool
 }
 
+# Item in the list results
 type ListItem struct {
-    root Link
-    shards [Link] (optional)
-    insertedAt String
-    updatedAt String
+  root Link
+  shards optional [Link]
+  insertedAt ISO8601Date
+  updatedAt ISO8601Date
 }
 
+# Success response for the upload/list capability
 type ListOk struct {
-    cursor String (optional)
-    before String (optional)
-    after String (optional)
-    size Int
-    results [ListItem]
+  cursor optional String
+  before optional String
+  after optional String
+  size Int
+  results [ListItem]
 }

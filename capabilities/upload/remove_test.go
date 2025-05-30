@@ -3,9 +3,11 @@ package upload_test
 import (
 	"testing"
 
-	"github.com/ipfs/go-cid"
-	"github.com/storacha/go-libstoracha/capabilities/upload"
+	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/stretchr/testify/require"
+
+	"github.com/storacha/go-libstoracha/capabilities/upload"
+	"github.com/storacha/go-libstoracha/internal/testutil"
 )
 
 func TestRemoveCapability(t *testing.T) {
@@ -17,11 +19,8 @@ func TestRemoveCapability(t *testing.T) {
 }
 
 func TestRemoveCaveatsRoundTrip(t *testing.T) {
-	rootCid, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
-	require.NoError(t, err)
-
 	nb := upload.RemoveCaveats{
-		Root: rootCid,
+		Root: testutil.RandomCID(t),
 	}
 
 	node, err := nb.ToIPLD()
@@ -32,16 +31,10 @@ func TestRemoveCaveatsRoundTrip(t *testing.T) {
 	require.Equal(t, nb.Root.String(), rnb.Root.String())
 }
 
-func TestRemoveOkRoundTrip(t *testing.T) {
-	rootCid, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
-	require.NoError(t, err)
-
-	shard1Cid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
-	require.NoError(t, err)
-
+func TestRemoveOkSerialization(t *testing.T) {
 	ok := upload.RemoveOk{
-		Root:   rootCid,
-		Shards: []cid.Cid{shard1Cid},
+		Root:   testutil.RandomCID(t),
+		Shards: []ipld.Link{testutil.RandomCID(t)},
 	}
 
 	node, err := ok.ToIPLD()
