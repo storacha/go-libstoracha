@@ -15,8 +15,8 @@ const (
 )
 
 type SubmitCaveats struct {
-	Content datamodel.Link `ipld:"content"`
-	Piece   datamodel.Link `ipld:"piece"`
+	Content datamodel.Link
+	Piece   datamodel.Link
 }
 
 func (sc SubmitCaveats) ToIPLD() (datamodel.Node, error) {
@@ -26,7 +26,7 @@ func (sc SubmitCaveats) ToIPLD() (datamodel.Node, error) {
 var SubmitCaveatsReader = schema.Struct[SubmitCaveats](SubmitCaveatsType(), nil, types.Converters...)
 
 type SubmitOk struct {
-	Piece datamodel.Link `ipld:"piece"`
+	Piece datamodel.Link
 }
 
 func (so SubmitOk) ToIPLD() (datamodel.Node, error) {

@@ -15,8 +15,8 @@ const (
 )
 
 type OfferCaveats struct {
-	Content datamodel.Link `ipld:"content"`
-	Piece   datamodel.Link `ipld:"piece"`
+	Content datamodel.Link
+	Piece   datamodel.Link
 }
 
 func (oc OfferCaveats) ToIPLD() (datamodel.Node, error) {
@@ -26,7 +26,7 @@ func (oc OfferCaveats) ToIPLD() (datamodel.Node, error) {
 var OfferCaveatsReader = schema.Struct[OfferCaveats](OfferCaveatsType(), nil, types.Converters...)
 
 type OfferOk struct {
-	Piece datamodel.Link `ipld:"piece"`
+	Piece datamodel.Link
 }
 
 func (oo OfferOk) ToIPLD() (datamodel.Node, error) {

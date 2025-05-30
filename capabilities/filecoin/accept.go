@@ -15,8 +15,8 @@ const (
 )
 
 type AcceptCaveats struct {
-	Content datamodel.Link `ipld:"content"`
-	Piece   datamodel.Link `ipld:"piece"`
+	Content datamodel.Link
+	Piece   datamodel.Link
 }
 
 func (ac AcceptCaveats) ToIPLD() (datamodel.Node, error) {
@@ -26,10 +26,10 @@ func (ac AcceptCaveats) ToIPLD() (datamodel.Node, error) {
 var AcceptCaveatsReader = schema.Struct[AcceptCaveats](AcceptCaveatsType(), nil, types.Converters...)
 
 type AcceptOk struct {
-	Piece     datamodel.Link `ipld:"piece"`
-	Aggregate datamodel.Link `ipld:"aggregate"`
-	Inclusion InclusionProof `ipld:"inclusion"`
-	Aux       DealMetadata   `ipld:"aux"`
+	Piece     datamodel.Link
+	Aggregate datamodel.Link
+	Inclusion InclusionProof
+	Aux       DealMetadata
 }
 
 func (ao AcceptOk) ToIPLD() (datamodel.Node, error) {

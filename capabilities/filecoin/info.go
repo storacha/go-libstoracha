@@ -17,21 +17,21 @@ const (
 type ProofData []byte
 
 type InclusionProof struct {
-	Subtree ProofData `ipld:"subtree"`
-	Index   ProofData `ipld:"index"`
+	Subtree ProofData
+	Index   ProofData
 }
 
 type SingletonMarketSource struct {
-	DealID uint64 `ipld:"dealID"`
+	DealID uint64
 }
 
 type DealMetadata struct {
-	DataType   uint64                `ipld:"dataType"`
-	DataSource SingletonMarketSource `ipld:"dataSource"`
+	DataType   uint64
+	DataSource SingletonMarketSource
 }
 
 type InfoCaveats struct {
-	Piece datamodel.Link `ipld:"piece"`
+	Piece datamodel.Link
 }
 
 func (ic InfoCaveats) ToIPLD() (datamodel.Node, error) {
@@ -41,20 +41,20 @@ func (ic InfoCaveats) ToIPLD() (datamodel.Node, error) {
 var InfoCaveatsReader = schema.Struct[InfoCaveats](InfoCaveatsType(), nil, types.Converters...)
 
 type InfoAcceptedAggregate struct {
-	Aggregate datamodel.Link `ipld:"aggregate"`
-	Inclusion InclusionProof `ipld:"inclusion"`
+	Aggregate datamodel.Link
+	Inclusion InclusionProof
 }
 
 type InfoAcceptedDeal struct {
-	Aggregate datamodel.Link `ipld:"aggregate"`
-	Aux       DealMetadata   `ipld:"aux"`
-	Provider  string         `ipld:"provider"`
+	Aggregate datamodel.Link
+	Aux       DealMetadata
+	Provider  string
 }
 
 type InfoOk struct {
-	Piece      datamodel.Link          `ipld:"piece"`
-	Aggregates []InfoAcceptedAggregate `ipld:"aggregates"`
-	Deals      []InfoAcceptedDeal      `ipld:"deals"`
+	Piece      datamodel.Link
+	Aggregates []InfoAcceptedAggregate
+	Deals      []InfoAcceptedDeal
 }
 
 func (io InfoOk) ToIPLD() (datamodel.Node, error) {
