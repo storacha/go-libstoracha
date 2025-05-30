@@ -43,7 +43,7 @@ var Index = validator.NewCapability(
 	schema.DIDString(),
 	schema.Struct[struct{}](nil, nil, types.Converters...),
 	func(claimed, delegated ucan.Capability[struct{}]) failure.Failure {
-		return EqualWith(claimed.With(), delegated.With())
+		return equalWith(claimed, delegated)
 	},
 )
 
@@ -69,22 +69,12 @@ var Add = validator.NewCapability(
 	schema.DIDString(),
 	schema.Struct[AddCaveats](nil, nil, types.Converters...),
 	func(claimed, delegated ucan.Capability[AddCaveats]) failure.Failure {
-		// Check if the `with` fields are equal
-		if err := EqualWith(claimed.With(), delegated.With()); err != nil {
-			return err
+		if fail := equalWith(claimed, delegated); fail != nil {
+			return fail
 		}
 
-		claimedCaveats := claimed.Nb()
-		delegatedCaveats := delegated.Nb()
-		// If delegated doesn't specify an index, allow any index
-		if delegatedCaveats.Index != nil && claimedCaveats.Index != nil {
-			if claimedCaveats.Index.String() != delegatedCaveats.Index.String() {
-				return schema.NewSchemaError(fmt.Sprintf(
-					"index '%s' doesn't match delegated '%s'",
-					claimedCaveats.Index.String(),
-					delegatedCaveats.Index.String(),
-				))
-			}
+		if fail := equalIndex(claimed, delegated); fail != nil {
+			return fail
 		}
 
 		return nil
@@ -92,12 +82,33 @@ var Add = validator.NewCapability(
 )
 
 // equalWith validates that the claimed capability's `with` field matches the delegated one.
-func EqualWith(claimed, delegated string) failure.Failure {
-	if claimed != delegated {
+func equalWith[Caveats any](claimed, delegated ucan.Capability[Caveats]) failure.Failure {
+	if claimed.With() != delegated.With() {
 		return schema.NewSchemaError(fmt.Sprintf(
-			"resource '%s' doesn't match delegated '%s'",
-			claimed, delegated,
+			"Resource '%s' doesn't match delegated '%s'",
+			claimed.With(), delegated.With(),
 		))
 	}
+
+	return nil
+}
+
+// equalIndex validates that the claimed capability's `index` field matches the
+// delegated one's, if any
+func equalIndex(claimed, delegated ucan.Capability[AddCaveats]) failure.Failure {
+	claimedCaveats := claimed.Nb()
+	delegatedCaveats := delegated.Nb()
+
+	// If delegated doesn't specify an index, allow any index
+	if delegatedCaveats.Index != nil && claimedCaveats.Index != nil {
+		if claimedCaveats.Index.String() != delegatedCaveats.Index.String() {
+			return schema.NewSchemaError(fmt.Sprintf(
+				"index '%s' doesn't match delegated '%s'",
+				claimedCaveats.Index.String(),
+				delegatedCaveats.Index.String(),
+			))
+		}
+	}
+
 	return nil
 }
