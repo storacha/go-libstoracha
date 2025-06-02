@@ -10,9 +10,7 @@ import (
 	"github.com/storacha/go-ucanto/validator"
 )
 
-const (
-	OfferAbility = "filecoin/offer"
-)
+const OfferAbility = "filecoin/offer"
 
 type OfferCaveats struct {
 	Content datamodel.Link

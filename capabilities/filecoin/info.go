@@ -10,9 +10,7 @@ import (
 	"github.com/storacha/go-ucanto/validator"
 )
 
-const (
-	InfoAbility = "filecoin/info"
-)
+const InfoAbility = "filecoin/info"
 
 type ProofData []byte
 

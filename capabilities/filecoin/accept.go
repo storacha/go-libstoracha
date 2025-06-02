@@ -10,9 +10,7 @@ import (
 	"github.com/storacha/go-ucanto/validator"
 )
 
-const (
-	AcceptAbility = "filecoin/accept"
-)
+const AcceptAbility = "filecoin/accept"
 
 type AcceptCaveats struct {
 	Content datamodel.Link

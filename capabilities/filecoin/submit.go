@@ -10,9 +10,7 @@ import (
 	"github.com/storacha/go-ucanto/validator"
 )
 
-const (
-	SubmitAbility = "filecoin/submit"
-)
+const SubmitAbility = "filecoin/submit"
 
 type SubmitCaveats struct {
 	Content datamodel.Link

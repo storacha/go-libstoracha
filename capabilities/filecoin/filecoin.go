@@ -12,9 +12,7 @@ import (
 	"github.com/storacha/go-ucanto/validator"
 )
 
-const (
-	FilecoinAbility = "filecoin/*"
-)
+const FilecoinAbility = "filecoin/*"
 
 type PieceLink datamodel.Link
 
