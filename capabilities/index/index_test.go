@@ -4,20 +4,16 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/ipfs/go-cid"
 	"github.com/ipld/go-ipld-prime/codec/dagjson"
-	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
 	basicnode "github.com/ipld/go-ipld-prime/node/basic"
 	"github.com/storacha/go-libstoracha/capabilities/index"
+	"github.com/storacha/go-libstoracha/capabilities/internal/testutil"
 	"github.com/stretchr/testify/require"
 )
 
 func TestRoundTripAddCaveats(t *testing.T) {
-	testCid, err := cid.Parse("bafybeiduiecxoeiqs3gyc6r7v3lymmhserldnpw62qjnhmqsulqjxjmtzi")
-	require.NoError(t, err)
-
 	nb := index.AddCaveats{
-		Index: cidlink.Link{Cid: testCid},
+		Index: testutil.RandomCID(t),
 	}
 
 	node, err := nb.ToIPLD()
