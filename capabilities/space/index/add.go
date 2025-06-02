@@ -27,6 +27,15 @@ func (ic AddCaveats) ToIPLD() (datamodel.Node, error) {
 
 var AddCaveatsReader = schema.Struct[AddCaveats](AddCaveatsType(), nil, types.Converters...)
 
+type AddOk struct {
+}
+
+func (ao AddOk) ToIPLD() (datamodel.Node, error) {
+	return ipld.WrapWithRecovery(&ao, AddOkType(), types.Converters...)
+}
+
+var AddOkReader = schema.Struct[AddOk](AddOkType(), nil, types.Converters...)
+
 // Add capability definition
 // This capability allows an agent to submit verifiable claims about content-addressable data
 // to be published on the InterPlanetary Network Indexer (IPNI), making it publicly queryable.

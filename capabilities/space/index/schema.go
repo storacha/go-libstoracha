@@ -5,22 +5,26 @@ import (
 	"fmt"
 
 	ipldprime "github.com/ipld/go-ipld-prime"
-	ipldschema "github.com/ipld/go-ipld-prime/schema"
+	"github.com/ipld/go-ipld-prime/schema"
 )
 
 //go:embed index.ipldsch
-var assertSchema []byte
+var indexSchema []byte
 
-var assertTS = mustLoadTS()
+var indexTS = mustLoadTS()
 
-func mustLoadTS() *ipldschema.TypeSystem {
-	ts, err := ipldprime.LoadSchemaBytes(assertSchema)
+func mustLoadTS() *schema.TypeSystem {
+	ts, err := ipldprime.LoadSchemaBytes(indexSchema)
 	if err != nil {
-		panic(fmt.Errorf("loading assert schema: %w", err))
+		panic(fmt.Errorf("loading index schema: %w", err))
 	}
 	return ts
 }
 
-func AddCaveatsType() ipldschema.Type {
-	return assertTS.TypeByName("AddCaveats")
+func AddCaveatsType() schema.Type {
+	return indexTS.TypeByName("AddCaveats")
+}
+
+func AddOkType() schema.Type {
+	return indexTS.TypeByName("AddOk")
 }
