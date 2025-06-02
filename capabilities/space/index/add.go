@@ -13,6 +13,8 @@ import (
 	"github.com/storacha/go-ucanto/validator"
 )
 
+const AddAbility = "space/index/add"
+
 // AddCaveats represents the arguments for the space/index/add capability
 type AddCaveats struct {
 	// Link is the Content Archive (CAR) containing the `Index`.
@@ -22,8 +24,6 @@ type AddCaveats struct {
 func (ic AddCaveats) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&ic, AddCaveatsType(), types.Converters...)
 }
-
-var AddAbility = "space/index/add"
 
 var AddCaveatsReader = schema.Struct[AddCaveats](AddCaveatsType(), nil, types.Converters...)
 

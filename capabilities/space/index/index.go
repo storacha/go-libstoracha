@@ -10,7 +10,7 @@ import (
 	"github.com/storacha/go-ucanto/validator"
 )
 
-var IndexAbility = "space/index/*"
+const IndexAbility = "space/index/*"
 
 // Index capability definition
 // This capability can only be delegated (but not invoked) allowing audience to
