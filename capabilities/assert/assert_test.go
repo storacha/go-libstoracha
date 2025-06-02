@@ -32,12 +32,13 @@ func TestRoundTripLocationCaveats(t *testing.T) {
 	node, err := nb.ToIPLD()
 	require.NoError(t, err)
 
-	buf := bytes.NewBuffer([]byte{})
-	err = dagjson.Encode(node, buf)
+	var buf bytes.Buffer
+
+	err = dagjson.Encode(node, &buf)
 	require.NoError(t, err)
 
 	builder := basicnode.Prototype.Any.NewBuilder()
-	err = dagjson.Decode(builder, buf)
+	err = dagjson.Decode(builder, &buf)
 	require.NoError(t, err)
 
 	rnb, err := assert.LocationCaveatsReader.Read(builder.Build())
