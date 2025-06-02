@@ -6,8 +6,8 @@ import (
 
 	"github.com/ipld/go-ipld-prime/codec/dagjson"
 	basicnode "github.com/ipld/go-ipld-prime/node/basic"
-	"github.com/storacha/go-libstoracha/capabilities/index"
 	"github.com/storacha/go-libstoracha/capabilities/internal/testutil"
+	"github.com/storacha/go-libstoracha/capabilities/space/index"
 	"github.com/stretchr/testify/require"
 )
 

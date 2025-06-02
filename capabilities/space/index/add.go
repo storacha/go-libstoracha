@@ -4,47 +4,13 @@ import (
 	_ "embed"
 	"fmt"
 
-	ipldprime "github.com/ipld/go-ipld-prime"
 	"github.com/ipld/go-ipld-prime/datamodel"
-	ipldschema "github.com/ipld/go-ipld-prime/schema"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
-)
-
-//go:embed index.ipldsch
-var assertSchema []byte
-
-var assertTS = mustLoadTS()
-
-func mustLoadTS() *ipldschema.TypeSystem {
-	ts, err := ipldprime.LoadSchemaBytes(assertSchema)
-	if err != nil {
-		panic(fmt.Errorf("loading assert schema: %w", err))
-	}
-	return ts
-}
-
-func AddCaveatsType() ipldschema.Type {
-	return assertTS.TypeByName("AddCaveats")
-}
-
-var IndexAbility = "space/index/*"
-
-// Index capability definition
-// This capability can only be delegated (but not invoked) allowing audience to
-// derive any `space/index/` prefixed capability for the space identified by the DID
-// in the `with` field.
-var Index = validator.NewCapability(
-	IndexAbility,
-	schema.DIDString(),
-	schema.Struct[struct{}](nil, nil, types.Converters...),
-	func(claimed, delegated ucan.Capability[struct{}]) failure.Failure {
-		return equalWith(claimed, delegated)
-	},
 )
 
 // AddCaveats represents the arguments for the space/index/add capability
