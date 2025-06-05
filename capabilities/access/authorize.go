@@ -1,6 +1,8 @@
 package access
 
 import (
+	"fmt"
+
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
@@ -24,7 +26,7 @@ type CapabilityRequest struct {
 // access/authorize invocation.
 type AuthorizeCaveats struct {
 	// DID of the Account authorization is requested from.
-	Iss did.DID
+	Iss *did.DID
 	// Capabilities agent wishes to be granted.
 	Att []CapabilityRequest
 }
@@ -58,5 +60,72 @@ var Authorize = validator.NewCapability(
 )
 
 func AuthorizeDerive(claimed, delegated ucan.Capability[AuthorizeCaveats]) failure.Failure {
+	if fail := equalWith(claimed, delegated); fail != nil {
+		return fail
+	}
+
+	if fail := equalIss(claimed, delegated); fail != nil {
+		return fail
+	}
+
+	if fail := subsetCapabilities(claimed.Nb().Att, delegated.Nb().Att); fail != nil {
+		return fail
+	}
+
+	return nil
+}
+
+// equalWith validates that the claimed capability's `with` field matches the delegated one.
+func equalWith(claimed, delegated ucan.Capability[AuthorizeCaveats]) failure.Failure {
+	if claimed.With() != delegated.With() {
+		return schema.NewSchemaError(fmt.Sprintf(
+			"resource '%s' doesn't match delegated '%s'",
+			claimed.With(), delegated.With(),
+		))
+	}
+
+	return nil
+}
+
+// equalIss checks if the issuer matches between two capabilities.
+func equalIss(claimed, delegated ucan.Capability[AuthorizeCaveats]) failure.Failure {
+	if delegated.Nb().Iss != claimed.Nb().Iss {
+		return schema.NewSchemaError(fmt.Sprintf(
+			"claimed issuer '%v' doesn't match delegated '%v'",
+			claimed.Nb().Iss, delegated.Nb().Iss,
+		))
+	}
+
+	return nil
+}
+
+// subsetCapabilities checks if the headers match between two capabilities.
+func subsetCapabilities(claimed, delegated []CapabilityRequest) failure.Failure {
+	delegatedCaps := make(map[string]bool)
+	for _, cap := range delegated {
+		delegatedCaps[cap.Can] = true
+	}
+
+	if delegatedCaps["*"] {
+		// If everything is allowed, no need to check further because it contains
+		// all the capabilities.
+		return nil
+	}
+
+	// Otherwise we compute delta between what is allowed and what is requested.
+	escalated := make([]string, 0, len(claimed))
+	for _, cap := range claimed {
+		if !delegatedCaps[cap.Can] {
+			escalated = append(escalated, cap.Can)
+		}
+	}
+
+	if len(escalated) > 0 {
+		return schema.NewSchemaError(fmt.Sprintf(
+			"unauthorized nb.att.can %v",
+			escalated,
+		))
+	}
+
 	return nil
 }
