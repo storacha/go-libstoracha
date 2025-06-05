@@ -3,6 +3,7 @@ package access_test
 import (
 	"testing"
 
+	"github.com/ipld/go-ipld-prime"
 	"github.com/storacha/go-libstoracha/capabilities/access"
 	"github.com/storacha/go-libstoracha/internal/testutil"
 	"github.com/storacha/go-ucanto/did"
@@ -10,11 +11,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestRoundTripAuthorizeCaveats(t *testing.T) {
+func TestRoundTripConfirmCaveats(t *testing.T) {
 	alice, err := did.Parse("did:mailto:example.com:alice")
 	require.NoError(t, err)
-	nb := access.AuthorizeCaveats{
-		Iss: &alice,
+
+	bob, err := did.Parse("did:mailto:example.com:bob")
+	require.NoError(t, err)
+
+	nb := access.ConfirmCaveats{
+		Cause: testutil.RandomCID(t),
+		Iss:   alice,
+		Aud:   bob,
 		Att: []access.CapabilityRequest{
 			{Can: "stuff/do"},
 			{Can: "stuff/say"},
@@ -24,34 +31,41 @@ func TestRoundTripAuthorizeCaveats(t *testing.T) {
 	node, err := nb.ToIPLD()
 	require.NoError(t, err)
 
-	rnb, err := access.AuthorizeCaveatsReader.Read(node)
+	rnb, err := access.ConfirmCaveatsReader.Read(node)
 	require.NoError(t, err)
 	require.Equal(t, nb, rnb)
 }
 
-func TestRoundTripAuthorizeOk(t *testing.T) {
-	ok := access.AuthorizeOk{
-		Request:    testutil.RandomCID(t),
-		Expiration: 1234,
+func TestRoundTripConfirmOk(t *testing.T) {
+	ok := access.ConfirmOk{
+		Delegations: []ipld.Link{
+			testutil.RandomCID(t),
+			testutil.RandomCID(t),
+		},
 	}
 
 	node, err := ok.ToIPLD()
 	require.NoError(t, err)
 
-	rok, err := access.AuthorizeOkReader.Read(node)
+	rok, err := access.ConfirmOkReader.Read(node)
 	require.NoError(t, err)
 	require.Equal(t, ok, rok)
 }
 
-func TestAuthorizeDerive(t *testing.T) {
+func TestConfirmDerive(t *testing.T) {
 	alice, err := did.Parse("did:mailto:example.com:alice")
 	require.NoError(t, err)
 
+	bob, err := did.Parse("did:mailto:example.com:bob")
+	require.NoError(t, err)
+
 	delegated := ucan.NewCapability(
-		access.AuthorizeAbility,
+		access.ConfirmAbility,
 		"did:mailto:example.com:alice",
-		access.AuthorizeCaveats{
-			Iss: &alice,
+		access.ConfirmCaveats{
+			Cause: testutil.RandomCID(t),
+			Iss:   alice,
+			Aud:   bob,
 			Att: []access.CapabilityRequest{
 				{Can: "stuff/do"},
 				{Can: "stuff/say"},
@@ -66,7 +80,7 @@ func TestAuthorizeDerive(t *testing.T) {
 			delegated.Nb(),
 		)
 
-		fail := access.AuthorizeDerive(claimed, delegated)
+		fail := access.ConfirmDerive(claimed, delegated)
 		require.NoError(t, fail)
 	})
 
@@ -77,24 +91,39 @@ func TestAuthorizeDerive(t *testing.T) {
 			delegated.Nb(),
 		)
 
-		fail := access.AuthorizeDerive(claimed, delegated)
+		fail := access.ConfirmDerive(claimed, delegated)
 		require.Error(t, fail)
 	})
 
 	t.Run("rejects the wrong issuer", func(t *testing.T) {
-		bob, err := did.Parse("did:mailto:example.com:bob")
-		require.NoError(t, err)
-
 		claimed := ucan.NewCapability(
 			delegated.Can(),
 			delegated.With(),
-			access.AuthorizeCaveats{
-				Iss: &bob,
-				Att: delegated.Nb().Att,
+			access.ConfirmCaveats{
+				Cause: delegated.Nb().Cause,
+				Iss:   bob,
+				Aud:   delegated.Nb().Aud,
+				Att:   delegated.Nb().Att,
 			},
 		)
 
-		fail := access.AuthorizeDerive(claimed, delegated)
+		fail := access.ConfirmDerive(claimed, delegated)
+		require.Error(t, fail)
+	})
+
+	t.Run("rejects the wrong audience", func(t *testing.T) {
+		claimed := ucan.NewCapability(
+			delegated.Can(),
+			delegated.With(),
+			access.ConfirmCaveats{
+				Cause: delegated.Nb().Cause,
+				Iss:   delegated.Nb().Iss,
+				Aud:   alice,
+				Att:   delegated.Nb().Att,
+			},
+		)
+
+		fail := access.ConfirmDerive(claimed, delegated)
 		require.Error(t, fail)
 	})
 
@@ -102,15 +131,17 @@ func TestAuthorizeDerive(t *testing.T) {
 		claimed := ucan.NewCapability(
 			delegated.Can(),
 			delegated.With(),
-			access.AuthorizeCaveats{
-				Iss: delegated.Nb().Iss,
+			access.ConfirmCaveats{
+				Cause: delegated.Nb().Cause,
+				Iss:   delegated.Nb().Iss,
+				Aud:   delegated.Nb().Aud,
 				Att: []access.CapabilityRequest{
 					{Can: "stuff/do"},
 					{Can: "stuff/yell"},
 				}},
 		)
 
-		fail := access.AuthorizeDerive(claimed, delegated)
+		fail := access.ConfirmDerive(claimed, delegated)
 		require.Error(t, fail)
 	})
 
@@ -118,14 +149,16 @@ func TestAuthorizeDerive(t *testing.T) {
 		claimed := ucan.NewCapability(
 			delegated.Can(),
 			delegated.With(),
-			access.AuthorizeCaveats{
-				Iss: delegated.Nb().Iss,
+			access.ConfirmCaveats{
+				Cause: delegated.Nb().Cause,
+				Iss:   delegated.Nb().Iss,
+				Aud:   delegated.Nb().Aud,
 				Att: []access.CapabilityRequest{
 					{Can: "stuff/do"},
 				}},
 		)
 
-		fail := access.AuthorizeDerive(claimed, delegated)
+		fail := access.ConfirmDerive(claimed, delegated)
 		require.NoError(t, fail)
 	})
 
@@ -133,8 +166,10 @@ func TestAuthorizeDerive(t *testing.T) {
 		wildcardDelegated := ucan.NewCapability(
 			delegated.Can(),
 			delegated.With(),
-			access.AuthorizeCaveats{
-				Iss: delegated.Nb().Iss,
+			access.ConfirmCaveats{
+				Cause: delegated.Nb().Cause,
+				Iss:   delegated.Nb().Iss,
+				Aud:   delegated.Nb().Aud,
 				Att: []access.CapabilityRequest{
 					{Can: "*"},
 				}},
@@ -143,15 +178,33 @@ func TestAuthorizeDerive(t *testing.T) {
 		claimed := ucan.NewCapability(
 			delegated.Can(),
 			delegated.With(),
-			access.AuthorizeCaveats{
-				Iss: delegated.Nb().Iss,
+			access.ConfirmCaveats{
+				Cause: delegated.Nb().Cause,
+				Iss:   delegated.Nb().Iss,
+				Aud:   delegated.Nb().Aud,
 				Att: []access.CapabilityRequest{
 					{Can: "stuff/do"},
 					{Can: "stuff/yell"},
 				}},
 		)
 
-		fail := access.AuthorizeDerive(claimed, wildcardDelegated)
+		fail := access.ConfirmDerive(claimed, wildcardDelegated)
 		require.NoError(t, fail)
+	})
+
+	t.Run("rejects a non-matching cause", func(t *testing.T) {
+		claimed := ucan.NewCapability(
+			delegated.Can(),
+			delegated.With(),
+			access.ConfirmCaveats{
+				Cause: testutil.RandomCID(t),
+				Iss:   delegated.Nb().Iss,
+				Aud:   delegated.Nb().Aud,
+				Att:   delegated.Nb().Att,
+			},
+		)
+
+		fail := access.ConfirmDerive(claimed, delegated)
+		require.Error(t, fail)
 	})
 }

@@ -1,13 +1,25 @@
 type CapabilityRequest struct {
-  Can String
+  can String
 }
 
 type AuthorizeCaveats struct {
-  Iss optional DID
-  Att [CapabilityRequest]
+  iss optional DID
+  att [CapabilityRequest]
 }
 
 type AuthorizeOk struct {
   request    Link
   expiration Int
+}
+
+type ConfirmCaveats struct {
+  cause Link
+  iss   DID
+  aud   DID
+  att   [CapabilityRequest]
+}
+
+type ConfirmOk struct {
+  # TK: This may be incorrect.
+  delegations [Link]
 }

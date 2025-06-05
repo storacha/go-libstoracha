@@ -29,3 +29,11 @@ func AuthorizeCaveatsType() schema.Type {
 func AuthorizeOkType() schema.Type {
 	return accessTS.TypeByName("AuthorizeOk")
 }
+
+func ConfirmCaveatsType() schema.Type {
+	return accessTS.TypeByName("ConfirmCaveats")
+}
+
+func ConfirmOkType() schema.Type {
+	return accessTS.TypeByName("ConfirmOk")
+}
