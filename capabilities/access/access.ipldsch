@@ -1,0 +1,13 @@
+type CapabilityRequest struct {
+  Can String
+}
+
+type AuthorizeCaveats struct {
+  Iss optional DID
+  Att [CapabilityRequest]
+}
+
+type AuthorizeOk struct {
+  request    Link
+  expiration Int
+}
