@@ -12,6 +12,11 @@ import (
 
 const AccessAbility = "access/*"
 
+type DelegationsModel struct {
+	Keys   []string
+	Values map[string][]byte
+}
+
 // Access capability definition
 // This capability can only be delegated (but not invoked) allowing audience to
 // derive any `access/` prefixed capability for the space identified by the DID

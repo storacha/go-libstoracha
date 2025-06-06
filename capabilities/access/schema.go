@@ -37,3 +37,11 @@ func ConfirmCaveatsType() schema.Type {
 func ConfirmOkType() schema.Type {
 	return accessTS.TypeByName("ConfirmOk")
 }
+
+func ClaimCaveatsType() schema.Type {
+	return accessTS.TypeByName("ClaimCaveats")
+}
+
+func ClaimOkType() schema.Type {
+	return accessTS.TypeByName("ClaimOk")
+}

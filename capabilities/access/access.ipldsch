@@ -22,3 +22,10 @@ type ConfirmCaveats struct {
 type ConfirmOk struct {
   delegations {String:Bytes}
 }
+
+type ClaimCaveats struct {
+}
+
+type ClaimOk struct {
+  delegations {String:Bytes}
+}
