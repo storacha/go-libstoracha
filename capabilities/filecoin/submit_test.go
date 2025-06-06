@@ -3,24 +3,15 @@ package filecoin_test
 import (
 	"testing"
 
-	"github.com/ipfs/go-cid"
-	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
 	"github.com/storacha/go-libstoracha/capabilities/filecoin"
+	"github.com/storacha/go-libstoracha/capabilities/internal/testutil"
 	"github.com/stretchr/testify/require"
 )
 
 func TestSubmitCaveatsRoundTrip(t *testing.T) {
-	contentCid, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
-	require.NoError(t, err)
-	contentLink := cidlink.Link{Cid: contentCid}
-
-	pieceCid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
-	require.NoError(t, err)
-	pieceLink := cidlink.Link{Cid: pieceCid}
-
 	nb := filecoin.SubmitCaveats{
-		Content: contentLink,
-		Piece:   pieceLink,
+		Content: testutil.RandomCID(t),
+		Piece:   testutil.RandomCID(t),
 	}
 
 	node, err := nb.ToIPLD()
@@ -33,12 +24,8 @@ func TestSubmitCaveatsRoundTrip(t *testing.T) {
 }
 
 func TestSubmitOkRoundTrip(t *testing.T) {
-	pieceCid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
-	require.NoError(t, err)
-	pieceLink := cidlink.Link{Cid: pieceCid}
-
 	ok := filecoin.SubmitOk{
-		Piece: pieceLink,
+		Piece: testutil.RandomCID(t),
 	}
 
 	node, err := ok.ToIPLD()

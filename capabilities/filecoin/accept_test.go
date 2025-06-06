@@ -3,24 +3,16 @@ package filecoin_test
 import (
 	"testing"
 
-	"github.com/ipfs/go-cid"
-	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
 	"github.com/storacha/go-libstoracha/capabilities/filecoin"
+	"github.com/storacha/go-libstoracha/capabilities/internal/testutil"
 	"github.com/stretchr/testify/require"
 )
 
 func TestAcceptCaveatsRoundTrip(t *testing.T) {
-	contentCid, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
-	require.NoError(t, err)
-	contentLink := cidlink.Link{Cid: contentCid}
-
-	pieceCid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
-	require.NoError(t, err)
-	pieceLink := cidlink.Link{Cid: pieceCid}
 
 	nb := filecoin.AcceptCaveats{
-		Content: contentLink,
-		Piece:   pieceLink,
+		Content: testutil.RandomCID(t),
+		Piece:   testutil.RandomCID(t),
 	}
 
 	node, err := nb.ToIPLD()
@@ -33,17 +25,9 @@ func TestAcceptCaveatsRoundTrip(t *testing.T) {
 }
 
 func TestAcceptOkRoundTrip(t *testing.T) {
-	pieceCid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
-	require.NoError(t, err)
-	pieceLink := cidlink.Link{Cid: pieceCid}
-
-	aggregateCid, err := cid.Parse("bafybeid46f7zggioxjm5p2ze2l6s6wbqvoo4gzbdzuibgwbhe5iopu2aiy")
-	require.NoError(t, err)
-	aggregateLink := cidlink.Link{Cid: aggregateCid}
-
 	ok := filecoin.AcceptOk{
-		Piece:     pieceLink,
-		Aggregate: aggregateLink,
+		Piece:     testutil.RandomCID(t),
+		Aggregate: testutil.RandomCID(t),
 		Inclusion: filecoin.InclusionProof{
 			Subtree: []byte{1, 2, 3},
 			Index:   []byte{4, 5, 6},
