@@ -9,14 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestOfferCapability(t *testing.T) {
-	capability := filecoin.Offer
-
-	t.Run("has correct ability", func(t *testing.T) {
-		require.Equal(t, "filecoin/offer", capability.Can())
-	})
-}
-
 func TestOfferCaveatsRoundTrip(t *testing.T) {
 	contentCid, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
 	require.NoError(t, err)

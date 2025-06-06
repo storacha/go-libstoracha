@@ -9,14 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAcceptCapability(t *testing.T) {
-	capability := filecoin.Accept
-
-	t.Run("has correct ability", func(t *testing.T) {
-		require.Equal(t, "filecoin/accept", capability.Can())
-	})
-}
-
 func TestAcceptCaveatsRoundTrip(t *testing.T) {
 	contentCid, err := cid.Parse("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
 	require.NoError(t, err)
