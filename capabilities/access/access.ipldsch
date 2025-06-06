@@ -1,0 +1,38 @@
+type CapabilityRequest struct {
+  can String
+}
+
+type AuthorizeCaveats struct {
+  iss optional DID
+  att [CapabilityRequest]
+}
+
+type AuthorizeOk struct {
+  request    Link
+  expiration Int
+}
+
+type ConfirmCaveats struct {
+  cause Link
+  iss   DID
+  aud   DID
+  att   [CapabilityRequest]
+}
+
+type ConfirmOk struct {
+  delegations {String:Bytes}
+}
+
+type ClaimCaveats struct {
+}
+
+type ClaimOk struct {
+  delegations {String:Bytes}
+}
+
+type DelegateCaveats struct {
+  delegations {String:Link}
+}
+
+type DelegateOk struct {
+}
