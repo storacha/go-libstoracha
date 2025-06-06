@@ -11,8 +11,7 @@ import (
 )
 
 func TestRoundTripAuthorizeCaveats(t *testing.T) {
-	alice, err := did.Parse("did:mailto:example.com:alice")
-	require.NoError(t, err)
+	alice := testutil.Must(did.Parse("did:mailto:example.com:alice"))(t)
 	nb := access.AuthorizeCaveats{
 		Iss: &alice,
 		Att: []access.CapabilityRequest{
@@ -44,8 +43,7 @@ func TestRoundTripAuthorizeOk(t *testing.T) {
 }
 
 func TestAuthorizeDerive(t *testing.T) {
-	alice, err := did.Parse("did:mailto:example.com:alice")
-	require.NoError(t, err)
+	alice := testutil.Must(did.Parse("did:mailto:example.com:alice"))(t)
 
 	delegated := ucan.NewCapability(
 		access.AuthorizeAbility,
@@ -107,7 +105,8 @@ func TestAuthorizeDerive(t *testing.T) {
 				Att: []access.CapabilityRequest{
 					{Can: "stuff/do"},
 					{Can: "stuff/yell"},
-				}},
+				},
+			},
 		)
 
 		fail := access.AuthorizeDerive(claimed, delegated)
@@ -122,7 +121,8 @@ func TestAuthorizeDerive(t *testing.T) {
 				Iss: delegated.Nb().Iss,
 				Att: []access.CapabilityRequest{
 					{Can: "stuff/do"},
-				}},
+				},
+			},
 		)
 
 		fail := access.AuthorizeDerive(claimed, delegated)
@@ -137,7 +137,8 @@ func TestAuthorizeDerive(t *testing.T) {
 				Iss: delegated.Nb().Iss,
 				Att: []access.CapabilityRequest{
 					{Can: "*"},
-				}},
+				},
+			},
 		)
 
 		claimed := ucan.NewCapability(
@@ -148,7 +149,8 @@ func TestAuthorizeDerive(t *testing.T) {
 				Att: []access.CapabilityRequest{
 					{Can: "stuff/do"},
 					{Can: "stuff/yell"},
-				}},
+				},
+			},
 		)
 
 		fail := access.AuthorizeDerive(claimed, wildcardDelegated)

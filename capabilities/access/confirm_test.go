@@ -13,11 +13,8 @@ import (
 )
 
 func TestRoundTripConfirmCaveats(t *testing.T) {
-	alice, err := did.Parse("did:mailto:example.com:alice")
-	require.NoError(t, err)
-
-	bob, err := did.Parse("did:mailto:example.com:bob")
-	require.NoError(t, err)
+	alice := testutil.Must(did.Parse("did:mailto:example.com:alice"))(t)
+	bob := testutil.Must(did.Parse("did:mailto:example.com:bob"))(t)
 
 	nb := access.ConfirmCaveats{
 		Cause: testutil.RandomCID(t),
@@ -60,11 +57,8 @@ func TestRoundTripConfirmOk(t *testing.T) {
 }
 
 func TestConfirmDerive(t *testing.T) {
-	alice, err := did.Parse("did:mailto:example.com:alice")
-	require.NoError(t, err)
-
-	bob, err := did.Parse("did:mailto:example.com:bob")
-	require.NoError(t, err)
+	alice := testutil.Must(did.Parse("did:mailto:example.com:alice"))(t)
+	bob := testutil.Must(did.Parse("did:mailto:example.com:bob"))(t)
 
 	delegated := ucan.NewCapability(
 		access.ConfirmAbility,
@@ -145,7 +139,8 @@ func TestConfirmDerive(t *testing.T) {
 				Att: []access.CapabilityRequest{
 					{Can: "stuff/do"},
 					{Can: "stuff/yell"},
-				}},
+				},
+			},
 		)
 
 		fail := access.ConfirmDerive(claimed, delegated)
@@ -162,7 +157,8 @@ func TestConfirmDerive(t *testing.T) {
 				Aud:   delegated.Nb().Aud,
 				Att: []access.CapabilityRequest{
 					{Can: "stuff/do"},
-				}},
+				},
+			},
 		)
 
 		fail := access.ConfirmDerive(claimed, delegated)
@@ -179,7 +175,8 @@ func TestConfirmDerive(t *testing.T) {
 				Aud:   delegated.Nb().Aud,
 				Att: []access.CapabilityRequest{
 					{Can: "*"},
-				}},
+				},
+			},
 		)
 
 		claimed := ucan.NewCapability(
@@ -192,7 +189,8 @@ func TestConfirmDerive(t *testing.T) {
 				Att: []access.CapabilityRequest{
 					{Can: "stuff/do"},
 					{Can: "stuff/yell"},
-				}},
+				},
+			},
 		)
 
 		fail := access.ConfirmDerive(claimed, wildcardDelegated)
