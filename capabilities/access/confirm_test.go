@@ -38,7 +38,7 @@ func TestRoundTripConfirmCaveats(t *testing.T) {
 }
 
 func TestRoundTripConfirmOk(t *testing.T) {
-	delegations := access.Delegations{
+	delegations := access.DelegationsModel{
 		Keys:   make([]string, 0, 2),
 		Values: make(map[string][]byte),
 	}

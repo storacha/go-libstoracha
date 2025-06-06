@@ -30,7 +30,7 @@ func (pc ConfirmCaveats) ToIPLD() (datamodel.Node, error) {
 
 var ConfirmCaveatsReader = schema.Struct[ConfirmCaveats](ConfirmCaveatsType(), nil, types.Converters...)
 
-type Delegations struct {
+type DelegationsModel struct {
 	Keys   []string
 	Values map[string][]byte
 }
@@ -38,7 +38,7 @@ type Delegations struct {
 // ConfirmOk represents the successful response for a access/confirm
 // invocation.
 type ConfirmOk struct {
-	Delegations Delegations
+	Delegations DelegationsModel
 }
 
 func (po ConfirmOk) ToIPLD() (datamodel.Node, error) {
