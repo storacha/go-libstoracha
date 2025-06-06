@@ -29,3 +29,10 @@ type ClaimCaveats struct {
 type ClaimOk struct {
   delegations {String:Bytes}
 }
+
+type DelegateCaveats struct {
+  delegations {String:Link}
+}
+
+type DelegateOk struct {
+}

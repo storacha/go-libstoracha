@@ -45,3 +45,11 @@ func ClaimCaveatsType() schema.Type {
 func ClaimOkType() schema.Type {
 	return accessTS.TypeByName("ClaimOk")
 }
+
+func DelegateCaveatsType() schema.Type {
+	return accessTS.TypeByName("DelegateCaveats")
+}
+
+func DelegateOkType() schema.Type {
+	return accessTS.TypeByName("DelegateOk")
+}

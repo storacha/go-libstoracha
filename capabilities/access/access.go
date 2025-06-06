@@ -17,6 +17,11 @@ type DelegationsModel struct {
 	Values map[string][]byte
 }
 
+type DelegationLinksModel struct {
+	Keys   []string
+	Values map[string]ucan.Link
+}
+
 // Access capability definition
 // This capability can only be delegated (but not invoked) allowing audience to
 // derive any `access/` prefixed capability for the space identified by the DID
@@ -60,7 +65,8 @@ func equal(claimed, delegated any, constraint string) failure.Failure {
 	return nil
 }
 
-// subsetCapabilities checks if the headers match between two capabilities.
+// subsetCapabilities checks that set of requested capabilities is a subset of
+// the capabilities that had been allowed by the owner or the delegate.
 func subsetCapabilities(claimed, delegated []CapabilityRequest) failure.Failure {
 	delegatedCaps := make(map[string]bool)
 	for _, cap := range delegated {
