@@ -13,8 +13,8 @@ import (
 const AcceptAbility = "filecoin/accept"
 
 type AcceptCaveats struct {
-	Content datamodel.Link
-	Piece   datamodel.Link
+	Content ipld.Link
+	Piece   ipld.Link
 }
 
 func (ac AcceptCaveats) ToIPLD() (datamodel.Node, error) {
@@ -24,8 +24,8 @@ func (ac AcceptCaveats) ToIPLD() (datamodel.Node, error) {
 var AcceptCaveatsReader = schema.Struct[AcceptCaveats](AcceptCaveatsType(), nil, types.Converters...)
 
 type AcceptOk struct {
-	Piece     datamodel.Link
-	Aggregate datamodel.Link
+	Piece     ipld.Link
+	Aggregate ipld.Link
 	Inclusion InclusionProof
 	Aux       DealMetadata
 }

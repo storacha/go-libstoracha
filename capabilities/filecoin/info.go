@@ -29,7 +29,7 @@ type DealMetadata struct {
 }
 
 type InfoCaveats struct {
-	Piece datamodel.Link
+	Piece ipld.Link
 }
 
 func (ic InfoCaveats) ToIPLD() (datamodel.Node, error) {
@@ -39,18 +39,18 @@ func (ic InfoCaveats) ToIPLD() (datamodel.Node, error) {
 var InfoCaveatsReader = schema.Struct[InfoCaveats](InfoCaveatsType(), nil, types.Converters...)
 
 type InfoAcceptedAggregate struct {
-	Aggregate datamodel.Link
+	Aggregate ipld.Link
 	Inclusion InclusionProof
 }
 
 type InfoAcceptedDeal struct {
-	Aggregate datamodel.Link
+	Aggregate ipld.Link
 	Aux       DealMetadata
 	Provider  string
 }
 
 type InfoOk struct {
-	Piece      datamodel.Link
+	Piece      ipld.Link
 	Aggregates []InfoAcceptedAggregate
 	Deals      []InfoAcceptedDeal
 }

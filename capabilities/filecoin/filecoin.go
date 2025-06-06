@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ipld/go-ipld-prime/datamodel"
+	"github.com/ipld/go-ipld-prime"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
@@ -13,8 +13,6 @@ import (
 )
 
 const FilecoinAbility = "filecoin/*"
-
-type PieceLink datamodel.Link
 
 func ValidateSpaceDID(did string) failure.Failure {
 	if !strings.HasPrefix(did, "did:") {
@@ -51,7 +49,7 @@ func equalWith(claimed, delegated string) failure.Failure {
 	return nil
 }
 
-func equalLink(claimed, delegated datamodel.Link, fieldName string) failure.Failure {
+func equalLink(claimed, delegated ipld.Link, fieldName string) failure.Failure {
 	if claimed.String() != delegated.String() {
 		return schema.NewSchemaError(fmt.Sprintf(
 			"%s '%s' doesn't match delegated '%s'",
@@ -62,7 +60,7 @@ func equalLink(claimed, delegated datamodel.Link, fieldName string) failure.Fail
 	return nil
 }
 
-func equalPieceLink(claimed, delegated datamodel.Link) failure.Failure {
+func equalPieceLink(claimed, delegated ipld.Link) failure.Failure {
 	return equalLink(claimed, delegated, "piece")
 }
 

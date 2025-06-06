@@ -13,8 +13,8 @@ import (
 const OfferAbility = "filecoin/offer"
 
 type OfferCaveats struct {
-	Content datamodel.Link
-	Piece   datamodel.Link
+	Content ipld.Link
+	Piece   ipld.Link
 }
 
 func (oc OfferCaveats) ToIPLD() (datamodel.Node, error) {
@@ -24,7 +24,7 @@ func (oc OfferCaveats) ToIPLD() (datamodel.Node, error) {
 var OfferCaveatsReader = schema.Struct[OfferCaveats](OfferCaveatsType(), nil, types.Converters...)
 
 type OfferOk struct {
-	Piece datamodel.Link
+	Piece ipld.Link
 }
 
 func (oo OfferOk) ToIPLD() (datamodel.Node, error) {

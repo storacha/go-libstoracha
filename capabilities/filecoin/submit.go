@@ -13,8 +13,8 @@ import (
 const SubmitAbility = "filecoin/submit"
 
 type SubmitCaveats struct {
-	Content datamodel.Link
-	Piece   datamodel.Link
+	Content ipld.Link
+	Piece   ipld.Link
 }
 
 func (sc SubmitCaveats) ToIPLD() (datamodel.Node, error) {
@@ -24,7 +24,7 @@ func (sc SubmitCaveats) ToIPLD() (datamodel.Node, error) {
 var SubmitCaveatsReader = schema.Struct[SubmitCaveats](SubmitCaveatsType(), nil, types.Converters...)
 
 type SubmitOk struct {
-	Piece datamodel.Link
+	Piece ipld.Link
 }
 
 func (so SubmitOk) ToIPLD() (datamodel.Node, error) {
