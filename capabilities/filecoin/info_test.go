@@ -3,19 +3,14 @@ package filecoin_test
 import (
 	"testing"
 
-	"github.com/ipfs/go-cid"
-	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
 	"github.com/storacha/go-libstoracha/capabilities/filecoin"
+	"github.com/storacha/go-libstoracha/capabilities/internal/testutil"
 	"github.com/stretchr/testify/require"
 )
 
 func TestInfoCaveatsRoundTrip(t *testing.T) {
-	pieceCid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
-	require.NoError(t, err)
-	pieceLink := cidlink.Link{Cid: pieceCid}
-
 	nb := filecoin.InfoCaveats{
-		Piece: pieceLink,
+		Piece: testutil.RandomCID(t),
 	}
 
 	node, err := nb.ToIPLD()
@@ -27,16 +22,10 @@ func TestInfoCaveatsRoundTrip(t *testing.T) {
 }
 
 func TestInfoOkRoundTrip(t *testing.T) {
-	pieceCid, err := cid.Parse("bafybeihykhetgzaibu2vkbzycmhjvuahgk7yb3p5d7sh6d6ze4mhnnjaga")
-	require.NoError(t, err)
-	pieceLink := cidlink.Link{Cid: pieceCid}
-
-	aggregateCid, err := cid.Parse("bafybeid46f7zggioxjm5p2ze2l6s6wbqvoo4gzbdzuibgwbhe5iopu2aiy")
-	require.NoError(t, err)
-	aggregateLink := cidlink.Link{Cid: aggregateCid}
+	aggregateLink := testutil.RandomCID(t)
 
 	ok := filecoin.InfoOk{
-		Piece: pieceLink,
+		Piece: testutil.RandomCID(t),
 		Aggregates: []filecoin.InfoAcceptedAggregate{
 			{
 				Aggregate: aggregateLink,
