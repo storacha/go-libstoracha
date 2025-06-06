@@ -9,6 +9,7 @@ import (
 	"github.com/multiformats/go-multihash"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
+	"github.com/storacha/go-ucanto/core/receipt"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
@@ -45,6 +46,13 @@ type PutOk struct {
 
 func (po PutOk) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&po, PutOkType(), types.Converters...)
+}
+
+type PutReceipt receipt.Receipt[PutOk, failure.Failure]
+type PutReceiptReader receipt.ReceiptReader[PutOk, failure.Failure]
+
+func NewPutReceiptReader() (PutReceiptReader, error) {
+	return receipt.NewReceiptReader[PutOk, failure.Failure](httpSchema)
 }
 
 var PutOkReader = schema.Struct[PutOk](PutOkType(), nil, types.Converters...)

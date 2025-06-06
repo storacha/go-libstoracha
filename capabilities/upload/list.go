@@ -6,6 +6,7 @@ import (
 
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-ucanto/core/ipld"
+	"github.com/storacha/go-ucanto/core/receipt"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
@@ -45,6 +46,13 @@ type ListOk struct {
 
 func (lo ListOk) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&lo, ListOkType(), types.Converters...)
+}
+
+type ListReceipt receipt.Receipt[ListOk, failure.Failure]
+type ListReceiptReader receipt.ReceiptReader[ListOk, failure.Failure]
+
+func NewListReceiptReader() (ListReceiptReader, error) {
+	return receipt.NewReceiptReader[ListOk, failure.Failure](uploadSchema)
 }
 
 var ListOkReader = schema.Struct[ListOk](ListOkType(), nil, types.Converters...)

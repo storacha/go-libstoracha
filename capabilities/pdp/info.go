@@ -6,6 +6,8 @@ import (
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-libstoracha/piece/piece"
 	"github.com/storacha/go-ucanto/core/ipld"
+	"github.com/storacha/go-ucanto/core/receipt"
+	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/validator"
 )
@@ -32,6 +34,13 @@ type InfoOk struct {
 
 func (io InfoOk) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&io, InfoOkType(), types.Converters...)
+}
+
+type InfoReceipt receipt.Receipt[InfoOk, failure.Failure]
+type InfoReceiptReader receipt.ReceiptReader[InfoOk, failure.Failure]
+
+func NewInfoReceiptReader() (InfoReceiptReader, error) {
+	return receipt.NewReceiptReader[InfoOk, failure.Failure](pdpSchema)
 }
 
 var InfoCaveatsReader = schema.Struct[InfoCaveats](InfoCaveatsType(), nil, types.Converters...)

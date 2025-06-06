@@ -5,6 +5,8 @@ import (
 	"github.com/storacha/go-ucanto/did"
 
 	"github.com/storacha/go-ucanto/core/ipld"
+	"github.com/storacha/go-ucanto/core/receipt"
+	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
@@ -43,6 +45,13 @@ func (t TransferOk) ToIPLD() (datamodel.Node, error) {
 
 func (tc TransferCaveats) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&tc, TransferCaveatsType(), types.Converters...)
+}
+
+type TransferReceipt receipt.Receipt[TransferOk, failure.Failure]
+type TransferReceiptReader receipt.ReceiptReader[TransferOk, failure.Failure]
+
+func NewTransferReceiptReader() (TransferReceiptReader, error) {
+	return receipt.NewReceiptReader[TransferOk, failure.Failure](replicaSchema)
 }
 
 var TransferCaveatsReader = schema.Struct[TransferCaveats](TransferCaveatsType(), nil, types.Converters...)

@@ -3,6 +3,7 @@ package upload
 import (
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-ucanto/core/ipld"
+	"github.com/storacha/go-ucanto/core/receipt"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
@@ -33,6 +34,13 @@ func (ro RemoveOk) ToIPLD() (datamodel.Node, error) {
 }
 
 var RemoveOkReader = schema.Struct[RemoveOk](RemoveOkType(), nil, types.Converters...)
+
+type RemoveReceipt receipt.Receipt[RemoveOk, failure.Failure]
+type RemoveReceiptReader receipt.ReceiptReader[RemoveOk, failure.Failure]
+
+func NewRemoveReceiptReader() (RemoveReceiptReader, error) {
+	return receipt.NewReceiptReader[RemoveOk, failure.Failure](uploadSchema)
+}
 
 var Remove = validator.NewCapability(
 	RemoveAbility,

@@ -11,6 +11,8 @@ import (
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
+
+	"github.com/storacha/go-ucanto/core/receipt"
 )
 
 const AddAbility = "space/index/add"
@@ -32,6 +34,14 @@ type AddOk struct {
 
 func (ao AddOk) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&ao, AddOkType(), types.Converters...)
+}
+
+type AddReceipt receipt.Receipt[AddOk, failure.Failure]
+
+type AddReceiptReader receipt.ReceiptReader[AddOk, failure.Failure]
+
+func NewAddReceiptReader() (AddReceiptReader, error) {
+	return receipt.NewReceiptReader[AddOk, failure.Failure](indexSchema)
 }
 
 var AddOkReader = schema.Struct[AddOk](AddOkType(), nil, types.Converters...)

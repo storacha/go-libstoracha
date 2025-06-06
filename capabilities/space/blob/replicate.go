@@ -3,6 +3,8 @@ package blob
 import (
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-ucanto/core/ipld"
+	"github.com/storacha/go-ucanto/core/receipt"
+	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/validator"
 
@@ -40,6 +42,13 @@ type ReplicateOk struct {
 
 func (ro ReplicateOk) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&ro, ReplicateOkType(), types.Converters...)
+}
+
+type ReplicateReceipt receipt.Receipt[ReplicateOk, failure.Failure]
+type ReplicateReceiptReader receipt.ReceiptReader[ReplicateOk, failure.Failure]
+
+func NewReplicateReceiptReader() (ReplicateReceiptReader, error) {
+	return receipt.NewReceiptReader[ReplicateOk, failure.Failure](blobSchema)
 }
 
 var ReplicateOkReader = schema.Struct[ReplicateOk](ReplicateOkType(), nil, types.Converters...)

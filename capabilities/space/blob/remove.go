@@ -9,6 +9,7 @@ import (
 	"github.com/multiformats/go-multihash"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
+	"github.com/storacha/go-ucanto/core/receipt"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
@@ -37,6 +38,14 @@ type RemoveOk struct {
 
 func (ro RemoveOk) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&ro, RemoveOkType(), types.Converters...)
+}
+
+type RemoveReceipt receipt.Receipt[RemoveOk, failure.Failure]
+
+type RemoveReceiptReader receipt.ReceiptReader[RemoveOk, failure.Failure]
+
+func NewRemoveReceiptReader() (RemoveReceiptReader, error) {
+	return receipt.NewReceiptReader[RemoveOk, failure.Failure](blobSchema)
 }
 
 var RemoveOkReader = schema.Struct[RemoveOk](RemoveOkType(), nil, types.Converters...)
