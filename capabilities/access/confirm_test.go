@@ -3,9 +3,10 @@ package access_test
 import (
 	"testing"
 
-	"github.com/ipld/go-ipld-prime"
+	"github.com/ipfs/go-cid"
 	"github.com/storacha/go-libstoracha/capabilities/access"
 	"github.com/storacha/go-libstoracha/internal/testutil"
+	"github.com/storacha/go-ucanto/core/ipld/codec/cbor"
 	"github.com/storacha/go-ucanto/did"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/stretchr/testify/require"
@@ -37,11 +38,17 @@ func TestRoundTripConfirmCaveats(t *testing.T) {
 }
 
 func TestRoundTripConfirmOk(t *testing.T) {
+	delegations := access.Delegations{
+		Keys:   make([]string, 0, 2),
+		Values: make(map[string][]byte),
+	}
+	for range 2 {
+		mh, bytes := testutil.RandomBytes(t, 256)
+		delegations.Keys = append(delegations.Keys, cid.NewCidV1(cbor.Code, mh).String())
+		delegations.Values[cid.NewCidV1(cbor.Code, mh).String()] = bytes
+	}
 	ok := access.ConfirmOk{
-		Delegations: []ipld.Link{
-			testutil.RandomCID(t),
-			testutil.RandomCID(t),
-		},
+		Delegations: delegations,
 	}
 
 	node, err := ok.ToIPLD()

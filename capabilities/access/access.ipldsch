@@ -20,6 +20,5 @@ type ConfirmCaveats struct {
 }
 
 type ConfirmOk struct {
-  # TK: This may be incorrect.
-  delegations [Link]
+  delegations {String:Bytes}
 }
