@@ -309,7 +309,7 @@ func (b *s3Batch) Commit(ctx context.Context) error {
 	for k, op := range b.ops {
 		if op.delete {
 			deleteObjs = append(deleteObjs, &s3.ObjectIdentifier{
-				Key: aws.String(k),
+				Key: aws.String(b.s.s3Path(k)),
 			})
 		} else {
 			putKeys = append(putKeys, ds.NewKey(k))
