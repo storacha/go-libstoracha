@@ -47,6 +47,11 @@ var Remove = validator.NewCapability(
 			return fail
 		}
 
+		// Allow derivation from upload/* wildcard capability
+		if delegated.Can() == UploadAbility {
+			return nil
+		}
+
 		if fail := equalRoot(claimed.Nb().Root, delegated.Nb().Root); fail != nil {
 			return fail
 		}
