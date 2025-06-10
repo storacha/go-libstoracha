@@ -3,6 +3,7 @@ package upload
 import (
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-ucanto/core/ipld"
+	"github.com/storacha/go-ucanto/core/receipt"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
@@ -31,6 +32,13 @@ type AddOk struct {
 
 func (ao AddOk) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&ao, AddOkType(), types.Converters...)
+}
+
+type AddReceipt receipt.Receipt[AddOk, failure.Failure]
+type AddReceiptReader receipt.ReceiptReader[AddOk, failure.Failure]
+
+func NewAddReceiptReader() (AddReceiptReader, error) {
+	return receipt.NewReceiptReader[AddOk, failure.Failure](uploadSchema)
 }
 
 var AddOkReader = schema.Struct[AddOk](AddOkType(), nil, types.Converters...)

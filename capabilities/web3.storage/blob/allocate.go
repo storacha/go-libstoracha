@@ -8,6 +8,7 @@ import (
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
+	"github.com/storacha/go-ucanto/core/receipt"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/did"
@@ -42,6 +43,13 @@ type AllocateOk struct {
 
 func (ao AllocateOk) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&ao, AllocateOkType(), types.Converters...)
+}
+
+type AllocateReceipt receipt.Receipt[AllocateOk, failure.Failure]
+type AllocateReceiptReader receipt.ReceiptReader[AllocateOk, failure.Failure]
+
+func NewAllocateReceiptReader() (AllocateReceiptReader, error) {
+	return receipt.NewReceiptReader[AllocateOk, failure.Failure](blobSchema)
 }
 
 var AllocateOkReader = schema.Struct[AllocateOk](AllocateOkType(), nil, types.Converters...)
