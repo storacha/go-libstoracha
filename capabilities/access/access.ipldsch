@@ -3,7 +3,7 @@ type CapabilityRequest struct {
 }
 
 type AuthorizeCaveats struct {
-  iss optional DID
+  iss optional String
   att [CapabilityRequest]
 }
 

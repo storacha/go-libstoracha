@@ -6,7 +6,6 @@ import (
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
-	"github.com/storacha/go-ucanto/did"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
 )
@@ -17,7 +16,7 @@ const AuthorizeAbility = "access/authorize"
 // access/authorize invocation.
 type AuthorizeCaveats struct {
 	// DID of the Account authorization is requested from.
-	Iss *did.DID
+	Iss *string
 	// Capabilities agent wishes to be granted.
 	Att []CapabilityRequest
 }

@@ -5,13 +5,12 @@ import (
 
 	"github.com/storacha/go-libstoracha/capabilities/access"
 	"github.com/storacha/go-libstoracha/internal/testutil"
-	"github.com/storacha/go-ucanto/did"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/stretchr/testify/require"
 )
 
 func TestRoundTripAuthorizeCaveats(t *testing.T) {
-	alice := testutil.Must(did.Parse("did:mailto:example.com:alice"))(t)
+	alice := "did:mailto:example.com:alice"
 	nb := access.AuthorizeCaveats{
 		Iss: &alice,
 		Att: []access.CapabilityRequest{
@@ -43,7 +42,7 @@ func TestRoundTripAuthorizeOk(t *testing.T) {
 }
 
 func TestAuthorizeDerive(t *testing.T) {
-	alice := testutil.Must(did.Parse("did:mailto:example.com:alice"))(t)
+	alice := "did:mailto:example.com:alice"
 
 	delegated := ucan.NewCapability(
 		access.AuthorizeAbility,
@@ -80,8 +79,7 @@ func TestAuthorizeDerive(t *testing.T) {
 	})
 
 	t.Run("rejects the wrong issuer", func(t *testing.T) {
-		bob, err := did.Parse("did:mailto:example.com:bob")
-		require.NoError(t, err)
+		bob := "did:mailto:example.com:bob"
 
 		claimed := ucan.NewCapability(
 			delegated.Can(),
