@@ -12,6 +12,11 @@ import (
 
 const AuthorizeAbility = "access/authorize"
 
+// AuthorizeFactKey is the key of a fact in any delegation created by a
+// successful authorization. The value is a link back to the `access/authorize`
+// delegation.
+const AuthorizeRequestFactKey = "access/request"
+
 // AuthorizeCaveats represents the caveats required to perform an
 // access/authorize invocation.
 type AuthorizeCaveats struct {
