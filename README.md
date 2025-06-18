@@ -4,6 +4,8 @@ A unified Go library (monorepo) for Storacha functionality. This repository host
 ## Subpackages
 - [capabilities](./capabilities)
     - **Description:** UCAN capability definitions for the Storacha ecosystem.
+- [datastore](./datastore)
+    - **Description:** Implementations of the [Datastore](https://github.com/ipfs/go-datastore) interface on top of different data backends.
 - [metadata](./metadata)
     - **Description:** IPNI metadata used by the Storacha Network.
 - [jobqueue](./jobqueue)

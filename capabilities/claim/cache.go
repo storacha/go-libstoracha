@@ -1,12 +1,7 @@
 package claim
 
 import (
-	// for go:embed
-	_ "embed"
-	"fmt"
-
 	"github.com/ipld/go-ipld-prime/datamodel"
-	ipldschema "github.com/ipld/go-ipld-prime/schema"
 	"github.com/multiformats/go-multiaddr"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
@@ -14,22 +9,7 @@ import (
 	"github.com/storacha/go-ucanto/validator"
 )
 
-//go:embed claim.ipldsch
-var claimSchema []byte
-
-var claimTypeSystem = mustLoadTS()
-
-func mustLoadTS() *ipldschema.TypeSystem {
-	ts, err := types.LoadSchemaBytes(claimSchema)
-	if err != nil {
-		panic(fmt.Errorf("loading claim schema: %w", err))
-	}
-	return ts
-}
-
-func CacheCaveatsType() ipldschema.Type {
-	return claimTypeSystem.TypeByName("CacheCaveats")
-}
+const CacheAbility = "claim/cache"
 
 type Provider struct {
 	Addresses []multiaddr.Multiaddr
@@ -43,8 +23,6 @@ type CacheCaveats struct {
 func (cc CacheCaveats) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&cc, CacheCaveatsType(), types.Converters...)
 }
-
-const CacheAbility = "claim/cache"
 
 var CacheCaveatsReader = schema.Struct[CacheCaveats](CacheCaveatsType(), nil, types.Converters...)
 
