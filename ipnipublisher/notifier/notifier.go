@@ -36,6 +36,7 @@ type NotifierHead interface {
 }
 
 type Notifier struct {
+	addr     string
 	client   *ipnifind.Client
 	provider peer.ID
 	head     NotifierHead
@@ -63,7 +64,7 @@ func (n *Notifier) Start(ctx context.Context) {
 					continue
 				}
 				if !synced {
-					log.Warnf("remote IPNI subscriber did not sync for %s", time.Since(ts))
+					log.Warnf("remote IPNI subscriber at %s did not sync for %s", n.addr, time.Since(ts))
 					continue
 				}
 			}
@@ -74,7 +75,7 @@ func (n *Notifier) Start(ctx context.Context) {
 func (n *Notifier) Update(ctx context.Context) (bool, time.Time, error) {
 	head, err := GetLastAdvertisement(ctx, n.client, n.provider)
 	if err != nil {
-		return false, n.ts, fmt.Errorf("fetching last advert CID: %w", err)
+		return false, n.ts, fmt.Errorf("fetching last advert CID from %s: %w", n.addr, err)
 	}
 	prev := n.head.Get(ctx)
 	if !DidSync(head, prev) {
@@ -125,7 +126,13 @@ func NewRemoteSyncNotifier(addr string, id crypto.PrivKey, head NotifierHead) (*
 	if err != nil {
 		return nil, err
 	}
-	return &Notifier{client: c, head: head, ts: time.Now(), provider: provider}, nil
+	return &Notifier{
+		addr:     addr,
+		client:   c,
+		head:     head,
+		ts:       time.Now(),
+		provider: provider,
+	}, nil
 }
 
 func NewNotifierWithStorage(addr string, id crypto.PrivKey, store store.Store) (*Notifier, error) {
