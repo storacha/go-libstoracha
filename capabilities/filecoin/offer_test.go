@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/storacha/go-libstoracha/capabilities/filecoin"
-	"github.com/storacha/go-libstoracha/capabilities/internal/testutil"
+	"github.com/storacha/go-libstoracha/testutil"
 	"github.com/stretchr/testify/require"
 )
 

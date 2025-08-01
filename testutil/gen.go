@@ -2,7 +2,6 @@ package testutil
 
 import (
 	crand "crypto/rand"
-	"errors"
 	"fmt"
 	"io"
 	"math/rand"
@@ -28,31 +27,20 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func randomBytes(size int) ([]byte, error) {
+func RandomBytes(t *testing.T, size int) []byte {
 	bytes := make([]byte, size)
-	_, err := crand.Read(bytes)
-	return bytes, err
-}
-
-func RandomBytes(t *testing.T, size int) (mh.Multihash, []byte) {
-	return Must2(randomMultihash(size))(t)
+	_, _ = crand.Read(bytes)
+	return bytes
 }
 
 var seedSeq int64
 
 func RandomPeer(t *testing.T) peer.ID {
-	return Must(randomPeer())(t)
-}
-
-func randomPeer() (peer.ID, error) {
 	src := rand.NewSource(seedSeq)
 	seedSeq++
 	r := rand.New(src)
-	_, publicKey, err := crypto.GenerateEd25519Key(r)
-	if err != nil {
-		return peer.ID(""), err
-	}
-	return peer.IDFromPublicKey(publicKey)
+	_, publicKey := Must2(crypto.GenerateEd25519Key(r))(t)
+	return Must(peer.IDFromPublicKey(publicKey))(t)
 }
 
 func RandomPrincipal(t *testing.T) ucan.Principal {
@@ -62,34 +50,13 @@ func RandomPrincipal(t *testing.T) ucan.Principal {
 func RandomSigner(t *testing.T) principal.Signer {
 	return Must(signer.Generate())(t)
 }
-func RandomMultiaddr(t *testing.T) multiaddr.Multiaddr {
-	return Must(randomMultiaddr())(t)
-}
 
-func randomMultiaddr() (multiaddr.Multiaddr, error) {
+func RandomMultiaddr(t *testing.T) multiaddr.Multiaddr {
 	// generate a random ipv4 address
 	addr := &net.TCPAddr{IP: net.IPv4(byte(rand.Intn(255)), byte(rand.Intn(255)), byte(rand.Intn(255)), byte(rand.Intn(255))), Port: rand.Intn(65535)}
-	maddr, err := manet.FromIP(addr.IP)
-	if err != nil {
-		return nil, err
-	}
-	port, err := multiaddr.NewComponent(multiaddr.ProtocolWithCode(multiaddr.P_TCP).Name, strconv.Itoa(addr.Port))
-	if err != nil {
-		return nil, err
-	}
-	return multiaddr.Join(maddr, port), nil
-}
-
-func randomMultihash(size int) (mh.Multihash, []byte, error) {
-	bytes, err := randomBytes(size)
-	if err != nil {
-		return nil, nil, err
-	}
-	digest, err := mh.Sum(bytes, mh.SHA2_256, -1)
-	if err != nil {
-		return nil, nil, err
-	}
-	return digest, bytes, nil
+	maddr := Must(manet.FromIP(addr.IP))(t)
+	port := Must(multiaddr.NewComponent(multiaddr.ProtocolWithCode(multiaddr.P_TCP).Name, strconv.Itoa(addr.Port)))(t)
+	return multiaddr.Join(maddr, port)
 }
 
 func RandomCID(t *testing.T) datamodel.Link {
@@ -97,14 +64,16 @@ func RandomCID(t *testing.T) datamodel.Link {
 }
 
 func RandomMultihash(t *testing.T) mh.Multihash {
-	digest, _ := Must2(randomMultihash(10))(t)
-	return digest
+	bytes := RandomBytes(t, 10)
+	return Must(mh.Sum(bytes, mh.SHA2_256, -1))(t)
+}
+
+func MultihashFromBytes(t *testing.T, b []byte) mh.Multihash {
+	return Must(mh.Sum(b, mh.SHA2_256, -1))(t)
 }
 
 func RandomMultihashes(t *testing.T, count int) []mh.Multihash {
-	if count <= 0 {
-		panic(errors.New("count must be greater than 0"))
-	}
+	require.Greater(t, count, 0, "count must be greater than 0")
 	mhs := make([]mh.Multihash, 0, count)
 	for range count {
 		mhs = append(mhs, RandomMultihash(t))

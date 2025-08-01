@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/storacha/go-libstoracha/capabilities/ucan"
-	"github.com/storacha/go-libstoracha/internal/testutil"
+	"github.com/storacha/go-libstoracha/testutil"
 	"github.com/stretchr/testify/require"
 )
 
