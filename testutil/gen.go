@@ -31,6 +31,7 @@ import (
 	"github.com/storacha/go-ucanto/core/car"
 	"github.com/storacha/go-ucanto/core/delegation"
 	"github.com/storacha/go-ucanto/core/ipld/block"
+	"github.com/storacha/go-ucanto/did"
 	"github.com/storacha/go-ucanto/principal"
 	"github.com/storacha/go-ucanto/principal/ed25519/signer"
 	"github.com/storacha/go-ucanto/ucan"
@@ -59,6 +60,10 @@ func RandomPrincipal(t *testing.T) ucan.Principal {
 
 func RandomSigner(t *testing.T) principal.Signer {
 	return Must(signer.Generate())(t)
+}
+
+func RandomDID(t *testing.T) did.DID {
+	return RandomSigner(t).DID()
 }
 
 func RandomMultiaddr(t *testing.T) multiaddr.Multiaddr {
