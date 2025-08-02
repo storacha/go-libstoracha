@@ -9,9 +9,9 @@ import (
 
 	"github.com/ipfs/go-datastore"
 	dssync "github.com/ipfs/go-datastore/sync"
-	"github.com/storacha/go-libstoracha/testutil"
 	"github.com/storacha/go-libstoracha/ipnipublisher/publisher"
 	"github.com/storacha/go-libstoracha/ipnipublisher/store"
+	"github.com/storacha/go-libstoracha/testutil"
 
 	"github.com/ipld/go-ipld-prime"
 	"github.com/ipni/go-libipni/metadata"
@@ -38,7 +38,7 @@ func TestPublish(t *testing.T) {
 		p, err := publisher.New(priv, st)
 		require.NoError(t, err)
 
-		digests := testutil.RandomMultihashes(t, rand.IntN(10) + 1)
+		digests := testutil.RandomMultihashes(t, rand.IntN(10)+1)
 		adlnk, err := p.Publish(ctx, provInfo, testutil.RandomCID(t).String(), slices.Values(digests), metadata.Default.New())
 		require.NoError(t, err)
 
@@ -60,7 +60,7 @@ func TestPublish(t *testing.T) {
 		p, err := publisher.New(priv, st)
 		require.NoError(t, err)
 
-		digests := testutil.RandomMultihashes(t, store.MaxEntryChunkSize + 1)
+		digests := testutil.RandomMultihashes(t, store.MaxEntryChunkSize+1)
 		adlnk, err := p.Publish(ctx, provInfo, testutil.RandomCID(t).String(), slices.Values(digests), metadata.Default.New())
 		require.NoError(t, err)
 
@@ -95,7 +95,7 @@ func TestPublish(t *testing.T) {
 		var digestLists [][]multihash.Multihash
 		for range 1 + rand.IntN(100) {
 			ctxid := testutil.RandomCID(t).String()
-			digests := testutil.RandomMultihashes(t, 1 + rand.IntN(100))
+			digests := testutil.RandomMultihashes(t, 1+rand.IntN(100))
 
 			l, err := p.Publish(ctx, provInfo, ctxid, slices.Values(digests), metadata.Default.New())
 			require.NoError(t, err)
