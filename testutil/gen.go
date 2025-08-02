@@ -6,6 +6,7 @@ import (
 	"io"
 	"math/rand"
 	"net"
+	"net/url"
 	"strconv"
 	"testing"
 	"time"
@@ -14,13 +15,22 @@ import (
 	"github.com/ipfs/go-cid"
 	"github.com/ipld/go-ipld-prime/datamodel"
 	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
+	"github.com/ipni/go-libipni/find/model"
+	ipnimeta "github.com/ipni/go-libipni/metadata"
 	crypto "github.com/libp2p/go-libp2p/core/crypto"
 	peer "github.com/libp2p/go-libp2p/core/peer"
 	"github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"
 	mh "github.com/multiformats/go-multihash"
+	"github.com/storacha/go-libstoracha/blobindex"
+	cassert "github.com/storacha/go-libstoracha/capabilities/assert"
+	ctypes "github.com/storacha/go-libstoracha/capabilities/types"
+	"github.com/storacha/go-libstoracha/metadata"
 	"github.com/storacha/go-libstoracha/piece/digest"
 	"github.com/storacha/go-libstoracha/piece/piece"
+	"github.com/storacha/go-ucanto/core/car"
+	"github.com/storacha/go-ucanto/core/delegation"
+	"github.com/storacha/go-ucanto/core/ipld/block"
 	"github.com/storacha/go-ucanto/principal"
 	"github.com/storacha/go-ucanto/principal/ed25519/signer"
 	"github.com/storacha/go-ucanto/ucan"
@@ -111,4 +121,118 @@ func RandomPiece(t testing.TB, unpaddedSize int64) piece.PieceLink {
 func pieceLinkString(p piece.PieceLink) string {
 	return fmt.Sprintf("Piece: %s, Height: %d, Padding: %d, PaddedSize: %d",
 		p.Link(), p.Height(), p.Padding(), p.PaddedSize())
+}
+
+// RandomCAR creates a CAR with a single block of random bytes of the specified
+// size. It returns the link of the root block, the hash of the CAR itself and
+// the bytes of the CAR.
+func RandomCAR(t *testing.T, size int) (datamodel.Link, mh.Multihash, []byte) {
+	bytes := RandomBytes(t, size)
+	c := Must(cid.Prefix{
+		Version:  1,
+		Codec:    cid.Raw,
+		MhType:   mh.SHA2_256,
+		MhLength: -1,
+	}.Sum(bytes))(t)
+
+	root := cidlink.Link{Cid: c}
+	r := car.Encode([]datamodel.Link{root}, func(yield func(block.Block, error) bool) {
+		yield(block.NewBlock(root, bytes), nil)
+	})
+	carBytes := Must(io.ReadAll(r))(t)
+	carDigest := Must(mh.Sum(carBytes, mh.SHA2_256, -1))(t)
+	return root, carDigest, carBytes
+}
+
+func delegateCapability[Caveats ucan.CaveatBuilder](t *testing.T, can ucan.Capability[Caveats]) delegation.Delegation {
+	did := Must(signer.Generate())(t)
+	return Must(delegation.Delegate(Service, did, []ucan.Capability[Caveats]{can}))(t)
+}
+
+func RandomLocationClaim(t *testing.T) ucan.Capability[cassert.LocationCaveats] {
+	return cassert.Location.New(Service.DID().String(), cassert.LocationCaveats{
+		Content:  ctypes.FromHash(RandomMultihash(t)),
+		Location: []url.URL{*TestURL},
+	})
+}
+
+func RandomLocationDelegation(t *testing.T) delegation.Delegation {
+	return delegateCapability(t, RandomLocationClaim(t))
+}
+
+func RandomIndexClaim(t *testing.T) ucan.Capability[cassert.IndexCaveats] {
+	return cassert.Index.New(Service.DID().String(), cassert.IndexCaveats{
+		Content: RandomCID(t),
+		Index:   RandomCID(t),
+	})
+}
+
+func RandomIndexDelegation(t *testing.T) delegation.Delegation {
+	return delegateCapability(t, RandomIndexClaim(t))
+}
+
+func RandomEqualsClaim(t *testing.T) ucan.Capability[cassert.EqualsCaveats] {
+	return cassert.Equals.New(Service.DID().String(), cassert.EqualsCaveats{
+		Content: ctypes.FromHash(RandomMultihash(t)),
+		Equals:  RandomCID(t),
+	})
+}
+
+func RandomEqualsDelegation(t *testing.T) delegation.Delegation {
+	return delegateCapability(t, RandomEqualsClaim(t))
+}
+
+func RandomProviderResult(t *testing.T) model.ProviderResult {
+	return model.ProviderResult{
+		ContextID: RandomBytes(t, 10),
+		Metadata:  RandomBytes(t, 10),
+		Provider: &peer.AddrInfo{
+			ID: RandomPeer(t),
+			Addrs: []multiaddr.Multiaddr{
+				RandomMultiaddr(t),
+				RandomMultiaddr(t),
+			},
+		},
+	}
+}
+
+func RandomBitswapProviderResult(t *testing.T) model.ProviderResult {
+	pr := RandomProviderResult(t)
+	bitswapMeta := Must(ipnimeta.Bitswap{}.MarshalBinary())(t)
+	pr.Metadata = bitswapMeta
+	return pr
+}
+
+func RandomIndexClaimProviderResult(t *testing.T) model.ProviderResult {
+	indexMeta := metadata.IndexClaimMetadata{
+		Index:      RandomCID(t).(cidlink.Link).Cid,
+		Expiration: 0,
+		Claim:      RandomCID(t).(cidlink.Link).Cid,
+	}
+	metaBytes := Must(indexMeta.MarshalBinary())(t)
+
+	pr := RandomProviderResult(t)
+	pr.Metadata = metaBytes
+	return pr
+}
+
+func RandomLocationCommitmentProviderResult(t *testing.T) model.ProviderResult {
+	shard := RandomCID(t).(cidlink.Link).Cid
+	locationMeta := metadata.LocationCommitmentMetadata{
+		Shard:      &shard,
+		Range:      &metadata.Range{Offset: 128},
+		Expiration: 0,
+		Claim:      RandomCID(t).(cidlink.Link).Cid,
+	}
+	metaBytes := Must(locationMeta.MarshalBinary())(t)
+
+	pr := RandomProviderResult(t)
+	pr.Metadata = metaBytes
+	return pr
+}
+
+func RandomShardedDagIndexView(t *testing.T, size int) (mh.Multihash, blobindex.ShardedDagIndexView) {
+	root, digest, bytes := RandomCAR(t, size)
+	shard := Must(blobindex.FromShardArchives(root, [][]byte{bytes}))(t)
+	return digest, shard
 }
