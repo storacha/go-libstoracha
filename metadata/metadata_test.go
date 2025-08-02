@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
-	"github.com/storacha/go-libstoracha/internal/testutil"
 	"github.com/storacha/go-libstoracha/metadata"
+	"github.com/storacha/go-libstoracha/testutil"
 	"github.com/stretchr/testify/require"
 )
 

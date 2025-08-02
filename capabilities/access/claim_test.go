@@ -5,7 +5,7 @@ import (
 
 	"github.com/ipfs/go-cid"
 	"github.com/storacha/go-libstoracha/capabilities/access"
-	"github.com/storacha/go-libstoracha/internal/testutil"
+	"github.com/storacha/go-libstoracha/testutil"
 	"github.com/storacha/go-ucanto/core/ipld/codec/cbor"
 	"github.com/stretchr/testify/require"
 )
@@ -16,7 +16,8 @@ func TestRoundTripClaimOk(t *testing.T) {
 		Values: make(map[string][]byte),
 	}
 	for range 2 {
-		mh, bytes := testutil.RandomBytes(t, 256)
+		bytes := testutil.RandomBytes(t, 256)
+		mh := testutil.MultihashFromBytes(t, bytes)
 		delegations.Keys = append(delegations.Keys, cid.NewCidV1(cbor.Code, mh).String())
 		delegations.Values[cid.NewCidV1(cbor.Code, mh).String()] = bytes
 	}

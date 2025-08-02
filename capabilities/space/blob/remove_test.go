@@ -4,12 +4,12 @@ import (
 	"testing"
 
 	"github.com/storacha/go-libstoracha/capabilities/space/blob"
-	"github.com/storacha/go-libstoracha/internal/testutil"
+	"github.com/storacha/go-libstoracha/testutil"
 	"github.com/stretchr/testify/require"
 )
 
 func TestRoundTripRemoveCaveats(t *testing.T) {
-	digest, _ := testutil.RandomBytes(t, 256)
+	digest := testutil.RandomMultihash(t)
 	nb := blob.RemoveCaveats{
 		Digest: digest,
 	}

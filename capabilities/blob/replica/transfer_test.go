@@ -7,12 +7,12 @@ import (
 
 	"github.com/storacha/go-libstoracha/capabilities/blob/replica"
 	"github.com/storacha/go-libstoracha/capabilities/types"
-	"github.com/storacha/go-libstoracha/internal/testutil"
+	"github.com/storacha/go-libstoracha/testutil"
 )
 
 func TestRoundTripTransferCaveats(t *testing.T) {
 	expectedSize := 256
-	expectedDigest, _ := testutil.RandomBytes(t, expectedSize)
+	expectedDigest := testutil.RandomMultihash(t)
 	expectedLocation := testutil.RandomCID(t)
 	expectedCause := testutil.RandomCID(t)
 
