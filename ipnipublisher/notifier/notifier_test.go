@@ -14,15 +14,16 @@ import (
 	"github.com/ipni/go-libipni/find/model"
 	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/peer"
-	"github.com/storacha/go-libstoracha/ipnipublisher/internal/testutil"
 	"github.com/storacha/go-libstoracha/ipnipublisher/notifier"
+	"github.com/storacha/go-libstoracha/testutil"
 	"github.com/stretchr/testify/require"
 )
 
-func mockIpniApi(id peer.ID) (*httptest.Server, []ipld.Link) {
+func mockIpniApi(t *testing.T, id peer.ID) (*httptest.Server, []ipld.Link) {
+	t.Helper()
 	var ads []ipld.Link
 	for range 10 {
-		ads = append(ads, testutil.RandomCID())
+		ads = append(ads, testutil.RandomCID(t))
 	}
 
 	n := 0
@@ -53,7 +54,7 @@ func TestNotifier(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("notifies all CIDs", func(t *testing.T) {
-		ts, ads := mockIpniApi(pid)
+		ts, ads := mockIpniApi(t, pid)
 		defer ts.Close()
 
 		notif, err := notifier.NewRemoteSyncNotifier(ts.URL, priv, &mockHead{})
@@ -76,7 +77,7 @@ func TestNotifier(t *testing.T) {
 	})
 
 	t.Run("notifies all CIDs with known head", func(t *testing.T) {
-		ts, chain := mockIpniApi(pid)
+		ts, chain := mockIpniApi(t, pid)
 		defer ts.Close()
 
 		notif, err := notifier.NewRemoteSyncNotifier(ts.URL, priv, &mockHead{chain[0]})

@@ -9,12 +9,12 @@ import (
 	basicnode "github.com/ipld/go-ipld-prime/node/basic"
 	"github.com/storacha/go-libstoracha/capabilities/assert"
 	"github.com/storacha/go-libstoracha/capabilities/types"
-	"github.com/storacha/go-libstoracha/internal/testutil"
+	"github.com/storacha/go-libstoracha/testutil"
 	"github.com/stretchr/testify/require"
 )
 
 func TestRoundTripLocationCaveats(t *testing.T) {
-	digest, _ := testutil.RandomBytes(t, 256)
+	digest := testutil.RandomMultihash(t)
 	location, err := url.Parse("http://localhost")
 	require.NoError(t, err)
 

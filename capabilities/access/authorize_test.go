@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/storacha/go-libstoracha/capabilities/access"
-	"github.com/storacha/go-libstoracha/internal/testutil"
+	"github.com/storacha/go-libstoracha/testutil"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/stretchr/testify/require"
 )
