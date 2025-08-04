@@ -20,6 +20,7 @@ import (
 )
 
 func mockIpniApi(t *testing.T, id peer.ID) (*httptest.Server, []ipld.Link) {
+	t.Helper()
 	var ads []ipld.Link
 	for range 10 {
 		ads = append(ads, testutil.RandomCID(t))
