@@ -18,7 +18,7 @@ require (
 	github.com/multiformats/go-multicodec v0.9.1
 	github.com/multiformats/go-multihash v0.2.3
 	github.com/multiformats/go-varint v0.0.7
-	github.com/storacha/go-ucanto v0.4.1
+	github.com/storacha/go-ucanto v0.4.2
 	github.com/stretchr/testify v1.10.0
 	github.com/whyrusleeping/cbor-gen v0.2.0
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da
