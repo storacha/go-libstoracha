@@ -19,5 +19,5 @@ type TransferCaveats struct {
 
 type TransferOk struct {
   site Link
-  pdp optional Link
+  PDP optional Link (rename "pdp")
 }

@@ -43,6 +43,8 @@ func (t TransferOk) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&t, TransferOkType(), types.Converters...)
 }
 
+var TransferOkReader = schema.Struct[TransferOk](TransferOkType(), nil, types.Converters...)
+
 func (tc TransferCaveats) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&tc, TransferCaveatsType(), types.Converters...)
 }
