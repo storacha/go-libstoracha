@@ -46,9 +46,9 @@ func TestRoundTripTransfeOk(t *testing.T) {
 		node, err := expectedOk.ToIPLD()
 		require.NoError(t, err)
 
-		actualNp, err := replica.TransferOkReader.Read(node)
+		actualOk, err := replica.TransferOkReader.Read(node)
 		require.NoError(t, err)
-		require.Equal(t, expectedOk, actualNp)
+		require.Equal(t, expectedOk, actualOk)
 	})
 
 	t.Run("without PDP link", func(t *testing.T) {
@@ -61,8 +61,8 @@ func TestRoundTripTransfeOk(t *testing.T) {
 		node, err := expectedOk.ToIPLD()
 		require.NoError(t, err)
 
-		actualNp, err := replica.TransferOkReader.Read(node)
+		actualOk, err := replica.TransferOkReader.Read(node)
 		require.NoError(t, err)
-		require.Equal(t, expectedOk, actualNp)
+		require.Equal(t, expectedOk, actualOk)
 	})
 }
