@@ -32,3 +32,37 @@ func TestRoundTripTransferCaveats(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expectedNp, actualNp)
 }
+
+func TestRoundTripTransfeOk(t *testing.T) {
+	t.Run("with PDP link", func(t *testing.T) {
+		expectedLocation := testutil.RandomCID(t)
+		expectedPDP := testutil.RandomCID(t)
+
+		expectedOk := replica.TransferOk{
+			Site: expectedLocation,
+			PDP:  &expectedPDP,
+		}
+
+		node, err := expectedOk.ToIPLD()
+		require.NoError(t, err)
+
+		actualOk, err := replica.TransferOkReader.Read(node)
+		require.NoError(t, err)
+		require.Equal(t, expectedOk, actualOk)
+	})
+
+	t.Run("without PDP link", func(t *testing.T) {
+		expectedLocation := testutil.RandomCID(t)
+
+		expectedOk := replica.TransferOk{
+			Site: expectedLocation,
+		}
+
+		node, err := expectedOk.ToIPLD()
+		require.NoError(t, err)
+
+		actualOk, err := replica.TransferOkReader.Read(node)
+		require.NoError(t, err)
+		require.Equal(t, expectedOk, actualOk)
+	})
+}
