@@ -37,3 +37,7 @@ func TransferCaveatsType() schema.Type {
 func TransferOkType() schema.Type {
 	return replicaTS.TypeByName("TransferOk")
 }
+
+func TransferErrorType() schema.Type {
+	return replicaTS.TypeByName("TransferError")
+}
