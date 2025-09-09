@@ -33,8 +33,8 @@ type RetrieveCaveats struct {
 	Range  Range
 }
 
-func (ac RetrieveCaveats) ToIPLD() (datamodel.Node, error) {
-	return ipld.WrapWithRecovery(&ac, RetrieveCaveatsType(), types.Converters...)
+func (rc RetrieveCaveats) ToIPLD() (datamodel.Node, error) {
+	return ipld.WrapWithRecovery(&rc, RetrieveCaveatsType(), types.Converters...)
 }
 
 var RetrieveCaveatsReader = schema.Struct[RetrieveCaveats](RetrieveCaveatsType(), nil, types.Converters...)
@@ -42,8 +42,8 @@ var RetrieveCaveatsReader = schema.Struct[RetrieveCaveats](RetrieveCaveatsType()
 // RetrieveOk represents the result of a successful space/content/retrieve invocation.
 type RetrieveOk struct{}
 
-func (ao RetrieveOk) ToIPLD() (datamodel.Node, error) {
-	return ipld.WrapWithRecovery(&ao, RetrieveOkType(), types.Converters...)
+func (ro RetrieveOk) ToIPLD() (datamodel.Node, error) {
+	return ipld.WrapWithRecovery(&ro, RetrieveOkType(), types.Converters...)
 }
 
 type RetrieveReceipt receipt.Receipt[RetrieveOk, failure.Failure]
