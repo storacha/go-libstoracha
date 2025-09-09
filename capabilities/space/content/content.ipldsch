@@ -9,5 +9,4 @@ type RetrieveCaveats struct {
 }
 
 type RetrieveOk struct {
-site Promise
 }
