@@ -23,5 +23,6 @@ type TransferOk struct {
 }
 
 type TransferError struct {
+  name String
   message String
 }

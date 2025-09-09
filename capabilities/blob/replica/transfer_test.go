@@ -68,9 +68,7 @@ func TestRoundTripTransfeOk(t *testing.T) {
 }
 
 func TestRoundTripTransferError(t *testing.T) {
-	expectError := replica.TransferError{
-		Message: "some error",
-	}
+	expectError := replica.NewTransferError("some error")
 
 	node, err := expectError.ToIPLD()
 	require.NoError(t, err)
