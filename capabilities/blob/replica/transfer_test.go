@@ -66,3 +66,14 @@ func TestRoundTripTransfeOk(t *testing.T) {
 		require.Equal(t, expectedOk, actualOk)
 	})
 }
+
+func TestRoundTripTransferError(t *testing.T) {
+	expectError := replica.NewTransferError("some error")
+
+	node, err := expectError.ToIPLD()
+	require.NoError(t, err)
+
+	actualError, err := replica.TransferErrorReader.Read(node)
+	require.NoError(t, err)
+	require.Equal(t, expectError, actualError)
+}

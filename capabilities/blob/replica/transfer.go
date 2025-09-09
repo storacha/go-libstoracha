@@ -45,6 +45,24 @@ func (t TransferOk) ToIPLD() (datamodel.Node, error) {
 
 var TransferOkReader = schema.Struct[TransferOk](TransferOkType(), nil, types.Converters...)
 
+type TransferError struct {
+	Name    string
+	Message string
+}
+
+func NewTransferError(msg string) TransferError {
+	return TransferError{
+		Name:    "TransferError",
+		Message: msg,
+	}
+}
+
+func (t TransferError) ToIPLD() (datamodel.Node, error) {
+	return ipld.WrapWithRecovery(&t, TransferErrorType(), types.Converters...)
+}
+
+var TransferErrorReader = schema.Struct[TransferError](TransferErrorType(), nil, types.Converters...)
+
 func (tc TransferCaveats) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&tc, TransferCaveatsType(), types.Converters...)
 }

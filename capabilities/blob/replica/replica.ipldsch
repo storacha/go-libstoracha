@@ -21,3 +21,8 @@ type TransferOk struct {
   site Link
   PDP optional Link (rename "pdp")
 }
+
+type TransferError struct {
+  name String
+  message String
+}
