@@ -1,0 +1,13 @@
+type Range struct {
+    Start Int
+    End Int
+} representation tuple
+
+type RetrieveCaveats struct {
+    digest Multihash
+    range Range
+}
+
+type RetrieveOk struct {
+site Promise
+}
