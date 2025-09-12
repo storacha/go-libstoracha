@@ -19,18 +19,22 @@ import (
 
 const RetrieveAbility = "space/content/retrieve"
 
+// RetrieveCaveats represents the caveats required to perform a space/content/retrieve invocation.
+type RetrieveCaveats struct {
+	Blob  BlobDigest
+	Range Range
+}
+
+type BlobDigest struct {
+	Digest mh.Multihash
+}
+
 // Range represents a range of byte offsets to retrieve.
 // `Start` is the start offset from which to extract bytes. `End` is the offset at which extraction should end.
 // Both offsets are inclusive.
 type Range struct {
 	Start uint64
 	End   uint64
-}
-
-// RetrieveCaveats represents the caveats required to perform a space/content/retrieve invocation.
-type RetrieveCaveats struct {
-	Digest mh.Multihash
-	Range  Range
 }
 
 func (rc RetrieveCaveats) ToIPLD() (datamodel.Node, error) {
@@ -90,8 +94,8 @@ func equalWith(claimed, delegated ucan.Capability[RetrieveCaveats]) failure.Fail
 
 // equalDigest validates that the claimed digest capability matches the delegated one.
 func equalDigest(claimed, delegated ucan.Capability[RetrieveCaveats]) failure.Failure {
-	claimedDigest := claimed.Nb().Digest
-	delegatedDigest := delegated.Nb().Digest
+	claimedDigest := claimed.Nb().Blob.Digest
+	delegatedDigest := delegated.Nb().Blob.Digest
 
 	// Check if the claimed digest matches
 	if !bytes.Equal(delegatedDigest, claimedDigest) {

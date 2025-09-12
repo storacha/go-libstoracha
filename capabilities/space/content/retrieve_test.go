@@ -12,7 +12,9 @@ import (
 func TestRoundTripRetrieveCaveats(t *testing.T) {
 	digest := testutil.RandomMultihash(t)
 	nb := content.RetrieveCaveats{
-		Digest: digest,
+		Blob: content.BlobDigest{
+			Digest: digest,
+		},
 		Range: content.Range{
 			Start: 123,
 			End:   456,

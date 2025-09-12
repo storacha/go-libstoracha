@@ -1,12 +1,16 @@
+type RetrieveCaveats struct {
+    blob BlobDigest
+    range Range
+}
+
+type BlobDigest struct {
+    digest Multihash
+}
+
 type Range struct {
     Start Int
     End Int
 } representation tuple
-
-type RetrieveCaveats struct {
-    digest Multihash
-    range Range
-}
 
 type RetrieveOk struct {
 }
