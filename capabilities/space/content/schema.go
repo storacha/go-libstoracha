@@ -30,6 +30,10 @@ func RetrieveOkType() schema.Type {
 	return contentTS.TypeByName("RetrieveOk")
 }
 
+func NotFoundErrorType() schema.Type {
+	return contentTS.TypeByName("NotFoundError")
+}
+
 func RangeNotSatisfiableErrorType() schema.Type {
 	return contentTS.TypeByName("RangeNotSatisfiableError")
 }

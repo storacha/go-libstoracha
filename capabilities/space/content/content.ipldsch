@@ -15,6 +15,11 @@ type Range struct {
 type RetrieveOk struct {
 }
 
+type NotFoundError struct {
+    name String
+    message String
+}
+
 type RangeNotSatisfiableError struct {
     name String
     message String
