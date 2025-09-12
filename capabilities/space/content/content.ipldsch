@@ -1,0 +1,26 @@
+type RetrieveCaveats struct {
+    blob BlobDigest
+    range Range
+}
+
+type BlobDigest struct {
+    digest Multihash
+}
+
+type Range struct {
+    Start Int
+    End Int
+} representation tuple
+
+type RetrieveOk struct {
+}
+
+type NotFoundError struct {
+    name String
+    message String
+}
+
+type RangeNotSatisfiableError struct {
+    name String
+    message String
+}
