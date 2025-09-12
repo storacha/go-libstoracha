@@ -72,6 +72,10 @@ func NewNotFoundError(msg string) NotFoundError {
 	}
 }
 
+func (nfe NotFoundError) Error() string {
+	return nfe.Message
+}
+
 func (nfe NotFoundError) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&nfe, NotFoundErrorType(), types.Converters...)
 }
@@ -88,6 +92,10 @@ func NewRangeNotSatisfiableError(msg string) RangeNotSatisfiableError {
 		Name:    "RangeNotSatisfiable",
 		Message: msg,
 	}
+}
+
+func (rnse RangeNotSatisfiableError) Error() string {
+	return rnse.Message
 }
 
 func (rnse RangeNotSatisfiableError) ToIPLD() (datamodel.Node, error) {
