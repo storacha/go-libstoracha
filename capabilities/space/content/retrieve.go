@@ -2,6 +2,7 @@ package content
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 
 	"github.com/ipld/go-ipld-prime/datamodel"
@@ -10,6 +11,7 @@ import (
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/receipt"
 	"github.com/storacha/go-ucanto/core/result/failure"
+	fdm "github.com/storacha/go-ucanto/core/result/failure/datamodel"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
@@ -84,7 +86,18 @@ func (nfe NotFoundError) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&nfe, NotFoundErrorType(), types.Converters...)
 }
 
-var NotFoundErrorReader = schema.Struct[NotFoundError](NotFoundErrorType(), nil, types.Converters...)
+var NotFoundErrorReader = schema.Mapped(
+	schema.Struct[fdm.FailureModel](fdm.FailureType(), nil, types.Converters...),
+	func(f fdm.FailureModel) (NotFoundError, failure.Failure) {
+		if f.Name == nil {
+			return NotFoundError{}, failure.FromError(errors.New("missing error name"))
+		}
+		if *f.Name != "NotFound" {
+			return NotFoundError{}, failure.FromError(fmt.Errorf("incorrect name: %s, expected: NotFound", *f.Name))
+		}
+		return NewNotFoundError(f.Message), nil
+	},
+)
 
 type RangeNotSatisfiableError struct {
 	name    string
@@ -110,7 +123,18 @@ func (rnse RangeNotSatisfiableError) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&rnse, RangeNotSatisfiableErrorType(), types.Converters...)
 }
 
-var RangeNotSatisfiableErrorReader = schema.Struct[RangeNotSatisfiableError](RangeNotSatisfiableErrorType(), nil, types.Converters...)
+var RangeNotSatisfiableErrorReader = schema.Mapped(
+	schema.Struct[fdm.FailureModel](fdm.FailureType(), nil, types.Converters...),
+	func(f fdm.FailureModel) (RangeNotSatisfiableError, failure.Failure) {
+		if f.Name == nil {
+			return RangeNotSatisfiableError{}, failure.FromError(errors.New("missing error name"))
+		}
+		if *f.Name != "RangeNotSatisfiable" {
+			return RangeNotSatisfiableError{}, failure.FromError(fmt.Errorf("incorrect name: %s, expected: NotFound", *f.Name))
+		}
+		return NewRangeNotSatisfiableError(f.Message), nil
+	},
+)
 
 // Retrieve is a capability that allows the agent to retrieve a byte range from a blob in a space.
 var Retrieve = validator.NewCapability(
