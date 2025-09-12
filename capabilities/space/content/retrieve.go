@@ -2,7 +2,6 @@ package content
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 
 	"github.com/ipld/go-ipld-prime/datamodel"
@@ -11,7 +10,6 @@ import (
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/receipt"
 	"github.com/storacha/go-ucanto/core/result/failure"
-	fdm "github.com/storacha/go-ucanto/core/result/failure/datamodel"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
@@ -63,23 +61,25 @@ func NewRetrieveReceiptReader() (RetrieveReceiptReader, error) {
 var RetrieveOkReader = schema.Struct[RetrieveOk](RetrieveOkType(), nil, types.Converters...)
 
 type NotFoundError struct {
-	name    string
-	message string
+	ErrorName string
+	Message   string
 }
+
+const NotFoundErrorName = "NotFound"
 
 func NewNotFoundError(msg string) NotFoundError {
 	return NotFoundError{
-		name:    "NotFound",
-		message: msg,
+		ErrorName: NotFoundErrorName,
+		Message:   msg,
 	}
 }
 
 func (nfe NotFoundError) Name() string {
-	return nfe.name
+	return nfe.ErrorName
 }
 
 func (nfe NotFoundError) Error() string {
-	return nfe.message
+	return nfe.Message
 }
 
 func (nfe NotFoundError) ToIPLD() (datamodel.Node, error) {
@@ -87,36 +87,35 @@ func (nfe NotFoundError) ToIPLD() (datamodel.Node, error) {
 }
 
 var NotFoundErrorReader = schema.Mapped(
-	schema.Struct[fdm.FailureModel](fdm.FailureType(), nil, types.Converters...),
-	func(f fdm.FailureModel) (NotFoundError, failure.Failure) {
-		if f.Name == nil {
-			return NotFoundError{}, failure.FromError(errors.New("missing error name"))
+	schema.Struct[NotFoundError](NotFoundErrorType(), nil, types.Converters...),
+	func(nfe NotFoundError) (NotFoundError, failure.Failure) {
+		if nfe.Name() != "NotFound" {
+			return NotFoundError{}, failure.FromError(fmt.Errorf("incorrect name: %s, expected: %s", nfe.Name(), NotFoundErrorName))
 		}
-		if *f.Name != "NotFound" {
-			return NotFoundError{}, failure.FromError(fmt.Errorf("incorrect name: %s, expected: NotFound", *f.Name))
-		}
-		return NewNotFoundError(f.Message), nil
+		return nfe, nil
 	},
 )
 
 type RangeNotSatisfiableError struct {
-	name    string
-	message string
+	ErrorName string
+	Message   string
 }
+
+const RangeNotSatisfiableErrorName = "RangeNotSatisfiable"
 
 func NewRangeNotSatisfiableError(msg string) RangeNotSatisfiableError {
 	return RangeNotSatisfiableError{
-		name:    "RangeNotSatisfiable",
-		message: msg,
+		ErrorName: RangeNotSatisfiableErrorName,
+		Message:   msg,
 	}
 }
 
 func (rnse RangeNotSatisfiableError) Name() string {
-	return rnse.name
+	return rnse.ErrorName
 }
 
 func (rnse RangeNotSatisfiableError) Error() string {
-	return rnse.message
+	return rnse.Message
 }
 
 func (rnse RangeNotSatisfiableError) ToIPLD() (datamodel.Node, error) {
@@ -124,15 +123,12 @@ func (rnse RangeNotSatisfiableError) ToIPLD() (datamodel.Node, error) {
 }
 
 var RangeNotSatisfiableErrorReader = schema.Mapped(
-	schema.Struct[fdm.FailureModel](fdm.FailureType(), nil, types.Converters...),
-	func(f fdm.FailureModel) (RangeNotSatisfiableError, failure.Failure) {
-		if f.Name == nil {
-			return RangeNotSatisfiableError{}, failure.FromError(errors.New("missing error name"))
+	schema.Struct[RangeNotSatisfiableError](RangeNotSatisfiableErrorType(), nil, types.Converters...),
+	func(rnse RangeNotSatisfiableError) (RangeNotSatisfiableError, failure.Failure) {
+		if rnse.Name() != RangeNotSatisfiableErrorName {
+			return RangeNotSatisfiableError{}, failure.FromError(fmt.Errorf("incorrect name: %s, expected: %s", rnse.Name(), RangeNotSatisfiableErrorName))
 		}
-		if *f.Name != "RangeNotSatisfiable" {
-			return RangeNotSatisfiableError{}, failure.FromError(fmt.Errorf("incorrect name: %s, expected: RangeNotSatisfiable", *f.Name))
-		}
-		return NewRangeNotSatisfiableError(f.Message), nil
+		return rnse, nil
 	},
 )
 
