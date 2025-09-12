@@ -61,15 +61,21 @@ func NewRetrieveReceiptReader() (RetrieveReceiptReader, error) {
 var RetrieveOkReader = schema.Struct[RetrieveOk](RetrieveOkType(), nil, types.Converters...)
 
 type NotFoundError struct {
-	Name    string
-	Message string
+	ErrorName string
+	Message   string
 }
+
+const NotFoundErrorName = "NotFound"
 
 func NewNotFoundError(msg string) NotFoundError {
 	return NotFoundError{
-		Name:    "NotFound",
-		Message: msg,
+		ErrorName: NotFoundErrorName,
+		Message:   msg,
 	}
+}
+
+func (nfe NotFoundError) Name() string {
+	return nfe.ErrorName
 }
 
 func (nfe NotFoundError) Error() string {
@@ -80,18 +86,32 @@ func (nfe NotFoundError) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&nfe, NotFoundErrorType(), types.Converters...)
 }
 
-var NotFoundErrorReader = schema.Struct[NotFoundError](NotFoundErrorType(), nil, types.Converters...)
+var NotFoundErrorReader = schema.Mapped(
+	schema.Struct[NotFoundError](NotFoundErrorType(), nil, types.Converters...),
+	func(nfe NotFoundError) (NotFoundError, failure.Failure) {
+		if nfe.Name() != NotFoundErrorName {
+			return NotFoundError{}, failure.FromError(fmt.Errorf("incorrect name: %s, expected: %s", nfe.Name(), NotFoundErrorName))
+		}
+		return nfe, nil
+	},
+)
 
 type RangeNotSatisfiableError struct {
-	Name    string
-	Message string
+	ErrorName string
+	Message   string
 }
+
+const RangeNotSatisfiableErrorName = "RangeNotSatisfiable"
 
 func NewRangeNotSatisfiableError(msg string) RangeNotSatisfiableError {
 	return RangeNotSatisfiableError{
-		Name:    "RangeNotSatisfiable",
-		Message: msg,
+		ErrorName: RangeNotSatisfiableErrorName,
+		Message:   msg,
 	}
+}
+
+func (rnse RangeNotSatisfiableError) Name() string {
+	return rnse.ErrorName
 }
 
 func (rnse RangeNotSatisfiableError) Error() string {
@@ -102,7 +122,15 @@ func (rnse RangeNotSatisfiableError) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&rnse, RangeNotSatisfiableErrorType(), types.Converters...)
 }
 
-var RangeNotSatisfiableErrorReader = schema.Struct[RangeNotSatisfiableError](RangeNotSatisfiableErrorType(), nil, types.Converters...)
+var RangeNotSatisfiableErrorReader = schema.Mapped(
+	schema.Struct[RangeNotSatisfiableError](RangeNotSatisfiableErrorType(), nil, types.Converters...),
+	func(rnse RangeNotSatisfiableError) (RangeNotSatisfiableError, failure.Failure) {
+		if rnse.Name() != RangeNotSatisfiableErrorName {
+			return RangeNotSatisfiableError{}, failure.FromError(fmt.Errorf("incorrect name: %s, expected: %s", rnse.Name(), RangeNotSatisfiableErrorName))
+		}
+		return rnse, nil
+	},
+)
 
 // Retrieve is a capability that allows the agent to retrieve a byte range from a blob in a space.
 var Retrieve = validator.NewCapability(

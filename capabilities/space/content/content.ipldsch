@@ -16,11 +16,11 @@ type RetrieveOk struct {
 }
 
 type NotFoundError struct {
-    name String
+    errorName String (rename "name")
     message String
 }
 
 type RangeNotSatisfiableError struct {
-    name String
+    errorName String (rename "name")
     message String
 }
