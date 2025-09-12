@@ -89,7 +89,7 @@ func (nfe NotFoundError) ToIPLD() (datamodel.Node, error) {
 var NotFoundErrorReader = schema.Mapped(
 	schema.Struct[NotFoundError](NotFoundErrorType(), nil, types.Converters...),
 	func(nfe NotFoundError) (NotFoundError, failure.Failure) {
-		if nfe.Name() != "NotFound" {
+		if nfe.Name() != NotFoundErrorName {
 			return NotFoundError{}, failure.FromError(fmt.Errorf("incorrect name: %s, expected: %s", nfe.Name(), NotFoundErrorName))
 		}
 		return nfe, nil
