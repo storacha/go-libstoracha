@@ -61,19 +61,23 @@ func NewRetrieveReceiptReader() (RetrieveReceiptReader, error) {
 var RetrieveOkReader = schema.Struct[RetrieveOk](RetrieveOkType(), nil, types.Converters...)
 
 type NotFoundError struct {
-	Name    string
-	Message string
+	name    string
+	message string
 }
 
 func NewNotFoundError(msg string) NotFoundError {
 	return NotFoundError{
-		Name:    "NotFound",
-		Message: msg,
+		name:    "NotFound",
+		message: msg,
 	}
 }
 
+func (nfe NotFoundError) Name() string {
+	return nfe.name
+}
+
 func (nfe NotFoundError) Error() string {
-	return nfe.Message
+	return nfe.message
 }
 
 func (nfe NotFoundError) ToIPLD() (datamodel.Node, error) {
@@ -83,19 +87,23 @@ func (nfe NotFoundError) ToIPLD() (datamodel.Node, error) {
 var NotFoundErrorReader = schema.Struct[NotFoundError](NotFoundErrorType(), nil, types.Converters...)
 
 type RangeNotSatisfiableError struct {
-	Name    string
-	Message string
+	name    string
+	message string
 }
 
 func NewRangeNotSatisfiableError(msg string) RangeNotSatisfiableError {
 	return RangeNotSatisfiableError{
-		Name:    "RangeNotSatisfiable",
-		Message: msg,
+		name:    "RangeNotSatisfiable",
+		message: msg,
 	}
 }
 
+func (rnse RangeNotSatisfiableError) Name() string {
+	return rnse.name
+}
+
 func (rnse RangeNotSatisfiableError) Error() string {
-	return rnse.Message
+	return rnse.message
 }
 
 func (rnse RangeNotSatisfiableError) ToIPLD() (datamodel.Node, error) {
