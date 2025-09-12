@@ -130,7 +130,7 @@ var RangeNotSatisfiableErrorReader = schema.Mapped(
 			return RangeNotSatisfiableError{}, failure.FromError(errors.New("missing error name"))
 		}
 		if *f.Name != "RangeNotSatisfiable" {
-			return RangeNotSatisfiableError{}, failure.FromError(fmt.Errorf("incorrect name: %s, expected: NotFound", *f.Name))
+			return RangeNotSatisfiableError{}, failure.FromError(fmt.Errorf("incorrect name: %s, expected: RangeNotSatisfiable", *f.Name))
 		}
 		return NewRangeNotSatisfiableError(f.Message), nil
 	},
