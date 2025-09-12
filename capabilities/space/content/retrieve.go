@@ -60,6 +60,24 @@ func NewRetrieveReceiptReader() (RetrieveReceiptReader, error) {
 
 var RetrieveOkReader = schema.Struct[RetrieveOk](RetrieveOkType(), nil, types.Converters...)
 
+type RangeNotSatisfiableError struct {
+	Name    string
+	Message string
+}
+
+func NewRangeNotSatisfiableError(msg string) RangeNotSatisfiableError {
+	return RangeNotSatisfiableError{
+		Name:    "RangeNotSatisfiable",
+		Message: msg,
+	}
+}
+
+func (t RangeNotSatisfiableError) ToIPLD() (datamodel.Node, error) {
+	return ipld.WrapWithRecovery(&t, RangeNotSatisfiableErrorType(), types.Converters...)
+}
+
+var RangeNotSatisfiableErrorReader = schema.Struct[RangeNotSatisfiableError](RangeNotSatisfiableErrorType(), nil, types.Converters...)
+
 // Retrieve is a capability that allows the agent to retrieve a byte range from a blob in a space.
 var Retrieve = validator.NewCapability(
 	RetrieveAbility,

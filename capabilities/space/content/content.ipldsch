@@ -14,3 +14,8 @@ type Range struct {
 
 type RetrieveOk struct {
 }
+
+type RangeNotSatisfiableError struct {
+    name String
+    message String
+}

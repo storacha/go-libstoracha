@@ -29,3 +29,7 @@ func RetrieveCaveatsType() schema.Type {
 func RetrieveOkType() schema.Type {
 	return contentTS.TypeByName("RetrieveOk")
 }
+
+func RangeNotSatisfiableErrorType() schema.Type {
+	return contentTS.TypeByName("RangeNotSatisfiableError")
+}

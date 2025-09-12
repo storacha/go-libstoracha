@@ -39,3 +39,14 @@ func TestRoundTripRetrieveOk(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, ok, rok)
 }
+
+func TestRoundRangeNotSatisfiableError(t *testing.T) {
+	expectError := content.NewRangeNotSatisfiableError("some range not satisfiable error")
+
+	node, err := expectError.ToIPLD()
+	require.NoError(t, err)
+
+	actualError, err := content.RangeNotSatisfiableErrorReader.Read(node)
+	require.NoError(t, err)
+	require.Equal(t, expectError, actualError)
+}
