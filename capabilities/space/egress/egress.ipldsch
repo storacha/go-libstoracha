@@ -1,0 +1,31 @@
+type TrackCaveats struct {
+	receipts Link
+	endpoint URL
+}
+
+type TrackOk struct {
+}
+
+type TrackError struct {
+	name String
+	message String
+}
+
+type ConsolidateCaveats struct {
+	cause Link
+}
+
+type ReceiptError struct {
+	name String
+	message String
+	receipt Link
+}
+
+type ConsolidateOk struct {
+	errors [ReceiptError]
+}
+
+type ConsolidateError struct {
+	name String
+	message String
+}
