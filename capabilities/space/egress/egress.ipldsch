@@ -7,7 +7,7 @@ type TrackOk struct {
 }
 
 type TrackError struct {
-	name String
+	errorName String (rename "name")
 	message String
 }
 
@@ -26,6 +26,6 @@ type ConsolidateOk struct {
 }
 
 type ConsolidateError struct {
-	name String
+	errorName String (rename "name")
 	message String
 }

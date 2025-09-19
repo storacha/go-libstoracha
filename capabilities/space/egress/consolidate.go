@@ -1,10 +1,13 @@
 package egress
 
 import (
+	"fmt"
+
 	"github.com/ipld/go-ipld-prime/datamodel"
 	captypes "github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/receipt"
+	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
@@ -39,29 +42,47 @@ func (co ConsolidateOk) ToIPLD() (datamodel.Node, error) {
 var ConsolidateOkReader = schema.Struct[ConsolidateOk](ConsolidateOkType(), nil, captypes.Converters...)
 
 type ConsolidateError struct {
-	Name    string
-	Message string
+	ErrorName string
+	Message   string
 }
+
+const ConsolidateErrorName = "EgressConsolidateError"
 
 func NewConsolidateError(msg string) ConsolidateError {
 	return ConsolidateError{
-		Name:    "EgressConsolidateError",
-		Message: msg,
+		ErrorName: ConsolidateErrorName,
+		Message:   msg,
 	}
+}
+
+func (ce ConsolidateError) Name() string {
+	return ce.ErrorName
+}
+
+func (ce ConsolidateError) Error() string {
+	return ce.Message
 }
 
 func (ce ConsolidateError) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&ce, ConsolidateErrorType(), captypes.Converters...)
 }
 
-var ConsolidateErrorReader = schema.Struct[ConsolidateError](ConsolidateErrorType(), nil, captypes.Converters...)
+var ConsolidateErrorReader = schema.Mapped(
+	schema.Struct[ConsolidateError](ConsolidateErrorType(), nil, captypes.Converters...),
+	func(ce ConsolidateError) (ConsolidateError, failure.Failure) {
+		if ce.Name() != ConsolidateErrorName {
+			return ConsolidateError{}, failure.FromError(fmt.Errorf("incorrect name: %s, expected: %s", ce.Name(), ConsolidateErrorName))
+		}
+		return ce, nil
+	},
+)
 
 type ConsolidateReceipt receipt.Receipt[ConsolidateOk, ConsolidateError]
 
 type ConsolidateReceiptReader receipt.ReceiptReader[ConsolidateOk, ConsolidateError]
 
 func NewConsolidateReceiptReader() (ConsolidateReceiptReader, error) {
-	return receipt.NewReceiptReader[ConsolidateOk, ConsolidateError](egressSchema)
+	return receipt.NewReceiptReaderFromTypes[ConsolidateOk, ConsolidateError](ConsolidateOkType(), ConsolidateErrorType(), captypes.Converters...)
 }
 
 // EgressTrack capability definition
