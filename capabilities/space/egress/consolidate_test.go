@@ -23,6 +23,11 @@ func TestRoundTripConsolidateCaveats(t *testing.T) {
 	require.Equal(t, nb, rnb)
 }
 
+func TestNewConsolidateReceiptReader(t *testing.T) {
+	_, err := egress.NewConsolidateReceiptReader()
+	require.NoError(t, err)
+}
+
 func TestRoundTripConsolidateOk(t *testing.T) {
 	errors := []egress.ReceiptError{
 		{

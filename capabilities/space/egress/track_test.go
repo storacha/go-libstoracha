@@ -27,6 +27,11 @@ func TestRoundTripTrackCaveats(t *testing.T) {
 	require.Equal(t, nb.Endpoint.String(), rnb.Endpoint.String())
 }
 
+func TestNewTrackReceiptReader(t *testing.T) {
+	_, err := egress.NewTrackReceiptReader()
+	require.NoError(t, err)
+}
+
 func TestRoundTripTrackError(t *testing.T) {
 	trackErr := egress.NewTrackError("some egress track error")
 

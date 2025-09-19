@@ -61,7 +61,7 @@ type ConsolidateReceipt receipt.Receipt[ConsolidateOk, ConsolidateError]
 type ConsolidateReceiptReader receipt.ReceiptReader[ConsolidateOk, ConsolidateError]
 
 func NewConsolidateReceiptReader() (ConsolidateReceiptReader, error) {
-	return receipt.NewReceiptReader[ConsolidateOk, ConsolidateError](egressSchema)
+	return receipt.NewReceiptReaderFromTypes[ConsolidateOk, ConsolidateError](ConsolidateOkType(), ConsolidateErrorType(), captypes.Converters...)
 }
 
 // EgressTrack capability definition

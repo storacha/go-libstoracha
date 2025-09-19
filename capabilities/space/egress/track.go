@@ -57,7 +57,7 @@ type TrackReceipt receipt.Receipt[TrackOk, TrackError]
 type TrackReceiptReader receipt.ReceiptReader[TrackOk, TrackError]
 
 func NewTrackReceiptReader() (TrackReceiptReader, error) {
-	return receipt.NewReceiptReader[TrackOk, TrackError](egressSchema)
+	return receipt.NewReceiptReaderFromTypes[TrackOk, TrackError](TrackOkType(), TrackErrorType(), captypes.Converters...)
 }
 
 // EgressTrack capability definition
