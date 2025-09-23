@@ -52,7 +52,7 @@ var AddOkReader = schema.Struct[AddOk](AddOkType(), nil, types.Converters...)
 var Add = validator.NewCapability(
 	AddAbility,
 	schema.DIDString(),
-	schema.Struct[AddCaveats](nil, nil, types.Converters...),
+	AddCaveatsReader,
 	func(claimed, delegated ucan.Capability[AddCaveats]) failure.Failure {
 		if fail := equalWith(claimed, delegated); fail != nil {
 			return fail
