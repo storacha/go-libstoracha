@@ -83,7 +83,7 @@ func TestGrant(t *testing.T) {
 	t.Run("round trip with error", func(t *testing.T) {
 		grantErr := access.GrantError{
 			Name:    "Unauthorized",
-			Message: "No, no you many not.",
+			Message: "No, no you may not.",
 		}
 
 		r0, err := receipt.Issue(
