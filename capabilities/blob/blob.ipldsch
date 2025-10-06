@@ -37,6 +37,6 @@ type RetrieveCaveats struct {
 type RetrieveOk struct {}
 
 type RetrieveError struct {
-  name String
+  errorName String (rename "name")
   message String
 }

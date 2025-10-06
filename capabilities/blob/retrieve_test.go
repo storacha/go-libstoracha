@@ -69,8 +69,8 @@ func TestRetrieve(t *testing.T) {
 
 	t.Run("round trip with error", func(t *testing.T) {
 		retrieveErr := blob.RetrieveError{
-			Name:    "NotFound",
-			Message: "I do not have it",
+			ErrorName: "NotFound",
+			Message:   "I do not have it",
 		}
 
 		r0, err := receipt.Issue(

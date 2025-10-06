@@ -45,8 +45,12 @@ func (ro RetrieveOk) ToIPLD() (datamodel.Node, error) {
 var RetrieveOkReader = schema.Struct[RetrieveOk](RetrieveOkType(), nil)
 
 type RetrieveError struct {
-	Name    string
-	Message string
+	ErrorName string
+	Message   string
+}
+
+func (re RetrieveError) Name() string {
+	return re.ErrorName
 }
 
 func (re RetrieveError) Error() string {
