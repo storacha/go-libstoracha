@@ -108,6 +108,7 @@ func TestGrant(t *testing.T) {
 		require.Empty(t, o)
 		require.Equal(t, grantErr.Name, x.Name)
 		require.Equal(t, grantErr.Message, x.Message)
+		require.Equal(t, grantErr.Error(), x.Error())
 	})
 }
 

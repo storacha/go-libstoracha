@@ -46,6 +46,10 @@ type GrantError struct {
 	Message string
 }
 
+func (ge GrantError) Error() string {
+	return ge.Message
+}
+
 func (ge GrantError) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&ge, GrantErrorType(), types.Converters...)
 }
