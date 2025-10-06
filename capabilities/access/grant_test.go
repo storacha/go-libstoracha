@@ -82,8 +82,8 @@ func TestGrant(t *testing.T) {
 
 	t.Run("round trip with error", func(t *testing.T) {
 		grantErr := access.GrantError{
-			Name:    "Unauthorized",
-			Message: "No, no you may not.",
+			ErrorName: "Unauthorized",
+			Message:   "No, no you may not.",
 		}
 
 		r0, err := receipt.Issue(
@@ -106,7 +106,8 @@ func TestGrant(t *testing.T) {
 
 		o, x := result.Unwrap(r1.Out())
 		require.Empty(t, o)
-		require.Equal(t, grantErr.Name, x.Name)
+		require.Equal(t, grantErr.ErrorName, x.ErrorName)
+		require.Equal(t, grantErr.Name(), x.Name())
 		require.Equal(t, grantErr.Message, x.Message)
 		require.Equal(t, grantErr.Error(), x.Error())
 	})

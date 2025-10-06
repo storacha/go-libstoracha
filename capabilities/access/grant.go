@@ -42,8 +42,12 @@ func (gok GrantOk) ToIPLD() (datamodel.Node, error) {
 var GrantOkReader = schema.Struct[GrantOk](GrantOkType(), nil, types.Converters...)
 
 type GrantError struct {
-	Name    string
-	Message string
+	ErrorName string
+	Message   string
+}
+
+func (ge GrantError) Name() string {
+	return ge.ErrorName
 }
 
 func (ge GrantError) Error() string {
