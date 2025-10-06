@@ -38,8 +38,8 @@ var RetrieveCaveatsReader = schema.Struct[RetrieveCaveats](RetrieveCaveatsType()
 // RetrieveOk represents the successful response for a blob/retrieve invocation.
 type RetrieveOk struct{}
 
-func (gok RetrieveOk) ToIPLD() (datamodel.Node, error) {
-	return ipld.WrapWithRecovery(&gok, RetrieveOkType())
+func (ro RetrieveOk) ToIPLD() (datamodel.Node, error) {
+	return ipld.WrapWithRecovery(&ro, RetrieveOkType())
 }
 
 var RetrieveOkReader = schema.Struct[RetrieveOk](RetrieveOkType(), nil)
@@ -49,8 +49,12 @@ type RetrieveError struct {
 	Message string
 }
 
-func (ge RetrieveError) ToIPLD() (datamodel.Node, error) {
-	return ipld.WrapWithRecovery(&ge, RetrieveErrorType())
+func (re RetrieveError) Error() string {
+	return re.Message
+}
+
+func (re RetrieveError) ToIPLD() (datamodel.Node, error) {
+	return ipld.WrapWithRecovery(&re, RetrieveErrorType())
 }
 
 type RetrieveReceipt receipt.Receipt[RetrieveOk, RetrieveError]
