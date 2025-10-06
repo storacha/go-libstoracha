@@ -53,3 +53,15 @@ func DelegateCaveatsType() schema.Type {
 func DelegateOkType() schema.Type {
 	return accessTS.TypeByName("DelegateOk")
 }
+
+func GrantCaveatsType() schema.Type {
+	return accessTS.TypeByName("GrantCaveats")
+}
+
+func GrantOkType() schema.Type {
+	return accessTS.TypeByName("GrantOk")
+}
+
+func GrantErrorType() schema.Type {
+	return accessTS.TypeByName("GrantError")
+}

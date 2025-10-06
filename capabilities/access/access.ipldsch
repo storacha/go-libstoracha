@@ -36,3 +36,17 @@ type DelegateCaveats struct {
 
 type DelegateOk struct {
 }
+
+type GrantCaveats struct {
+  att [CapabilityRequest]
+  cause optional Link
+}
+
+type GrantOk struct {
+  delegations {String:Bytes}
+}
+
+type GrantError struct {
+  name String
+  message String
+}
