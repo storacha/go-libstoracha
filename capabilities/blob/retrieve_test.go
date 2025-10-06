@@ -95,6 +95,7 @@ func TestRetrieve(t *testing.T) {
 		require.Empty(t, o)
 		require.Equal(t, retrieveErr.Name, x.Name)
 		require.Equal(t, retrieveErr.Message, x.Message)
+		require.Equal(t, retrieveErr.Error(), x.Error())
 	})
 }
 
