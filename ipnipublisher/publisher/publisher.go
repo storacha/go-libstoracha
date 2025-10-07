@@ -220,7 +220,7 @@ func (p *IPNIPublisher) publish(ctx context.Context, adv schema.Advertisement) (
 	if p.sender != nil {
 		err = announce.Send(ctx, lnk.(cidlink.Link).Cid, p.pubHTTPAnnounceAddrs, p.sender)
 		if err != nil {
-			log.Errorw("Failed to announce advertisement", "err", err)
+			log.Warnw("Failed to announce advertisement", "err", err)
 		}
 	}
 	return lnk, nil
