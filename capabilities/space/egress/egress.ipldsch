@@ -22,6 +22,7 @@ type ReceiptError struct {
 }
 
 type ConsolidateOk struct {
+	totalEgress Int
 	errors [ReceiptError]
 }
 
