@@ -42,7 +42,8 @@ func TestRoundTripConsolidateOk(t *testing.T) {
 		},
 	}
 	ok := egress.ConsolidateOk{
-		Errors: errors,
+		TotalEgress: 123,
+		Errors:      errors,
 	}
 
 	node, err := ok.ToIPLD()
@@ -50,6 +51,7 @@ func TestRoundTripConsolidateOk(t *testing.T) {
 
 	rok, err := egress.ConsolidateOkReader.Read(node)
 	require.NoError(t, err)
+	require.Equal(t, ok.TotalEgress, rok.TotalEgress)
 	require.ElementsMatch(t, ok.Errors, rok.Errors)
 }
 

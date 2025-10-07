@@ -32,7 +32,8 @@ type ReceiptError struct {
 }
 
 type ConsolidateOk struct {
-	Errors []ReceiptError
+	TotalEgress uint64
+	Errors      []ReceiptError
 }
 
 func (co ConsolidateOk) ToIPLD() (datamodel.Node, error) {
