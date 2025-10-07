@@ -1,10 +1,8 @@
 package notifier
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"io"
 
 	"github.com/ipfs/go-cid"
 	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
@@ -21,20 +19,14 @@ type HeadState struct {
 }
 
 func NewHeadState(ds store.Store, hostname string) (*HeadState, error) {
-
 	var hd ipld.Link
 	hdkey := remoteHeadPrefix + hostname
-	r, err := ds.Get(context.Background(), hdkey)
+	v, err := ds.Get(context.Background(), hdkey)
 	if err != nil {
 		if !store.IsNotFound(err) {
 			return nil, fmt.Errorf("getting remote IPNI head CID from datastore: %w", err)
 		}
 	} else {
-		defer r.Close()
-		v, err := io.ReadAll(r)
-		if err != nil {
-			return nil, fmt.Errorf("reading IPNI head CID: %w", err)
-		}
 		c, err := cid.Cast(v)
 		if err != nil {
 			return nil, fmt.Errorf("parsing remote IPNI head CID: %w", err)
@@ -49,7 +41,7 @@ func (h *HeadState) Get(ctx context.Context) ipld.Link {
 }
 
 func (h *HeadState) Set(ctx context.Context, head ipld.Link) error {
-	err := h.ds.Put(ctx, h.hdkey, uint64(len(head.Binary())), bytes.NewReader([]byte(head.Binary())))
+	err := h.ds.Put(ctx, h.hdkey, []byte(head.Binary()))
 	if err != nil {
 		return fmt.Errorf("saving remote IPNI sync'd head: %w", err)
 	}
