@@ -38,3 +38,15 @@ func AcceptCaveatsType() schema.Type {
 func AcceptOkType() schema.Type {
 	return blobTS.TypeByName("AcceptOk")
 }
+
+func RetrieveCaveatsType() schema.Type {
+	return blobTS.TypeByName("RetrieveCaveats")
+}
+
+func RetrieveOkType() schema.Type {
+	return blobTS.TypeByName("RetrieveOk")
+}
+
+func RetrieveErrorType() schema.Type {
+	return blobTS.TypeByName("RetrieveError")
+}

@@ -25,3 +25,18 @@ type AcceptOk struct {
   site Link
   PDP optional Link
 }
+
+type RetrieveBlob struct {
+  digest Multihash
+}
+
+type RetrieveCaveats struct {
+  blob RetrieveBlob
+}
+
+type RetrieveOk struct {}
+
+type RetrieveError struct {
+  errorName String (rename "name")
+  message String
+}
