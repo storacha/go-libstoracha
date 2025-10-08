@@ -328,6 +328,7 @@ func ReplaceHead(ctx context.Context, ds Store, oldHead *head.SignedHead, newHea
 	if err != nil {
 		return nil, err
 	}
+	newBytes := blk.Bytes()
 	var oldBytes []byte
 	if oldHead != nil {
 		blk, err := block.Encode(oldHead, head.SignedHeadPrototype.Type(), json.Codec, sha256.Hasher)
@@ -336,7 +337,7 @@ func ReplaceHead(ctx context.Context, ds Store, oldHead *head.SignedHead, newHea
 		}
 		oldBytes = blk.Bytes()
 	}
-	err = ds.Replace(ctx, headKey, oldBytes, blk.Bytes())
+	err = ds.Replace(ctx, headKey, oldBytes, newBytes)
 	if err != nil {
 		return nil, err
 	}
