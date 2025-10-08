@@ -15,13 +15,12 @@ import (
 const remoteHeadPrefix = "head/remote/"
 
 type HeadState struct {
-	ds     store.Store
+	ds     store.SimpleStore
 	hdkey  string
 	cached ipld.Link
 }
 
-func NewHeadState(ds store.Store, hostname string) (*HeadState, error) {
-
+func NewHeadState(ds store.SimpleStore, hostname string) (*HeadState, error) {
 	var hd ipld.Link
 	hdkey := remoteHeadPrefix + hostname
 	r, err := ds.Get(context.Background(), hdkey)

@@ -135,7 +135,7 @@ func NewRemoteSyncNotifier(addr string, id crypto.PrivKey, head NotifierHead) (*
 	}, nil
 }
 
-func NewNotifierWithStorage(addr string, id crypto.PrivKey, store store.Store) (*Notifier, error) {
+func NewNotifierWithStorage(addr string, id crypto.PrivKey, store store.SimpleStore) (*Notifier, error) {
 	addrURL, err := url.Parse(addr)
 	if err != nil {
 		return nil, fmt.Errorf("parsing URL for remote sync notifications: %w", err)

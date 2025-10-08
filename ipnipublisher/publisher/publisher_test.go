@@ -1,7 +1,10 @@
 package publisher_test
 
 import (
+	"bytes"
 	"context"
+	"errors"
+	"io"
 	"math/rand/v2"
 	"slices"
 	"sort"
@@ -119,4 +122,86 @@ func TestPublish(t *testing.T) {
 			require.Equal(t, digestLists[i], digests)
 		}
 	})
+
+	t.Run("concurrent publish returns error", func(t *testing.T) {
+		ms := mockStore{data: map[string][]byte{}}
+		st := store.NewPublisherStore(
+			&ms,
+			store.NewDatastoreProviderContextTable(datastore.NewMapDatastore()),
+			store.NewDatastoreProviderContextTable(datastore.NewMapDatastore()),
+		)
+
+		p, err := publisher.New(priv, st)
+		require.NoError(t, err)
+
+		ms.beforeReplace = func() {
+			ms.beforeReplace = nil
+			ctxid := testutil.RandomCID(t).String()
+			digests := testutil.RandomMultihashes(t, 1+rand.IntN(100))
+			l, err := p.Publish(ctx, provInfo, ctxid, slices.Values(digests), metadata.Default.New(&metadata.IpfsGatewayHttp{}))
+			require.NoError(t, err)
+			t.Logf("published new advert before another: %s", l)
+		}
+
+		ctxid := testutil.RandomCID(t).String()
+		digests := testutil.RandomMultihashes(t, 1+rand.IntN(100))
+		_, err = p.Publish(ctx, provInfo, ctxid, slices.Values(digests), metadata.Default.New(&metadata.IpfsGatewayHttp{}))
+		require.ErrorIs(t, err, store.ErrPreconditionFailed)
+
+		// subsequent publish should succeed
+		l, err := p.Publish(ctx, provInfo, ctxid, slices.Values(digests), metadata.Default.New(&metadata.IpfsGatewayHttp{}))
+		require.NoError(t, err)
+		t.Logf("published new advert after retry: %s", l)
+	})
+}
+
+type mockStore struct {
+	data          map[string][]byte
+	beforeReplace func()
+}
+
+func (ms *mockStore) Get(ctx context.Context, key string) (io.ReadCloser, error) {
+	d, ok := ms.data[key]
+	if !ok {
+		return nil, store.NewErrNotFound(errors.New("key not found in map"))
+	}
+	return io.NopCloser(bytes.NewReader(d)), nil
+}
+
+func (ms *mockStore) Put(ctx context.Context, key string, l uint64, data io.Reader) error {
+	b, err := io.ReadAll(data)
+	if err != nil {
+		return err
+	}
+	ms.data[key] = b
+	return nil
+}
+
+func (ms *mockStore) Replace(ctx context.Context, key string, old io.Reader, l uint64, new io.Reader) error {
+	if ms.beforeReplace != nil {
+		ms.beforeReplace()
+	}
+	var oldBytes []byte
+	if old != nil {
+		b, err := io.ReadAll(old)
+		if err != nil {
+			return err
+		}
+		oldBytes = b
+	}
+	d, ok := ms.data[key]
+	if !ok {
+		if old != nil {
+			return store.ErrPreconditionFailed
+		}
+	}
+	if !bytes.Equal(d, oldBytes) {
+		return store.ErrPreconditionFailed
+	}
+	newBytes, err := io.ReadAll(new)
+	if err != nil {
+		return err
+	}
+	ms.data[key] = newBytes
+	return nil
 }

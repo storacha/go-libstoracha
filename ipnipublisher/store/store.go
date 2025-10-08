@@ -9,6 +9,7 @@ import (
 	"iter"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/ipfs/go-cid"
 	"github.com/ipfs/go-datastore"
@@ -47,6 +48,9 @@ func (e ErrNotFound) Unwrap() error {
 	return e.underlying
 }
 
+// ErrPreconditionFailed is returned when a conditional write fails.
+var ErrPreconditionFailed = errors.New("precondition failed")
+
 const (
 	keyToMetadataMapPrefix  = "map/keyMD/"
 	keyToChunkLinkMapPrefix = "map/keyChunkLink/"
@@ -57,9 +61,17 @@ const (
 // entry chunk may contain.
 var MaxEntryChunkSize = 16384
 
-type Store interface {
+type SimpleStore interface {
 	Get(ctx context.Context, key string) (io.ReadCloser, error)
 	Put(ctx context.Context, key string, len uint64, data io.Reader) error
+}
+
+type Store interface {
+	SimpleStore
+	// Replace allows conditional writes to the store. It returns
+	// [ErrPreconditionFailed] when a write fails due to the old data not matching
+	// the passed value. Note: old may be nil, when no old data exists.
+	Replace(ctx context.Context, key string, old io.Reader, len uint64, new io.Reader) error
 }
 
 type ProviderContextTable interface {
@@ -105,7 +117,15 @@ type EntriesStore interface {
 
 type HeadStore interface {
 	Head(ctx context.Context) (*head.SignedHead, error)
-	PutHead(ctx context.Context, newHead *head.SignedHead) (ipld.Link, error)
+	// ReplaceHead swaps the previous head for the provided new head. Note the
+	// previous head may be nil when no head exists yet.
+	//
+	// It allows an implementation to perform conditional writes to mitigate
+	// against losing an advert when 2 or more are published concurrently.
+	//
+	// [ErrPreconditionFailed] is returned when the write fails due to the current
+	// head not matching the passed old head.
+	ReplaceHead(ctx context.Context, oldHead *head.SignedHead, newHead *head.SignedHead) (ipld.Link, error)
 }
 
 type ChunkLinkStore interface {
@@ -178,8 +198,8 @@ func (s *AdStore) Head(ctx context.Context) (*head.SignedHead, error) {
 	return Head(ctx, s.store)
 }
 
-func (s *AdStore) PutHead(ctx context.Context, newHead *head.SignedHead) (datamodel.Link, error) {
-	return PutHead(ctx, s.store, newHead)
+func (s *AdStore) ReplaceHead(ctx context.Context, oldHead *head.SignedHead, newHead *head.SignedHead) (datamodel.Link, error) {
+	return ReplaceHead(ctx, s.store, oldHead, newHead)
 }
 
 func (s *AdStore) EncodeHead(ctx context.Context, w io.Writer) error {
@@ -210,7 +230,7 @@ func NewPublisherStore(store Store, chunkLinks, metadataTable ProviderContextTab
 	return &AdStore{store, chunkLinks, metadataTable, mctx}
 }
 
-func Advert(ctx context.Context, ds Store, id ipld.Link) (schema.Advertisement, error) {
+func Advert(ctx context.Context, ds SimpleStore, id ipld.Link) (schema.Advertisement, error) {
 	var ad schema.Advertisement
 	r, err := ds.Get(ctx, id.String())
 	if err != nil {
@@ -228,11 +248,11 @@ func Advert(ctx context.Context, ds Store, id ipld.Link) (schema.Advertisement, 
 	return ad, nil
 }
 
-func PutAdvert(ctx context.Context, ds Store, adv schema.Advertisement) (ipld.Link, error) {
+func PutAdvert(ctx context.Context, ds SimpleStore, adv schema.Advertisement) (ipld.Link, error) {
 	return store(ctx, ds, &adv, schema.AdvertisementPrototype.Type())
 }
 
-func PutEntries(ctx context.Context, ds Store, entries iter.Seq[multihash.Multihash], chunkSize int) (next ipld.Link, err error) {
+func PutEntries(ctx context.Context, ds SimpleStore, entries iter.Seq[multihash.Multihash], chunkSize int) (next ipld.Link, err error) {
 	mhs := make([]multihash.Multihash, 0, chunkSize)
 	var mhCount, chunkCount int
 	for mh := range entries {
@@ -260,7 +280,7 @@ func PutEntries(ctx context.Context, ds Store, entries iter.Seq[multihash.Multih
 	return next, nil
 }
 
-func Entries(ctx context.Context, ds Store, root ipld.Link) iter.Seq2[multihash.Multihash, error] {
+func Entries(ctx context.Context, ds SimpleStore, root ipld.Link) iter.Seq2[multihash.Multihash, error] {
 	return func(yield func(multihash.Multihash, error) bool) {
 		cur := root
 		for cur != nil && cur != schema.NoEntries {
@@ -292,7 +312,7 @@ func Entries(ctx context.Context, ds Store, root ipld.Link) iter.Seq2[multihash.
 	}
 }
 
-func Encode(ctx context.Context, ds Store, lnk ipld.Link, w io.Writer) error {
+func Encode(ctx context.Context, ds SimpleStore, lnk ipld.Link, w io.Writer) error {
 	r, err := ds.Get(ctx, lnk.String())
 	if err != nil {
 		return err
@@ -302,7 +322,7 @@ func Encode(ctx context.Context, ds Store, lnk ipld.Link, w io.Writer) error {
 	return err
 }
 
-func Head(ctx context.Context, ds Store) (*head.SignedHead, error) {
+func Head(ctx context.Context, ds SimpleStore) (*head.SignedHead, error) {
 	r, err := ds.Get(ctx, headKey)
 	if err != nil {
 		return nil, err
@@ -311,7 +331,7 @@ func Head(ctx context.Context, ds Store) (*head.SignedHead, error) {
 	return head.Decode(r)
 }
 
-func EncodeHead(ctx context.Context, ds Store, w io.Writer) error {
+func EncodeHead(ctx context.Context, ds SimpleStore, w io.Writer) error {
 	r, err := ds.Get(ctx, headKey)
 	if err != nil {
 		return err
@@ -321,12 +341,21 @@ func EncodeHead(ctx context.Context, ds Store, w io.Writer) error {
 	return err
 }
 
-func PutHead(ctx context.Context, ds Store, newHead *head.SignedHead) (datamodel.Link, error) {
+func ReplaceHead(ctx context.Context, ds Store, oldHead *head.SignedHead, newHead *head.SignedHead) (datamodel.Link, error) {
 	blk, err := block.Encode(newHead, head.SignedHeadPrototype.Type(), json.Codec, sha256.Hasher)
 	if err != nil {
 		return nil, err
 	}
-	err = ds.Put(ctx, headKey, uint64(len(blk.Bytes())), bytes.NewReader(blk.Bytes()))
+	newBytes := blk.Bytes()
+	var oldBytesReader io.Reader
+	if oldHead != nil {
+		blk, err := block.Encode(oldHead, head.SignedHeadPrototype.Type(), json.Codec, sha256.Hasher)
+		if err != nil {
+			return nil, err
+		}
+		oldBytesReader = bytes.NewReader(blk.Bytes())
+	}
+	err = ds.Replace(ctx, headKey, oldBytesReader, uint64(len(newBytes)), bytes.NewReader(newBytes))
 	if err != nil {
 		return nil, err
 	}
@@ -369,7 +398,7 @@ func PutMetadata(ctx context.Context, ds ProviderContextTable, p peer.ID, contex
 	return ds.Put(ctx, p, contextID, data)
 }
 
-func store(ctx context.Context, ds Store, value any, typ ipldschema.Type) (ipld.Link, error) {
+func store(ctx context.Context, ds SimpleStore, value any, typ ipldschema.Type) (ipld.Link, error) {
 	blk, err := block.Encode(value, typ, json.Codec, sha256.Hasher)
 	if err != nil {
 		return nil, err
@@ -406,6 +435,10 @@ type dsProviderContextTable struct {
 	ds datastore.Datastore
 }
 
+func NewDatastoreProviderContextTable(ds datastore.Datastore) ProviderContextTable {
+	return &dsProviderContextTable{ds}
+}
+
 func (d *dsProviderContextTable) Delete(ctx context.Context, p peer.ID, contextID []byte) error {
 	return d.ds.Delete(ctx, providerContextKey(p, contextID))
 }
@@ -421,7 +454,8 @@ func (d *dsProviderContextTable) Put(ctx context.Context, p peer.ID, contextID [
 var _ ProviderContextTable = (*dsProviderContextTable)(nil)
 
 type dsStoreAdapter struct {
-	ds datastore.Datastore
+	ds    datastore.Datastore
+	mutex sync.Mutex
 }
 
 // Get implements Store.
@@ -439,14 +473,51 @@ func (d *dsStoreAdapter) Put(ctx context.Context, key string, len uint64, r io.R
 	if err != nil {
 		return err
 	}
+	d.mutex.Lock()
+	defer d.mutex.Unlock()
 	return d.ds.Put(ctx, datastore.NewKey(key), data)
+}
 
+func (d *dsStoreAdapter) Replace(ctx context.Context, key string, old io.Reader, newLen uint64, new io.Reader) error {
+	var oldBytes []byte
+	if old != nil {
+		b, err := io.ReadAll(old)
+		if err != nil {
+			return err
+		}
+		oldBytes = b
+	}
+	d.mutex.Lock()
+	defer d.mutex.Unlock()
+
+	cur, err := d.ds.Get(ctx, datastore.NewKey(key))
+	if err != nil {
+		if !errors.Is(err, datastore.ErrNotFound) {
+			return err
+		}
+		// if error was not found, but old is non-nil then something went bad
+		if old != nil {
+			return ErrPreconditionFailed
+		}
+	}
+
+	if !bytes.Equal(cur, oldBytes) {
+		return ErrPreconditionFailed
+	}
+
+	newBytes, err := io.ReadAll(new)
+	if err != nil {
+		return err
+	}
+
+	return d.ds.Put(ctx, datastore.NewKey(key), newBytes)
 }
 
 var _ Store = (*dsStoreAdapter)(nil)
 
 type directoryStore struct {
 	directory string
+	mutex     sync.Mutex
 }
 
 // Get implements Store.
@@ -464,12 +535,54 @@ func (d *directoryStore) Put(ctx context.Context, key string, len uint64, data i
 	if err != nil {
 		return err
 	}
+	d.mutex.Lock()
+	defer d.mutex.Unlock()
 	file, err := os.Create(path)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 	_, err = io.Copy(file, data)
+	return err
+}
+
+func (d *directoryStore) Replace(ctx context.Context, key string, old io.Reader, newLen uint64, new io.Reader) error {
+	var oldBytes []byte
+	if old != nil {
+		b, err := io.ReadAll(old)
+		if err != nil {
+			return err
+		}
+		oldBytes = b
+	}
+
+	path, err := filepath.Abs(filepath.Join(d.directory, key))
+	if err != nil {
+		return err
+	}
+	d.mutex.Lock()
+	defer d.mutex.Unlock()
+
+	cur, err := os.ReadFile(path)
+	if err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			return err
+		}
+		// if error was not found, but old is non-nil then something went bad
+		if old != nil {
+			return ErrPreconditionFailed
+		}
+	}
+	if !bytes.Equal(cur, oldBytes) {
+		return ErrPreconditionFailed
+	}
+
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	_, err = io.Copy(file, new)
 	return err
 }
 
@@ -482,13 +595,13 @@ func asCID(link ipld.Link) cid.Cid {
 	return cid.MustParse(link.String())
 }
 
-func SimpleStoreFromDatastore(ds datastore.Datastore) Store {
-	return &dsStoreAdapter{ds}
+func SimpleStoreFromDatastore(ds datastore.Datastore) SimpleStore {
+	return &dsStoreAdapter{ds: ds}
 }
 
 func FromDatastore(ds datastore.Datastore, opts ...Option) FullStore {
 	return NewPublisherStore(
-		&dsStoreAdapter{ds},
+		&dsStoreAdapter{ds: ds},
 		&dsProviderContextTable{namespace.Wrap(ds, datastore.NewKey(keyToChunkLinkMapPrefix))},
 		&dsProviderContextTable{namespace.Wrap(ds, datastore.NewKey(keyToMetadataMapPrefix))},
 		opts...,
@@ -496,7 +609,7 @@ func FromDatastore(ds datastore.Datastore, opts ...Option) FullStore {
 }
 
 func FromLocalStore(storagePath string, ds datastore.Datastore, opts ...Option) FullStore {
-	store := &directoryStore{storagePath}
+	store := &directoryStore{directory: storagePath}
 	chunkLinksStore := &dsProviderContextTable{namespace.Wrap(ds, datastore.NewKey(keyToChunkLinkMapPrefix))}
 	mdStore := &dsProviderContextTable{namespace.Wrap(ds, datastore.NewKey(keyToMetadataMapPrefix))}
 	return NewPublisherStore(store, chunkLinksStore, mdStore, opts...)

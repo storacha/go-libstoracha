@@ -3,6 +3,7 @@ package publisher
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"iter"
 
@@ -208,11 +209,24 @@ func (p *IPNIPublisher) publishAdvForIndex(ctx context.Context, peer peer.ID, ad
 		return nil, err
 	}
 
-	return p.publish(ctx, adv)
+	adLink, err := p.publish(ctx, adv, prevHead)
+	if err != nil {
+		if !isRm {
+			// rollback chunk links and metadata additions
+			if rclErr := p.store.DeleteChunkLinkForProviderAndContextID(ctx, peer, contextID); rclErr != nil {
+				err = errors.Join(err, fmt.Errorf("rolling back provider + context ID to entries CID mapping: %w", rclErr))
+			}
+			if rmdErr := p.store.DeleteMetadataForProviderAndContextID(ctx, peer, contextID); rmdErr != nil {
+				err = errors.Join(err, fmt.Errorf("rolling back provider + context ID to metadata mapping: %w", rmdErr))
+			}
+		}
+		return nil, err
+	}
+	return adLink, nil
 }
 
-func (p *IPNIPublisher) publish(ctx context.Context, adv schema.Advertisement) (ipld.Link, error) {
-	lnk, err := p.publishLocal(ctx, adv)
+func (p *IPNIPublisher) publish(ctx context.Context, adv schema.Advertisement, prevHead *head.SignedHead) (ipld.Link, error) {
+	lnk, err := p.publishLocal(ctx, adv, prevHead)
 	if err != nil {
 		log.Errorw("Failed to store advertisement locally", "err", err)
 		return nil, fmt.Errorf("failed to publish advertisement locally: %w", err)
@@ -226,7 +240,7 @@ func (p *IPNIPublisher) publish(ctx context.Context, adv schema.Advertisement) (
 	return lnk, nil
 }
 
-func (p *IPNIPublisher) publishLocal(ctx context.Context, adv schema.Advertisement) (ipld.Link, error) {
+func (p *IPNIPublisher) publishLocal(ctx context.Context, adv schema.Advertisement, prevHead *head.SignedHead) (ipld.Link, error) {
 	if err := adv.Validate(); err != nil {
 		return nil, err
 	}
@@ -242,7 +256,7 @@ func (p *IPNIPublisher) publishLocal(ctx context.Context, adv schema.Advertiseme
 		log.Errorw("Failed to generate signed head for the latest advertisement", "err", err)
 		return nil, fmt.Errorf("failed to generate signed head for the latest advertisement: %w", err)
 	}
-	if _, err := p.store.PutHead(ctx, head); err != nil {
+	if _, err := p.store.ReplaceHead(ctx, prevHead, head); err != nil {
 		log.Errorw("Failed to update reference to the latest advertisement", "err", err)
 		return nil, fmt.Errorf("failed to update reference to latest advertisement: %w", err)
 	}
