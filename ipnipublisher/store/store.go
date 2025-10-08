@@ -230,7 +230,7 @@ func NewPublisherStore(store Store, chunkLinks, metadataTable ProviderContextTab
 	return &AdStore{store, chunkLinks, metadataTable, mctx}
 }
 
-func Advert(ctx context.Context, ds Store, id ipld.Link) (schema.Advertisement, error) {
+func Advert(ctx context.Context, ds SimpleStore, id ipld.Link) (schema.Advertisement, error) {
 	var ad schema.Advertisement
 	r, err := ds.Get(ctx, id.String())
 	if err != nil {
@@ -248,11 +248,11 @@ func Advert(ctx context.Context, ds Store, id ipld.Link) (schema.Advertisement, 
 	return ad, nil
 }
 
-func PutAdvert(ctx context.Context, ds Store, adv schema.Advertisement) (ipld.Link, error) {
+func PutAdvert(ctx context.Context, ds SimpleStore, adv schema.Advertisement) (ipld.Link, error) {
 	return store(ctx, ds, &adv, schema.AdvertisementPrototype.Type())
 }
 
-func PutEntries(ctx context.Context, ds Store, entries iter.Seq[multihash.Multihash], chunkSize int) (next ipld.Link, err error) {
+func PutEntries(ctx context.Context, ds SimpleStore, entries iter.Seq[multihash.Multihash], chunkSize int) (next ipld.Link, err error) {
 	mhs := make([]multihash.Multihash, 0, chunkSize)
 	var mhCount, chunkCount int
 	for mh := range entries {
@@ -280,7 +280,7 @@ func PutEntries(ctx context.Context, ds Store, entries iter.Seq[multihash.Multih
 	return next, nil
 }
 
-func Entries(ctx context.Context, ds Store, root ipld.Link) iter.Seq2[multihash.Multihash, error] {
+func Entries(ctx context.Context, ds SimpleStore, root ipld.Link) iter.Seq2[multihash.Multihash, error] {
 	return func(yield func(multihash.Multihash, error) bool) {
 		cur := root
 		for cur != nil && cur != schema.NoEntries {
@@ -312,7 +312,7 @@ func Entries(ctx context.Context, ds Store, root ipld.Link) iter.Seq2[multihash.
 	}
 }
 
-func Encode(ctx context.Context, ds Store, lnk ipld.Link, w io.Writer) error {
+func Encode(ctx context.Context, ds SimpleStore, lnk ipld.Link, w io.Writer) error {
 	r, err := ds.Get(ctx, lnk.String())
 	if err != nil {
 		return err
@@ -322,7 +322,7 @@ func Encode(ctx context.Context, ds Store, lnk ipld.Link, w io.Writer) error {
 	return err
 }
 
-func Head(ctx context.Context, ds Store) (*head.SignedHead, error) {
+func Head(ctx context.Context, ds SimpleStore) (*head.SignedHead, error) {
 	r, err := ds.Get(ctx, headKey)
 	if err != nil {
 		return nil, err
@@ -331,7 +331,7 @@ func Head(ctx context.Context, ds Store) (*head.SignedHead, error) {
 	return head.Decode(r)
 }
 
-func EncodeHead(ctx context.Context, ds Store, w io.Writer) error {
+func EncodeHead(ctx context.Context, ds SimpleStore, w io.Writer) error {
 	r, err := ds.Get(ctx, headKey)
 	if err != nil {
 		return err
@@ -398,7 +398,7 @@ func PutMetadata(ctx context.Context, ds ProviderContextTable, p peer.ID, contex
 	return ds.Put(ctx, p, contextID, data)
 }
 
-func store(ctx context.Context, ds Store, value any, typ ipldschema.Type) (ipld.Link, error) {
+func store(ctx context.Context, ds SimpleStore, value any, typ ipldschema.Type) (ipld.Link, error) {
 	blk, err := block.Encode(value, typ, json.Codec, sha256.Hasher)
 	if err != nil {
 		return nil, err
@@ -587,7 +587,7 @@ func asCID(link ipld.Link) cid.Cid {
 	return cid.MustParse(link.String())
 }
 
-func SimpleStoreFromDatastore(ds datastore.Datastore) Store {
+func SimpleStoreFromDatastore(ds datastore.Datastore) SimpleStore {
 	return &dsStoreAdapter{ds: ds}
 }
 
