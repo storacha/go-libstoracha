@@ -181,13 +181,17 @@ func (ms *mockStore) Replace(ctx context.Context, key string, old io.Reader, l u
 	if ms.beforeReplace != nil {
 		ms.beforeReplace()
 	}
-	oldBytes, err := io.ReadAll(old)
-	if err != nil {
-		return err
+	var oldBytes []byte
+	if old != nil {
+		b, err := io.ReadAll(old)
+		if err != nil {
+			return err
+		}
+		oldBytes = b
 	}
 	d, ok := ms.data[key]
 	if !ok {
-		if len(oldBytes) > 0 {
+		if old != nil {
 			return store.ErrPreconditionFailed
 		}
 	}

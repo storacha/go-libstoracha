@@ -70,7 +70,7 @@ type Store interface {
 	SimpleStore
 	// Replace allows conditional writes to the store. It returns
 	// [ErrPreconditionFailed] when a write fails due to the old data not matching
-	// the passed value.
+	// the passed value. Note: old may be nil, when no old data exists.
 	Replace(ctx context.Context, key string, old io.Reader, len uint64, new io.Reader) error
 }
 
@@ -347,15 +347,15 @@ func ReplaceHead(ctx context.Context, ds Store, oldHead *head.SignedHead, newHea
 		return nil, err
 	}
 	newBytes := blk.Bytes()
-	var oldBytes []byte
+	var oldBytesReader io.Reader
 	if oldHead != nil {
 		blk, err := block.Encode(oldHead, head.SignedHeadPrototype.Type(), json.Codec, sha256.Hasher)
 		if err != nil {
 			return nil, err
 		}
-		oldBytes = blk.Bytes()
+		oldBytesReader = bytes.NewReader(blk.Bytes())
 	}
-	err = ds.Replace(ctx, headKey, bytes.NewReader(oldBytes), uint64(len(newBytes)), bytes.NewReader(newBytes))
+	err = ds.Replace(ctx, headKey, oldBytesReader, uint64(len(newBytes)), bytes.NewReader(newBytes))
 	if err != nil {
 		return nil, err
 	}
@@ -479,9 +479,13 @@ func (d *dsStoreAdapter) Put(ctx context.Context, key string, len uint64, r io.R
 }
 
 func (d *dsStoreAdapter) Replace(ctx context.Context, key string, old io.Reader, newLen uint64, new io.Reader) error {
-	oldBytes, err := io.ReadAll(old)
-	if err != nil {
-		return err
+	var oldBytes []byte
+	if old != nil {
+		b, err := io.ReadAll(old)
+		if err != nil {
+			return err
+		}
+		oldBytes = b
 	}
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
@@ -491,8 +495,8 @@ func (d *dsStoreAdapter) Replace(ctx context.Context, key string, old io.Reader,
 		if !errors.Is(err, datastore.ErrNotFound) {
 			return err
 		}
-		// if error was not exist, but old has non 0 bytes then something went bad
-		if len(oldBytes) > 0 {
+		// if error was not found, but old is non-nil then something went bad
+		if old != nil {
 			return ErrPreconditionFailed
 		}
 	}
@@ -543,9 +547,13 @@ func (d *directoryStore) Put(ctx context.Context, key string, len uint64, data i
 }
 
 func (d *directoryStore) Replace(ctx context.Context, key string, old io.Reader, newLen uint64, new io.Reader) error {
-	oldBytes, err := io.ReadAll(old)
-	if err != nil {
-		return err
+	var oldBytes []byte
+	if old != nil {
+		b, err := io.ReadAll(old)
+		if err != nil {
+			return err
+		}
+		oldBytes = b
 	}
 
 	path, err := filepath.Abs(filepath.Join(d.directory, key))
@@ -560,8 +568,8 @@ func (d *directoryStore) Replace(ctx context.Context, key string, old io.Reader,
 		if !errors.Is(err, os.ErrNotExist) {
 			return err
 		}
-		// if error was not exist, but old has non 0 bytes then something went bad
-		if len(oldBytes) > 0 {
+		// if error was not found, but old is non-nil then something went bad
+		if old != nil {
 			return ErrPreconditionFailed
 		}
 	}
