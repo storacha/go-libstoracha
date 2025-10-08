@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"io"
 	"math/rand/v2"
 	"slices"
 	"sort"
@@ -159,32 +160,44 @@ type mockStore struct {
 	beforeReplace func()
 }
 
-func (ms *mockStore) Get(ctx context.Context, key string) ([]byte, error) {
+func (ms *mockStore) Get(ctx context.Context, key string) (io.ReadCloser, error) {
 	d, ok := ms.data[key]
 	if !ok {
 		return nil, store.NewErrNotFound(errors.New("key not found in map"))
 	}
-	return d, nil
+	return io.NopCloser(bytes.NewReader(d)), nil
 }
 
-func (ms *mockStore) Put(ctx context.Context, key string, data []byte) error {
-	ms.data[key] = data
+func (ms *mockStore) Put(ctx context.Context, key string, l uint64, data io.Reader) error {
+	b, err := io.ReadAll(data)
+	if err != nil {
+		return err
+	}
+	ms.data[key] = b
 	return nil
 }
 
-func (ms *mockStore) Replace(ctx context.Context, key string, old []byte, new []byte) error {
+func (ms *mockStore) Replace(ctx context.Context, key string, old io.Reader, l uint64, new io.Reader) error {
 	if ms.beforeReplace != nil {
 		ms.beforeReplace()
 	}
+	oldBytes, err := io.ReadAll(old)
+	if err != nil {
+		return err
+	}
 	d, ok := ms.data[key]
 	if !ok {
-		if len(old) > 0 {
+		if len(oldBytes) > 0 {
 			return store.ErrPreconditionFailed
 		}
 	}
-	if !bytes.Equal(d, old) {
+	if !bytes.Equal(d, oldBytes) {
 		return store.ErrPreconditionFailed
 	}
-	ms.data[key] = new
+	newBytes, err := io.ReadAll(new)
+	if err != nil {
+		return err
+	}
+	ms.data[key] = newBytes
 	return nil
 }

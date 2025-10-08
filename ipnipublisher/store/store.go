@@ -61,13 +61,17 @@ const (
 // entry chunk may contain.
 var MaxEntryChunkSize = 16384
 
+type SimpleStore interface {
+	Get(ctx context.Context, key string) (io.ReadCloser, error)
+	Put(ctx context.Context, key string, len uint64, data io.Reader) error
+}
+
 type Store interface {
-	Get(ctx context.Context, key string) ([]byte, error)
-	Put(ctx context.Context, key string, data []byte) error
+	SimpleStore
 	// Replace allows conditional writes to the store. It returns
 	// [ErrPreconditionFailed] when a write fails due to the old data not matching
 	// the passed value.
-	Replace(ctx context.Context, key string, old []byte, new []byte) error
+	Replace(ctx context.Context, key string, old io.Reader, len uint64, new io.Reader) error
 }
 
 type ProviderContextTable interface {
@@ -228,7 +232,12 @@ func NewPublisherStore(store Store, chunkLinks, metadataTable ProviderContextTab
 
 func Advert(ctx context.Context, ds Store, id ipld.Link) (schema.Advertisement, error) {
 	var ad schema.Advertisement
-	v, err := ds.Get(ctx, id.String())
+	r, err := ds.Get(ctx, id.String())
+	if err != nil {
+		return ad, err
+	}
+	defer r.Close()
+	v, err := io.ReadAll(r)
 	if err != nil {
 		return ad, err
 	}
@@ -275,7 +284,13 @@ func Entries(ctx context.Context, ds Store, root ipld.Link) iter.Seq2[multihash.
 	return func(yield func(multihash.Multihash, error) bool) {
 		cur := root
 		for cur != nil && cur != schema.NoEntries {
-			v, err := ds.Get(ctx, cur.String())
+			r, err := ds.Get(ctx, cur.String())
+			if err != nil {
+				yield(nil, err)
+				return
+			}
+			defer r.Close()
+			v, err := io.ReadAll(r)
 			if err != nil {
 				yield(nil, err)
 				return
@@ -298,28 +313,31 @@ func Entries(ctx context.Context, ds Store, root ipld.Link) iter.Seq2[multihash.
 }
 
 func Encode(ctx context.Context, ds Store, lnk ipld.Link, w io.Writer) error {
-	v, err := ds.Get(ctx, lnk.String())
+	r, err := ds.Get(ctx, lnk.String())
 	if err != nil {
 		return err
 	}
-	_, err = w.Write(v)
+	defer r.Close()
+	_, err = io.Copy(w, r)
 	return err
 }
 
 func Head(ctx context.Context, ds Store) (*head.SignedHead, error) {
-	v, err := ds.Get(ctx, headKey)
+	r, err := ds.Get(ctx, headKey)
 	if err != nil {
 		return nil, err
 	}
-	return head.Decode(bytes.NewReader(v))
+	defer r.Close()
+	return head.Decode(r)
 }
 
 func EncodeHead(ctx context.Context, ds Store, w io.Writer) error {
-	v, err := ds.Get(ctx, headKey)
+	r, err := ds.Get(ctx, headKey)
 	if err != nil {
 		return err
 	}
-	_, err = w.Write(v)
+	defer r.Close()
+	_, err = io.Copy(w, r)
 	return err
 }
 
@@ -337,7 +355,7 @@ func ReplaceHead(ctx context.Context, ds Store, oldHead *head.SignedHead, newHea
 		}
 		oldBytes = blk.Bytes()
 	}
-	err = ds.Replace(ctx, headKey, oldBytes, newBytes)
+	err = ds.Replace(ctx, headKey, bytes.NewReader(oldBytes), uint64(len(newBytes)), bytes.NewReader(newBytes))
 	if err != nil {
 		return nil, err
 	}
@@ -385,7 +403,7 @@ func store(ctx context.Context, ds Store, value any, typ ipldschema.Type) (ipld.
 	if err != nil {
 		return nil, err
 	}
-	err = ds.Put(ctx, blk.Link().String(), blk.Bytes())
+	err = ds.Put(ctx, blk.Link().String(), uint64(len(blk.Bytes())), bytes.NewReader(blk.Bytes()))
 	if err != nil {
 		return nil, err
 	}
@@ -441,22 +459,30 @@ type dsStoreAdapter struct {
 }
 
 // Get implements Store.
-func (d *dsStoreAdapter) Get(ctx context.Context, key string) ([]byte, error) {
+func (d *dsStoreAdapter) Get(ctx context.Context, key string) (io.ReadCloser, error) {
 	data, err := d.ds.Get(ctx, datastore.NewKey(key))
 	if err != nil {
 		return nil, err
 	}
-	return data, nil
+	return io.NopCloser(bytes.NewReader(data)), nil
 }
 
 // Put implements Store.
-func (d *dsStoreAdapter) Put(ctx context.Context, key string, data []byte) error {
+func (d *dsStoreAdapter) Put(ctx context.Context, key string, len uint64, r io.Reader) error {
+	data, err := io.ReadAll(r)
+	if err != nil {
+		return err
+	}
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
 	return d.ds.Put(ctx, datastore.NewKey(key), data)
 }
 
-func (d *dsStoreAdapter) Replace(ctx context.Context, key string, old []byte, new []byte) error {
+func (d *dsStoreAdapter) Replace(ctx context.Context, key string, old io.Reader, newLen uint64, new io.Reader) error {
+	oldBytes, err := io.ReadAll(old)
+	if err != nil {
+		return err
+	}
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
 
@@ -466,14 +492,21 @@ func (d *dsStoreAdapter) Replace(ctx context.Context, key string, old []byte, ne
 			return err
 		}
 		// if error was not exist, but old has non 0 bytes then something went bad
-		if len(old) > 0 {
+		if len(oldBytes) > 0 {
 			return ErrPreconditionFailed
 		}
 	}
-	if !bytes.Equal(cur, old) {
+
+	if !bytes.Equal(cur, oldBytes) {
 		return ErrPreconditionFailed
 	}
-	return d.ds.Put(ctx, datastore.NewKey(key), new)
+
+	newBytes, err := io.ReadAll(new)
+	if err != nil {
+		return err
+	}
+
+	return d.ds.Put(ctx, datastore.NewKey(key), newBytes)
 }
 
 var _ Store = (*dsStoreAdapter)(nil)
@@ -484,16 +517,16 @@ type directoryStore struct {
 }
 
 // Get implements Store.
-func (d *directoryStore) Get(ctx context.Context, key string) ([]byte, error) {
+func (d *directoryStore) Get(ctx context.Context, key string) (io.ReadCloser, error) {
 	path, err := filepath.Abs(filepath.Join(d.directory, key))
 	if err != nil {
 		return nil, err
 	}
-	return os.ReadFile(path)
+	return os.Open(path)
 }
 
 // Put implements Store.
-func (d *directoryStore) Put(ctx context.Context, key string, data []byte) error {
+func (d *directoryStore) Put(ctx context.Context, key string, len uint64, data io.Reader) error {
 	path, err := filepath.Abs(filepath.Join(d.directory, key))
 	if err != nil {
 		return err
@@ -505,11 +538,16 @@ func (d *directoryStore) Put(ctx context.Context, key string, data []byte) error
 		return err
 	}
 	defer file.Close()
-	_, err = file.Write(data)
+	_, err = io.Copy(file, data)
 	return err
 }
 
-func (d *directoryStore) Replace(ctx context.Context, key string, old []byte, new []byte) error {
+func (d *directoryStore) Replace(ctx context.Context, key string, old io.Reader, newLen uint64, new io.Reader) error {
+	oldBytes, err := io.ReadAll(old)
+	if err != nil {
+		return err
+	}
+
 	path, err := filepath.Abs(filepath.Join(d.directory, key))
 	if err != nil {
 		return err
@@ -523,14 +561,21 @@ func (d *directoryStore) Replace(ctx context.Context, key string, old []byte, ne
 			return err
 		}
 		// if error was not exist, but old has non 0 bytes then something went bad
-		if len(old) > 0 {
+		if len(oldBytes) > 0 {
 			return ErrPreconditionFailed
 		}
 	}
-	if !bytes.Equal(cur, old) {
+	if !bytes.Equal(cur, oldBytes) {
 		return ErrPreconditionFailed
 	}
-	return os.WriteFile(path, new, 0o666)
+
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	_, err = io.Copy(file, new)
+	return err
 }
 
 var _ Store = (*directoryStore)(nil)
