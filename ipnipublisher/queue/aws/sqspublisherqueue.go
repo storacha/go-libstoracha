@@ -71,3 +71,10 @@ func (jm jobMarshaller) Empty() queue.PublishingJob {
 func NewSQSPublishingQueue(cfg aws.Config, queueID string, bucket string) *SQSPublishingQueue {
 	return awsutils.NewSQSExtendedQueue(cfg, queueID, bucket, jobMarshaller{})
 }
+
+type SQSPublishingDecoder = awsutils.SQSDecoder[queue.PublishingJob, model.ProviderResult]
+
+// NewSQSPublishingDecoder returns a new SQSPublishingDecoder for the given aws config
+func NewSQSPublishingDecoder(cfg aws.Config, bucket string) *SQSPublishingDecoder {
+	return awsutils.NewSQSDecoder(cfg, bucket, jobMarshaller{})
+}
