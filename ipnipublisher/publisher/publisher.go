@@ -30,6 +30,11 @@ type Publisher interface {
 	Publish(ctx context.Context, provider peer.AddrInfo, contextID string, digests iter.Seq[mh.Multihash], meta metadata.Metadata) (ipld.Link, error)
 }
 
+type AsyncPublisher interface {
+	// Publish creates, signs and publishes an advert but does so asynchronously, so no advert CID is returned.
+	Publish(ctx context.Context, provider peer.AddrInfo, contextID string, digests iter.Seq[mh.Multihash], meta metadata.Metadata) error
+}
+
 type IPNIPublisher struct {
 	*options
 	sender announce.Sender
@@ -262,4 +267,19 @@ func (p *IPNIPublisher) publishLocal(ctx context.Context, adv schema.Advertiseme
 	}
 	log.Info("Updated reference to the latest advertisement successfully")
 	return lnk, nil
+}
+
+type simpleAsyncPublisher struct {
+	publisher Publisher
+}
+
+func AsyncFrom(p Publisher) AsyncPublisher {
+	return &simpleAsyncPublisher{
+		publisher: p,
+	}
+}
+
+func (s *simpleAsyncPublisher) Publish(ctx context.Context, provider peer.AddrInfo, contextID string, digests iter.Seq[mh.Multihash], meta metadata.Metadata) error {
+	_, err := s.publisher.Publish(ctx, provider, contextID, digests, meta)
+	return err
 }
