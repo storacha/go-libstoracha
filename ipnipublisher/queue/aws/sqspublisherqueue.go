@@ -38,6 +38,7 @@ func (jm jobMarshaller) Marshall(job queue.PublishingJob) (awsutils.SerializedJo
 			Metadata:  metaBytes,
 		},
 		Extended: reader,
+		GroupID:  &job.ContextID,
 	}, nil
 }
 

@@ -23,6 +23,7 @@ type queueMessage[Message any] struct {
 // SerializedJob represents a job that has been serialized for transport over SQS + S3
 type SerializedJob[Message any] struct {
 	ID       string
+	GroupID  *string
 	Message  Message
 	Extended io.Reader
 }
@@ -75,7 +76,7 @@ func (s *SQSExtendedQueue[Job, Message]) Queue(ctx context.Context, job Job) err
 	if err != nil {
 		return fmt.Errorf("saving index CAR to S3: %w", err)
 	}
-	err = s.sendMessage(ctx, queueMessage[Message]{
+	err = s.sendMessage(ctx, jobMessage.GroupID, queueMessage[Message]{
 		JobID:   uuid,
 		Message: jobMessage.Message,
 	})
@@ -92,15 +93,19 @@ func (s *SQSExtendedQueue[Job, Message]) Queue(ctx context.Context, job Job) err
 	return err
 }
 
-func (s *SQSExtendedQueue[Job, Message]) sendMessage(ctx context.Context, msg queueMessage[Message]) error {
+func (s *SQSExtendedQueue[Job, Message]) sendMessage(ctx context.Context, groupID *string, msg queueMessage[Message]) error {
 	messageJSON, err := json.Marshal(msg)
 	if err != nil {
 		return fmt.Errorf("serializing message json: %w", err)
 	}
-	_, err = s.sqsClient.SendMessage(ctx, &sqs.SendMessageInput{
+	message := &sqs.SendMessageInput{
 		QueueUrl:    aws.String(s.queueID),
 		MessageBody: aws.String(string(messageJSON)),
-	})
+	}
+	if groupID != nil {
+		message.MessageGroupId = groupID
+	}
+	_, err = s.sqsClient.SendMessage(ctx, message)
 	if err != nil {
 		return fmt.Errorf("enqueueing message: %w", err)
 	}
