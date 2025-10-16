@@ -164,17 +164,17 @@ func (s *SQSExtendedQueue[Job, Message]) Delete(ctx context.Context, jobID strin
 
 // SQSDecoder provides interfaces for working with jobs received over SQS
 type SQSDecoder[Job any, Message any] struct {
-	bucket    string
-	s3Client  *s3.Client
-	mashaller JobMarshaller[Job, Message]
+	bucket     string
+	s3Client   *s3.Client
+	marshaller JobMarshaller[Job, Message]
 }
 
 // NewSQSDecoder returns a new decoder for the given AWS config
-func NewSQSDecoder[Job any, Message any](cfg aws.Config, bucket string, mashaller JobMarshaller[Job, Message]) *SQSDecoder[Job, Message] {
+func NewSQSDecoder[Job any, Message any](cfg aws.Config, bucket string, marshaller JobMarshaller[Job, Message]) *SQSDecoder[Job, Message] {
 	return &SQSDecoder[Job, Message]{
-		bucket:    bucket,
-		s3Client:  s3.NewFromConfig(cfg),
-		mashaller: mashaller,
+		bucket:     bucket,
+		s3Client:   s3.NewFromConfig(cfg),
+		marshaller: marshaller,
 	}
 }
 
@@ -183,17 +183,17 @@ func (s *SQSDecoder[Job, Message]) DecodeMessage(ctx context.Context, receiptHan
 	var msg queueMessage[Message]
 	err := json.Unmarshal([]byte(messageBody), &msg)
 	if err != nil {
-		return s.mashaller.Empty(), fmt.Errorf("deserializing message: %w", err)
+		return s.marshaller.Empty(), fmt.Errorf("deserializing message: %w", err)
 	}
 	received, err := s.s3Client.GetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(s.bucket),
 		Key:    aws.String(msg.JobID.String()),
 	})
 	if err != nil {
-		return s.mashaller.Empty(), fmt.Errorf("reading stored index CAR: %w", err)
+		return s.marshaller.Empty(), fmt.Errorf("reading stored index CAR: %w", err)
 	}
 	defer received.Body.Close()
-	return s.mashaller.Unmarshall(SerializedJob[Message]{
+	return s.marshaller.Unmarshall(SerializedJob[Message]{
 		ID:       receiptHandle,
 		Message:  msg.Message,
 		Extended: received.Body,
