@@ -2,6 +2,7 @@ package aws
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"slices"
@@ -30,6 +31,7 @@ func (jm jobMarshaller) Marshall(job queue.PublishingJob) (awsutils.SerializedJo
 	if err != nil {
 		return awsutils.SerializedJob[model.ProviderResult]{}, fmt.Errorf("serializing metadata to binary: %w", err)
 	}
+	base64contextID := base64.StdEncoding.EncodeToString([]byte(job.ContextID))
 	return awsutils.SerializedJob[model.ProviderResult]{
 		ID: job.ID,
 		Message: model.ProviderResult{
@@ -38,7 +40,7 @@ func (jm jobMarshaller) Marshall(job queue.PublishingJob) (awsutils.SerializedJo
 			Metadata:  metaBytes,
 		},
 		Extended: reader,
-		GroupID:  &job.ContextID,
+		GroupID:  &base64contextID,
 	}, nil
 }
 
