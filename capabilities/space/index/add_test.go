@@ -12,23 +12,44 @@ import (
 )
 
 func TestRoundTripAddCaveats(t *testing.T) {
-	nb := index.AddCaveats{
-		Index: testutil.RandomCID(t),
+	testCases := []struct {
+		name string
+		nb   index.AddCaveats
+	}{
+		{
+			name: "without content link",
+			nb: index.AddCaveats{
+				Index: testutil.RandomCID(t),
+			},
+		},
+		{
+			name: "with content link",
+			nb: index.AddCaveats{
+				Index:   testutil.RandomCID(t),
+				Content: testutil.RandomCID(t),
+			},
+		},
 	}
 
-	node, err := nb.ToIPLD()
-	require.NoError(t, err)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			node, err := tc.nb.ToIPLD()
+			require.NoError(t, err)
 
-	var buf bytes.Buffer
+			var buf bytes.Buffer
 
-	err = dagjson.Encode(node, &buf)
-	require.NoError(t, err)
+			err = dagjson.Encode(node, &buf)
+			require.NoError(t, err)
 
-	builder := basicnode.Prototype.Any.NewBuilder()
-	err = dagjson.Decode(builder, &buf)
-	require.NoError(t, err)
+			t.Log(buf.String())
 
-	rnb, err := index.AddCaveatsReader.Read(builder.Build())
-	require.NoError(t, err)
-	require.Equal(t, nb, rnb)
+			builder := basicnode.Prototype.Any.NewBuilder()
+			err = dagjson.Decode(builder, &buf)
+			require.NoError(t, err)
+
+			rnb, err := index.AddCaveatsReader.Read(builder.Build())
+			require.NoError(t, err)
+			require.Equal(t, tc.nb, rnb)
+		})
+	}
 }
