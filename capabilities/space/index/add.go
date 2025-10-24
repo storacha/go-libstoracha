@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/ipld/go-ipld-prime/datamodel"
+	"github.com/ipld/go-ipld-prime/fluent/qp"
+	"github.com/ipld/go-ipld-prime/node/basicnode"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
@@ -21,10 +23,17 @@ const AddAbility = "space/index/add"
 type AddCaveats struct {
 	// Link is the Content Archive (CAR) containing the `Index`.
 	Index ucan.Link
+	// OPTIONAL - The content root CID - the root of the DAG that is indexed.
+	Content ipld.Link
 }
 
 func (ic AddCaveats) ToIPLD() (datamodel.Node, error) {
-	return ipld.WrapWithRecovery(&ic, AddCaveatsType(), types.Converters...)
+	return qp.BuildMap(basicnode.Prototype.Map, 1, func(ma datamodel.MapAssembler) {
+		qp.MapEntry(ma, "index", qp.Link(ic.Index))
+		if ic.Content != nil {
+			qp.MapEntry(ma, "content", qp.Link(ic.Content))
+		}
+	})
 }
 
 var AddCaveatsReader = schema.Struct[AddCaveats](AddCaveatsType(), nil, types.Converters...)
@@ -62,6 +71,10 @@ var Add = validator.NewCapability(
 			return fail
 		}
 
+		if fail := equalContent(claimed, delegated); fail != nil {
+			return fail
+		}
+
 		return nil
 	},
 )
@@ -95,5 +108,20 @@ func equalIndex(claimed, delegated ucan.Capability[AddCaveats]) failure.Failure 
 		}
 	}
 
+	return nil
+}
+
+// equalContent validates that the claimed capability's `content` field matches the
+// delegated one's, if any
+func equalContent(claimed, delegated ucan.Capability[AddCaveats]) failure.Failure {
+	if delegated.Nb().Content != nil {
+		if delegated.Nb().Content == nil || delegated.Nb().Content.String() != claimed.Nb().Content.String() {
+			return schema.NewSchemaError(fmt.Sprintf(
+				"content '%s' doesn't match delegated '%s'",
+				claimed.Nb().Content,
+				delegated.Nb().Content,
+			))
+		}
+	}
 	return nil
 }
