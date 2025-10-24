@@ -111,7 +111,7 @@ func equalIndex(claimed, delegated ucan.Capability[AddCaveats]) failure.Failure 
 	return nil
 }
 
-// equalIndex validates that the claimed capability's `index` field matches the
+// equalContent validates that the claimed capability's `content` field matches the
 // delegated one's, if any
 func equalContent(claimed, delegated ucan.Capability[AddCaveats]) failure.Failure {
 	if delegated.Nb().Content != nil {
