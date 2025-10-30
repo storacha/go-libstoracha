@@ -152,7 +152,7 @@ func validateDomain(domain string) error {
 	return nil
 }
 
-func ExtractEndpointFromDID(didWeb did.DID, insecure bool) (url.URL, error) {
+func WellKnownEndpointFromDID(didWeb did.DID, insecure bool) (url.URL, error) {
 	domain, err := ExtractDomainFromDID(didWeb)
 	if err != nil {
 		return url.URL{}, err
@@ -195,7 +195,7 @@ func NewHTTPResolver(webKeys []did.DID, opts ...Option) (*HTTPResolver, error) {
 		if _, ok := didMap[w]; ok {
 			return nil, fmt.Errorf("duplicate did's provided")
 		}
-		endpoint, err := ExtractEndpointFromDID(w, cfg.insecure)
+		endpoint, err := WellKnownEndpointFromDID(w, cfg.insecure)
 		if err != nil {
 			return nil, err
 		}
@@ -212,7 +212,7 @@ func (r *HTTPResolver) ResolveDIDKey(ctx context.Context, input did.DID) (did.DI
 		for p, g := range r.cfg.globs {
 			ok = g.Match(strings.TrimPrefix(input.String(), didWebPrefix))
 			if ok {
-				u, err := ExtractEndpointFromDID(input, r.cfg.insecure)
+				u, err := WellKnownEndpointFromDID(input, r.cfg.insecure)
 				if err != nil {
 					log.Errorw("failed to extract endpoint from did:web", "did", input, "pattern", p, "insecure", r.cfg.insecure)
 					return did.Undef, validator.NewDIDKeyResolutionError(input, fmt.Errorf("invalid did:web"))
