@@ -153,6 +153,14 @@ func FromCommitmentAndSize(commD []byte, unpaddedDataSize uint64) (PieceDigest, 
 		return nil, err
 	}
 
+	return FromCommitmentFr32PaddingAndHeight(commD, padding, height)
+}
+
+func FromCommitmentFr32PaddingAndHeight(commD []byte, padding uint64, height uint8) (PieceDigest, error) {
+	if len(commD) != 32 {
+		return nil, fmt.Errorf("commitments must be 32 bytes long")
+	}
+
 	if padding > varint.MaxValueUvarint63 {
 		return nil, fmt.Errorf("padded data size must be less than 2^63-1, but was %d", padding)
 	}
