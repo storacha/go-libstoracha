@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gobwas/glob"
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/storacha/go-ucanto/did"
 	"github.com/storacha/go-ucanto/validator"
@@ -72,6 +73,7 @@ type HTTPResolver struct {
 type config struct {
 	timeout  time.Duration
 	insecure bool
+	globs    map[string]glob.Glob
 }
 
 type Option func(*config) error
@@ -89,6 +91,26 @@ func WithTimeout(timeout time.Duration) Option {
 func InsecureResolution() Option {
 	return func(c *config) error {
 		c.insecure = true
+		return nil
+	}
+}
+
+// WithPatterns allows resolving of did:web's that match the provided glob
+// pattern(s).
+//
+// Note: the pattern does not need to include the "did:web:" prefix.
+func WithPatterns(patterns ...string) Option {
+	return func(c *config) error {
+		for _, p := range patterns {
+			g, err := glob.Compile(p)
+			if err != nil {
+				return fmt.Errorf("compiling pattern %q: %w", p, err)
+			}
+			if c.globs == nil {
+				c.globs = map[string]glob.Glob{}
+			}
+			c.globs[p] = g
+		}
 		return nil
 	}
 }
@@ -130,6 +152,30 @@ func validateDomain(domain string) error {
 	return nil
 }
 
+func WellKnownEndpointFromDID(didWeb did.DID, insecure bool) (url.URL, error) {
+	domain, err := ExtractDomainFromDID(didWeb)
+	if err != nil {
+		return url.URL{}, err
+	}
+
+	schema := "https"
+	if insecure {
+		schema = "http"
+	}
+
+	endpoint := url.URL{
+		Scheme: schema,
+		Host:   domain,
+		Path:   WellKnownDIDPath,
+	}
+
+	if _, err := url.Parse(endpoint.String()); err != nil {
+		return url.URL{}, fmt.Errorf("invalid did domain: %w", err)
+	}
+
+	return endpoint, nil
+}
+
 const WellKnownDIDPath = "/.well-known/did.json"
 
 func NewHTTPResolver(webKeys []did.DID, opts ...Option) (*HTTPResolver, error) {
@@ -149,26 +195,10 @@ func NewHTTPResolver(webKeys []did.DID, opts ...Option) (*HTTPResolver, error) {
 		if _, ok := didMap[w]; ok {
 			return nil, fmt.Errorf("duplicate did's provided")
 		}
-		domain, err := ExtractDomainFromDID(w)
+		endpoint, err := WellKnownEndpointFromDID(w, cfg.insecure)
 		if err != nil {
 			return nil, err
 		}
-
-		schema := "https"
-		if cfg.insecure {
-			schema = "http"
-		}
-
-		endpoint := url.URL{
-			Scheme: schema,
-			Host:   domain,
-			Path:   WellKnownDIDPath,
-		}
-
-		if _, err := url.Parse(endpoint.String()); err != nil {
-			return nil, fmt.Errorf("invalid did domain: %w", err)
-		}
-
 		didMap[w] = endpoint
 	}
 	// default timeout of 10 seconds, options can override
@@ -176,12 +206,24 @@ func NewHTTPResolver(webKeys []did.DID, opts ...Option) (*HTTPResolver, error) {
 	return resolver, nil
 }
 
-// TODO(forrest): the interface this implements in go-ucanto should probably accept a context
-// since means of resolution here are open ended, and may go to network or disk.
 func (r *HTTPResolver) ResolveDIDKey(ctx context.Context, input did.DID) (did.DID, validator.UnresolvedDID) {
 	endpoint, ok := r.webKeys[input]
+	if !ok { // if not in allowed web keys, try globs
+		for p, g := range r.cfg.globs {
+			ok = g.Match(strings.TrimPrefix(input.String(), didWebPrefix))
+			if ok {
+				u, err := WellKnownEndpointFromDID(input, r.cfg.insecure)
+				if err != nil {
+					log.Errorw("failed to extract endpoint from did:web", "did", input, "pattern", p, "insecure", r.cfg.insecure)
+					return did.Undef, validator.NewDIDKeyResolutionError(input, fmt.Errorf("invalid did:web"))
+				}
+				endpoint = u
+				break
+			}
+		}
+	}
 	if !ok {
-		log.Error("failed to find did in set for resolution")
+		log.Errorw("failed to find did:web in set or globs for resolution", "did", input)
 		return did.Undef, validator.NewDIDKeyResolutionError(input, fmt.Errorf("not found in mapping"))
 	}
 	ctx, cancel := context.WithTimeout(ctx, r.cfg.timeout)

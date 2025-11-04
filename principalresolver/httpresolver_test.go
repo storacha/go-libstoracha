@@ -2,9 +2,12 @@ package principalresolver_test
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 	"time"
 
@@ -61,6 +64,7 @@ func TestHTTPResolver_ResolveDIDKey(t *testing.T) {
 		name           string
 		setupServer    func() *httptest.Server
 		setupMapping   func(serverURL string) []did.DID
+		setupGlobbing  func(serverURL string) []string
 		inputDID       string
 		expectedDIDKey string
 		expectError    bool
@@ -101,6 +105,40 @@ func TestHTTPResolver_ResolveDIDKey(t *testing.T) {
 			expectError:    false,
 		},
 		{
+			name: "successful resolution with pattern",
+			setupServer: func() *httptest.Server {
+				return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					if r.URL.Path != principalresolver.WellKnownDIDPath {
+						w.WriteHeader(http.StatusNotFound)
+						return
+					}
+					doc := principalresolver.Document{
+						Context: []string{"https://w3id.org/did/v1"},
+						ID:      "did:web:example.com",
+						VerificationMethod: []principalresolver.VerificationMethod{
+							{
+								ID:                 "did:web:example.com#key1",
+								Type:               "Ed25519VerificationKey2018",
+								Controller:         "did:web:example.com",
+								PublicKeyMultibase: "z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
+							},
+						},
+					}
+					w.Header().Set("Content-Type", "application/json")
+					json.NewEncoder(w).Encode(doc)
+				}))
+			},
+			setupMapping: func(serverURL string) []did.DID {
+				return []did.DID{}
+			},
+			setupGlobbing: func(serverURL string) []string {
+				return []string{"*"}
+			},
+			inputDID:       "", // Will be set based on server URL
+			expectedDIDKey: "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
+			expectError:    false,
+		},
+		{
 			name:        "DID not in mapping",
 			setupServer: func() *httptest.Server { return nil },
 			setupMapping: func(serverURL string) []did.DID {
@@ -109,6 +147,20 @@ func TestHTTPResolver_ResolveDIDKey(t *testing.T) {
 			inputDID:      "did:web:notfound.com",
 			expectError:   true,
 			errorContains: "not found in mapping",
+		},
+		{
+			name:        "invalid domain when matching against glob",
+			setupServer: func() *httptest.Server { return nil },
+			setupMapping: func(serverURL string) []did.DID {
+				return []did.DID{}
+			},
+			setupGlobbing: func(serverURL string) []string {
+				return []string{"*.storacha.network"}
+			},
+			// make too long
+			inputDID:      fmt.Sprintf("did:web:%s.storacha.network", strings.Repeat("a", 254)),
+			expectError:   true,
+			errorContains: "invalid did:web",
 		},
 		{
 			name: "HTTP error response",
@@ -242,7 +294,6 @@ func TestHTTPResolver_ResolveDIDKey(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			var server *httptest.Server
 			if tc.setupServer != nil {
@@ -257,8 +308,16 @@ func TestHTTPResolver_ResolveDIDKey(t *testing.T) {
 				serverURL = server.URL
 			}
 			mapping := tc.setupMapping(serverURL)
+			var patterns []string
+			if tc.setupGlobbing != nil {
+				patterns = tc.setupGlobbing(serverURL)
+			}
 
-			resolver, err := principalresolver.NewHTTPResolver(mapping, principalresolver.InsecureResolution())
+			resolver, err := principalresolver.NewHTTPResolver(
+				mapping,
+				principalresolver.InsecureResolution(),
+				principalresolver.WithPatterns(patterns...),
+			)
 			require.NoError(t, err)
 
 			// For tests where inputDID is empty, derive it from server URL
@@ -278,6 +337,9 @@ func TestHTTPResolver_ResolveDIDKey(t *testing.T) {
 				require.NotNil(t, unresolvedErr)
 				require.Contains(t, unresolvedErr.Error(), "Unable to resolve")
 				require.Equal(t, did.Undef, result)
+				if tc.errorContains != "" {
+					require.Contains(t, errors.Unwrap(unresolvedErr).Error(), tc.errorContains)
+				}
 			} else {
 				require.Nil(t, unresolvedErr)
 				expectedDID, err := did.Parse(tc.expectedDIDKey)
