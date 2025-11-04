@@ -29,3 +29,7 @@ func ConcludeCaveatsType() schema.Type {
 func ConcludeOkType() schema.Type {
 	return ucanTS.TypeByName("ConcludeOk")
 }
+
+func AttestCaveatsType() schema.Type {
+	return ucanTS.TypeByName("AttestCaveats")
+}

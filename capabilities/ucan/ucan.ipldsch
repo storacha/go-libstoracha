@@ -1,7 +1,11 @@
 type ConcludeCaveats struct {
-    receipt Link
+	receipt Link
 }
 
 type ConcludeOk struct {
-    time UnixTimeMilli
+	time UnixTimeMilli
+}
+
+type AttestCaveats struct {
+	proof Link
 }
