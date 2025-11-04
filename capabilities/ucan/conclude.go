@@ -60,7 +60,7 @@ var Conclude = validator.NewCapability(
 )
 
 // equalWith validates that the claimed capability's `with` field matches the delegated one.
-func equalWith(claimed, delegated ucan.Capability[ConcludeCaveats]) failure.Failure {
+func equalWith(claimed, delegated ucan.UnknownCapability) failure.Failure {
 	if claimed.With() != delegated.With() {
 		return schema.NewSchemaError(fmt.Sprintf(
 			"Resource '%s' doesn't match delegated '%s'",
