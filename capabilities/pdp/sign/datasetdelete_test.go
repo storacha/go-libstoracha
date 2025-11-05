@@ -1,6 +1,7 @@
 package sign_test
 
 import (
+	"math/rand/v2"
 	"testing"
 
 	"github.com/storacha/go-libstoracha/capabilities/pdp/sign"
@@ -39,11 +40,11 @@ func TestDataSetDelete(t *testing.T) {
 
 	dataSetDeleteOk := sign.DataSetDeleteOk{
 		Signature:  testutil.RandomBytes(t, 128),
-		V:          testutil.RandomBigInt(t),
-		R:          testutil.RandomBytes(t, 32),
-		S:          testutil.RandomBytes(t, 32),
+		V:          uint8(rand.IntN(255)),
+		R:          randomHash(t),
+		S:          randomHash(t),
 		SignedData: testutil.RandomBytes(t, 128),
-		Signer:     testutil.RandomBytes(t, 20),
+		Signer:     randomAddress(t),
 	}
 
 	rcpt, err := receipt.Issue(

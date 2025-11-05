@@ -3,7 +3,6 @@ package sign
 import (
 	"math/big"
 
-	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/validator"
@@ -17,10 +16,10 @@ type PiecesRemoveScheduleCaveats struct {
 }
 
 func (c PiecesRemoveScheduleCaveats) ToIPLD() (ipld.Node, error) {
-	return ipld.WrapWithRecovery(&c, PiecesRemoveScheduleCaveatsType(), types.Converters...)
+	return ipld.WrapWithRecovery(&c, PiecesRemoveScheduleCaveatsType(), Converters...)
 }
 
-var PiecesRemoveScheduleCaveatsReader = schema.Struct[PiecesRemoveScheduleCaveats](PiecesRemoveScheduleCaveatsType(), nil, types.Converters...)
+var PiecesRemoveScheduleCaveatsReader = schema.Struct[PiecesRemoveScheduleCaveats](PiecesRemoveScheduleCaveatsType(), nil, Converters...)
 
 type PiecesRemoveScheduleOk = AuthSignature
 

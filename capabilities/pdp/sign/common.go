@@ -1,9 +1,7 @@
 package sign
 
 import (
-	"math/big"
-
-	"github.com/storacha/go-libstoracha/capabilities/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/schema"
 )
@@ -15,15 +13,15 @@ type Metadata struct {
 
 type AuthSignature struct {
 	Signature  []byte
-	V          *big.Int
-	R          []byte
-	S          []byte
+	V          uint8
+	R          common.Hash
+	S          common.Hash
 	SignedData []byte
-	Signer     []byte
+	Signer     common.Address
 }
 
 func (as AuthSignature) ToIPLD() (ipld.Node, error) {
-	return ipld.WrapWithRecovery(&as, AuthSignatureType(), types.Converters...)
+	return ipld.WrapWithRecovery(&as, AuthSignatureType(), Converters...)
 }
 
-var AuthSignatureReader = schema.Struct[AuthSignature](AuthSignatureType(), nil, types.Converters...)
+var AuthSignatureReader = schema.Struct[AuthSignature](AuthSignatureType(), nil, Converters...)

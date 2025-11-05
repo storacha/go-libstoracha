@@ -1,8 +1,10 @@
 package sign_test
 
 import (
+	"math/rand/v2"
 	"testing"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/storacha/go-libstoracha/capabilities/pdp/sign"
 	"github.com/storacha/go-libstoracha/testutil"
 	"github.com/storacha/go-ucanto/core/delegation"
@@ -20,7 +22,7 @@ import (
 func TestDataSetCreate(t *testing.T) {
 	dataSetCreateCaveats := sign.DataSetCreateCaveats{
 		DataSet: testutil.RandomBigInt(t),
-		Payee:   testutil.RandomBytes(t, 20),
+		Payee:   randomAddress(t),
 		Metadata: sign.Metadata{
 			Keys:   []string{"foo"},
 			Values: map[string]string{"foo": "bar"},
@@ -47,11 +49,11 @@ func TestDataSetCreate(t *testing.T) {
 
 	dataSetCreateOk := sign.DataSetCreateOk{
 		Signature:  testutil.RandomBytes(t, 128),
-		V:          testutil.RandomBigInt(t),
-		R:          testutil.RandomBytes(t, 32),
-		S:          testutil.RandomBytes(t, 32),
+		V:          uint8(rand.IntN(255)),
+		R:          randomHash(t),
+		S:          randomHash(t),
 		SignedData: testutil.RandomBytes(t, 128),
-		Signer:     testutil.RandomBytes(t, 20),
+		Signer:     randomAddress(t),
 	}
 
 	rcpt, err := receipt.Issue(
@@ -105,4 +107,12 @@ func roundTripAgentMessage(t *testing.T, inv invocation.Invocation, rcpt receipt
 	require.NoError(t, err)
 
 	return outMsg
+}
+
+func randomHash(t *testing.T) common.Hash {
+	return common.BytesToHash(testutil.RandomBytes(t, common.HashLength))
+}
+
+func randomAddress(t *testing.T) common.Address {
+	return common.BytesToAddress(testutil.RandomBytes(t, common.AddressLength))
 }

@@ -3,7 +3,7 @@ type Hash bytes
 
 type AuthSignature struct {
   signature Bytes
-	v BigInt
+	v Int
 	r Hash
 	s Hash
 	signedData Bytes

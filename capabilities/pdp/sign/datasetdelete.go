@@ -3,7 +3,6 @@ package sign
 import (
 	"math/big"
 
-	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/validator"
@@ -16,10 +15,10 @@ type DataSetDeleteCaveats struct {
 }
 
 func (c DataSetDeleteCaveats) ToIPLD() (ipld.Node, error) {
-	return ipld.WrapWithRecovery(&c, DataSetDeleteCaveatsType(), types.Converters...)
+	return ipld.WrapWithRecovery(&c, DataSetDeleteCaveatsType(), Converters...)
 }
 
-var DataSetDeleteCaveatsReader = schema.Struct[DataSetDeleteCaveats](DataSetDeleteCaveatsType(), nil, types.Converters...)
+var DataSetDeleteCaveatsReader = schema.Struct[DataSetDeleteCaveats](DataSetDeleteCaveatsType(), nil, Converters...)
 
 type DataSetDeleteOk = AuthSignature
 

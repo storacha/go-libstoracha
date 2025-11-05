@@ -135,7 +135,7 @@ var BigIntConverter = options.NamedBytesConverter("BigInt",
 		case 1:
 			negative = true
 		default:
-			return big.Int{}, errors.New("big int sign must be 0 or 1")
+			return *big.NewInt(0), errors.New("big int sign must be 0 or 1")
 		}
 		n := big.NewInt(0).SetBytes(b[1:])
 		if negative {
@@ -150,7 +150,7 @@ var BigIntConverter = options.NamedBytesConverter("BigInt",
 		case n.Sign() < 0:
 			return append([]byte{1}, n.Bytes()...), nil
 		default:
-			return nil, errors.New("unexpected big int sign value")
+			return []byte{0}, nil
 		}
 	})
 
