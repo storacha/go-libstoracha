@@ -8,6 +8,11 @@ import (
 	"github.com/storacha/go-ucanto/core/schema"
 )
 
+type Metadata struct {
+	Keys   []string
+	Values map[string]string
+}
+
 type AuthSignature struct {
 	Signature  []byte
 	V          *big.Int

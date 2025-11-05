@@ -11,11 +11,6 @@ import (
 
 const PiecesAddAbility = "pdp/sign/pieces/add"
 
-type Metadata struct {
-	Keys   []string
-	Values map[string]string
-}
-
 type PiecesAddCaveats struct {
 	DataSet    *big.Int
 	FirstAdded *big.Int
