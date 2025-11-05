@@ -128,6 +128,9 @@ var UnixTimeMilliConverter = options.NamedIntConverter("UnixTimeMilli",
 
 var BigIntConverter = options.NamedBytesConverter("BigInt",
 	func(b []byte) (big.Int, error) {
+		if len(b) == 0 {
+			return *big.NewInt(0), nil
+		}
 		var negative bool
 		switch b[0] {
 		case 0:
