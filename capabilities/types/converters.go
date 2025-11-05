@@ -23,7 +23,10 @@ import (
 	"github.com/storacha/go-ucanto/did"
 )
 
-var ErrWrongLength = errors.New("length must be 32")
+var (
+	ErrWrongLength = errors.New("length must be 32")
+	ErrInvalidSign = errors.New("big int sign must be 0 or 1")
+)
 
 var MultiaddrConverter = options.NamedBytesConverter("Multiaddr", multiaddr.NewMultiaddrBytes, func(m multiaddr.Multiaddr) ([]byte, error) {
 	return m.Bytes(), nil
@@ -138,7 +141,7 @@ var BigIntConverter = options.NamedBytesConverter("BigInt",
 		case 1:
 			negative = true
 		default:
-			return *big.NewInt(0), errors.New("big int sign must be 0 or 1")
+			return *big.NewInt(0), ErrInvalidSign
 		}
 		n := big.NewInt(0).SetBytes(b[1:])
 		if negative {
