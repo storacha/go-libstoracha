@@ -84,10 +84,12 @@ type (
 		Queue(ctx context.Context, job []WithID[Job]) error
 	}
 
+	//lint:ignore U1000 https://github.com/dominikh/go-tools/issues/1440
 	singleJobQueue[Job any] struct {
 		jq *jobqueue.JobQueue[WithID[Job]]
 	}
 
+	//lint:ignore U1000 https://github.com/dominikh/go-tools/issues/1440
 	batchJobQueue[Job any] struct {
 		jq *jobqueue.JobQueue[[]WithID[Job]]
 	}
@@ -210,6 +212,7 @@ func (p *QueuePoller[Job]) processJobs(ctx context.Context) {
 	}
 }
 
+//lint:ignore U1000 https://github.com/dominikh/go-tools/issues/1440
 func (s *singleHandler[Job]) toJobQueue(queue Queue[Job], concurrency int) jobQueue[Job] {
 	handler := jobqueue.JobHandler(func(ctx context.Context, job WithID[Job]) error {
 		jobCtx, cancel := context.WithTimeout(ctx, maxJobProcessingTime)
@@ -266,6 +269,7 @@ func (s *singleJobQueue[Job]) Queue(ctx context.Context, job []WithID[Job]) erro
 	return nil
 }
 
+//lint:ignore U1000 https://github.com/dominikh/go-tools/issues/1440
 func (b *batchHandler[Job]) toJobQueue(queue Queue[Job], concurrency int) jobQueue[Job] {
 	handler := jobqueue.JobHandler(func(ctx context.Context, jobs []WithID[Job]) error {
 		jobCtx, cancel := context.WithTimeout(ctx, maxJobProcessingTime)

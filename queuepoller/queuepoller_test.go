@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"sync"
 	"testing"
-	"time"
 
 	"testing/synctest"
 )
@@ -23,7 +22,6 @@ type mockQueue struct {
 	readCount       int
 	deletedJobs     map[string]struct{}
 	releasedJobs    map[string]struct{}
-	readWaitUntil   time.Time
 	readBehavior    func(ctx context.Context, maxJobs int) ([]WithID[testJob], error)
 	deleteBehavior  func(ctx context.Context, jobID string) error
 	releaseBehavior func(ctx context.Context, jobID string) error
