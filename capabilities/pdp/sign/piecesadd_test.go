@@ -20,9 +20,11 @@ func TestPiecesAdd(t *testing.T) {
 		DataSet:    testutil.RandomBigInt(t),
 		FirstAdded: testutil.RandomBigInt(t),
 		PieceData:  [][]byte{testutil.RandomBytes(t, 32), testutil.RandomBytes(t, 32)},
-		Metadata: sign.Metadata{
-			Keys:   []string{"foo"},
-			Values: map[string]string{"foo": "bar"},
+		Metadata: []sign.Metadata{
+			{
+				Keys:   []string{"foo"},
+				Values: map[string]string{"foo": "bar"},
+			},
 		},
 	}
 

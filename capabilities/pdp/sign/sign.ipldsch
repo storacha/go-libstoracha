@@ -20,7 +20,7 @@ type PiecesAddCaveats struct {
   dataSet BigInt
   firstAdded BigInt
   pieceData [Bytes]
-  metadata {String:String}
+  metadata [{String:String}]
 }
 
 type PiecesRemoveScheduleCaveats struct {

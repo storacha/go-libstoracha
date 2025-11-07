@@ -14,7 +14,7 @@ type PiecesAddCaveats struct {
 	DataSet    *big.Int
 	FirstAdded *big.Int
 	PieceData  [][]byte
-	Metadata   Metadata
+	Metadata   []Metadata
 }
 
 func (c PiecesAddCaveats) ToIPLD() (ipld.Node, error) {
