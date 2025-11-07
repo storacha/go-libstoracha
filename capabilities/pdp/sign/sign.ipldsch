@@ -31,3 +31,8 @@ type PiecesRemoveScheduleCaveats struct {
 type DataSetDeleteCaveats struct {
   dataSet BigInt
 }
+
+type SignError struct {
+  errorName String (rename "name")
+  message String
+}

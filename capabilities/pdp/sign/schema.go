@@ -41,3 +41,7 @@ func PiecesRemoveScheduleCaveatsType() schema.Type {
 func DataSetDeleteCaveatsType() schema.Type {
 	return ts.TypeByName("DataSetDeleteCaveats")
 }
+
+func SignErrorType() schema.Type {
+	return ts.TypeByName("InvalidResource")
+}
