@@ -25,7 +25,7 @@ func (ge SignError) ToIPLD() (ipld.Node, error) {
 	return ipld.WrapWithRecovery(&ge, SignErrorType(), types.Converters...)
 }
 
-func NewInvalidResourceError(expected ucan.Resource, actual ucan.Resource) error {
+func NewInvalidResourceError(expected ucan.Resource, actual ucan.Resource) SignError {
 	return SignError{
 		ErrorName: "InvalidResource",
 		Message:   fmt.Sprintf("invalid resource, expected: %s got: %s", expected, actual),
