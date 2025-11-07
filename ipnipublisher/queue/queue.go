@@ -95,9 +95,19 @@ func (qp *QueuePublisher) Publish(ctx context.Context, pInfo peer.AddrInfo, cont
 type PublishingQueuePoller = queuepoller.QueuePoller[PublishingJob]
 
 func NewPublishingQueuePoller(queue PublishingQueue, publisher publisher.AsyncPublisher, opts ...queuepoller.Option) (*PublishingQueuePoller, error) {
+	handler := NewPublishingJobHandler(publisher)
 	return queuepoller.NewQueuePoller(
 		queue,
-		queuepoller.JobHandler(NewPublishingJobHandler(publisher).Handle),
+		queuepoller.BatchJobHandler(func(ctx context.Context, jobs []queuepoller.WithID[PublishingJob]) map[string]error {
+			errs := make(map[string]error, len(jobs))
+			for _, job := range jobs {
+				err := handler.Handle(ctx, job.Job)
+				if err != nil {
+					errs[job.ID] = err
+				}
+			}
+			return errs
+		}),
 		opts...)
 }
 
