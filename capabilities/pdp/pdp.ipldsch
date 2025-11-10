@@ -1,5 +1,5 @@
 type AcceptCaveats struct {
-	piece   PieceLink
+	blob Multihash
 }
 
 type ProofData struct {
@@ -14,7 +14,7 @@ type AcceptOk struct {
 }
 
 type InfoCaveats struct {
-	piece   PieceLink
+	blob Multihash
 }
 
 type InfoAcceptedAggregate struct {
