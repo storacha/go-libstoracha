@@ -43,5 +43,5 @@ func DataSetDeleteCaveatsType() schema.Type {
 }
 
 func SignErrorType() schema.Type {
-	return ts.TypeByName("InvalidResource")
+	return ts.TypeByName("SignError")
 }

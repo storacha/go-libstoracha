@@ -5,6 +5,7 @@ import (
 
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-ucanto/core/ipld"
+	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 )
 
@@ -24,6 +25,8 @@ func (se SignError) Error() string {
 func (ge SignError) ToIPLD() (ipld.Node, error) {
 	return ipld.WrapWithRecovery(&ge, SignErrorType(), types.Converters...)
 }
+
+var SignErrorReader = schema.Struct[SignError](SignErrorType(), nil, Converters...)
 
 const InvalidResourceErrorName = "InvalidResource"
 
