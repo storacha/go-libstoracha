@@ -7,6 +7,7 @@ import (
 	"github.com/storacha/go-libstoracha/capabilities/pdp/sign"
 	"github.com/storacha/go-libstoracha/testutil"
 	"github.com/storacha/go-ucanto/core/delegation"
+	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/receipt"
 	"github.com/storacha/go-ucanto/core/receipt/ran"
 	"github.com/storacha/go-ucanto/core/result"
@@ -25,6 +26,10 @@ func TestPiecesAdd(t *testing.T) {
 				Keys:   []string{"foo"},
 				Values: map[string]string{"foo": "bar"},
 			},
+		},
+		Proofs: [][]ipld.Link{
+			{testutil.RandomCID(t), testutil.RandomCID(t), testutil.RandomCID(t)},
+			{testutil.RandomCID(t), testutil.RandomCID(t)},
 		},
 	}
 

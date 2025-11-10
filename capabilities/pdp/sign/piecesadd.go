@@ -15,6 +15,15 @@ type PiecesAddCaveats struct {
 	FirstAdded *big.Int
 	PieceData  [][]byte
 	Metadata   []Metadata
+	// Proofs are links to `blob/accept` receipts for sub-pieces included in each
+	// piece. They are proofs that the sub-pieces were requested to be stored by
+	// the node. They correspond to items in `PieceData` i.e. Proofs[0] is the
+	// list of receipts for all sub-pieces of PieceData[0].
+	//
+	// Each `blob/accept` receipt MUST include the `pdp/accept` effect receipt,
+	// since it contains the proof that the sub-piece is included in the larger
+	// piece. All receipt data MUST be attached to the signing invocation.
+	Proofs [][]ipld.Link
 }
 
 func (c PiecesAddCaveats) ToIPLD() (ipld.Node, error) {
