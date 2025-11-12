@@ -15,6 +15,7 @@ const OfferAbility = "filecoin/offer"
 type OfferCaveats struct {
 	Content ipld.Link
 	Piece   ipld.Link
+	PDP     *ipld.Link
 }
 
 func (oc OfferCaveats) ToIPLD() (datamodel.Node, error) {

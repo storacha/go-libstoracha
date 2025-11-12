@@ -9,18 +9,38 @@ import (
 )
 
 func TestOfferCaveatsRoundTrip(t *testing.T) {
-	nb := filecoin.OfferCaveats{
-		Content: testutil.RandomCID(t),
-		Piece:   testutil.RandomCID(t),
-	}
+	t.Run("no pdp", func(t *testing.T) {
+		nb := filecoin.OfferCaveats{
+			Content: testutil.RandomCID(t),
+			Piece:   testutil.RandomCID(t),
+		}
 
-	node, err := nb.ToIPLD()
-	require.NoError(t, err)
+		node, err := nb.ToIPLD()
+		require.NoError(t, err)
 
-	rnb, err := filecoin.OfferCaveatsReader.Read(node)
-	require.NoError(t, err)
-	require.Equal(t, nb.Content.String(), rnb.Content.String())
-	require.Equal(t, nb.Piece.String(), rnb.Piece.String())
+		rnb, err := filecoin.OfferCaveatsReader.Read(node)
+		require.NoError(t, err)
+		require.Equal(t, nb.Content.String(), rnb.Content.String())
+		require.Equal(t, nb.Piece.String(), rnb.Piece.String())
+	})
+	t.Run("with pdp", func(t *testing.T) {
+		pdpLink := testutil.RandomCID(t)
+		nb := filecoin.OfferCaveats{
+			Content: testutil.RandomCID(t),
+			Piece:   testutil.RandomCID(t),
+			PDP:     &pdpLink,
+		}
+
+		node, err := nb.ToIPLD()
+		require.NoError(t, err)
+
+		rnb, err := filecoin.OfferCaveatsReader.Read(node)
+		require.NoError(t, err)
+		require.Equal(t, nb.Content.String(), rnb.Content.String())
+		require.Equal(t, nb.Piece.String(), rnb.Piece.String())
+		require.NotNil(t, rnb.PDP)
+		require.Equal(t, (*nb.PDP).String(), (*rnb.PDP).String())
+	})
 }
 
 func TestOfferOkRoundTrip(t *testing.T) {
