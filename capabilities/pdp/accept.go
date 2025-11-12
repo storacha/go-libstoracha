@@ -3,6 +3,7 @@ package pdp
 import (
 	"github.com/filecoin-project/go-data-segment/merkletree"
 	"github.com/ipld/go-ipld-prime/datamodel"
+	mh "github.com/multiformats/go-multihash"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-libstoracha/piece/piece"
 	"github.com/storacha/go-ucanto/core/ipld"
@@ -15,7 +16,7 @@ import (
 const AcceptAbility = "pdp/accept"
 
 type AcceptCaveats struct {
-	Piece piece.PieceLink
+	Blob mh.Multihash
 }
 
 func (ac AcceptCaveats) ToIPLD() (datamodel.Node, error) {
@@ -40,6 +41,8 @@ type AcceptOk struct {
 func (ao AcceptOk) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&ao, AcceptOkType(), types.Converters...)
 }
+
+var AcceptOkReader = schema.Struct[AcceptOk](AcceptOkType(), nil, types.Converters...)
 
 type AcceptReceipt receipt.Receipt[AcceptOk, failure.Failure]
 type AcceptReceiptReader receipt.ReceiptReader[AcceptOk, failure.Failure]

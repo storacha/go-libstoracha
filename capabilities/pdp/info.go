@@ -3,6 +3,7 @@ package pdp
 import (
 	"github.com/filecoin-project/go-data-segment/merkletree"
 	"github.com/ipld/go-ipld-prime/datamodel"
+	mh "github.com/multiformats/go-multihash"
 	"github.com/storacha/go-libstoracha/capabilities/types"
 	"github.com/storacha/go-libstoracha/piece/piece"
 	"github.com/storacha/go-ucanto/core/ipld"
@@ -15,7 +16,7 @@ import (
 const InfoAbility = "pdp/info"
 
 type InfoCaveats struct {
-	Piece piece.PieceLink
+	Blob mh.Multihash
 }
 
 func (ic InfoCaveats) ToIPLD() (datamodel.Node, error) {
@@ -44,6 +45,8 @@ func NewInfoReceiptReader() (InfoReceiptReader, error) {
 }
 
 var InfoCaveatsReader = schema.Struct[InfoCaveats](InfoCaveatsType(), nil, types.Converters...)
+
+var InfoOkReader = schema.Struct[InfoOk](InfoOkType(), nil, types.Converters...)
 
 var Info = validator.NewCapability(
 	InfoAbility,
