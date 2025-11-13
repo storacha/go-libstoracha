@@ -33,17 +33,6 @@ const (
 	UnauthorizedCauseErrorName = "UnauthorizedCause"
 )
 
-var (
-	ErrUnknownCause = GrantError{
-		ErrorName: UnknownCauseErrorName,
-		Message:   "unknown cause invocation",
-	}
-	ErrMissingCause = GrantError{
-		ErrorName: MissingCauseErrorName,
-		Message:   "grant requires supporting contextual invocation",
-	}
-)
-
 // GrantCaveats are the caveats required to perform an access/grant invocation.
 type GrantCaveats struct {
 	// Att are the capabilities agent wishes to be granted.
@@ -73,6 +62,41 @@ var GrantOkReader = schema.Struct[GrantOk](GrantOkType(), nil, types.Converters.
 type GrantError struct {
 	ErrorName string
 	Message   string
+}
+
+func NewUnknownAbilityError(ability string) GrantError {
+	return GrantError{
+		ErrorName: UnknownAbilityErrorName,
+		Message:   fmt.Sprintf("unknown ability: %s", ability),
+	}
+}
+
+func NewMissingCauseError() GrantError {
+	return GrantError{
+		ErrorName: MissingCauseErrorName,
+		Message:   "grant requires supporting contextual invocation",
+	}
+}
+
+func NewUnknownCauseError() GrantError {
+	return GrantError{
+		ErrorName: UnknownCauseErrorName,
+		Message:   "unknown cause invocation",
+	}
+}
+
+func NewInvalidCauseError(msg string) GrantError {
+	return GrantError{
+		ErrorName: InvalidCauseErrorName,
+		Message:   fmt.Sprintf("invalid cause invocation: %s", msg),
+	}
+}
+
+func NewUnauthorizedCauseError(err validator.Unauthorized) GrantError {
+	return GrantError{
+		ErrorName: UnauthorizedCauseErrorName,
+		Message:   err.Error(),
+	}
 }
 
 func (ge GrantError) Name() string {
@@ -105,22 +129,4 @@ var Grant = validator.NewCapability(
 
 func GrantDerive(claimed, delegated ucan.Capability[GrantCaveats]) failure.Failure {
 	return schema.NewSchemaError(fmt.Sprintf("%s cannot be delegated", GrantAbility))
-}
-
-func NewUnknownAbilityError(ability string) GrantError {
-	return GrantError{
-		ErrorName: UnknownAbilityErrorName,
-		Message:   fmt.Sprintf("unknown ability: %s", ability),
-	}
-}
-
-func NewInvalidCauseError(msg string) GrantError {
-	return GrantError{
-		ErrorName: InvalidCauseErrorName,
-		Message:   fmt.Sprintf("invalid cause invocation: %s", msg),
-	}
-}
-
-func NewUnauthorizedCauseError(err validator.Unauthorized) GrantError {
-	return GrantError{ErrorName: UnauthorizedCauseErrorName, Message: err.Error()}
 }
