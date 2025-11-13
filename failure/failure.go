@@ -16,7 +16,6 @@ import (
 	"github.com/ipld/go-ipld-prime/schema"
 	ucanipld "github.com/storacha/go-ucanto/core/ipld"
 	ucantofailure "github.com/storacha/go-ucanto/core/result/failure"
-	"github.com/storacha/go-ucanto/did"
 )
 
 //go:embed failure.ipldsch
@@ -36,7 +35,7 @@ type FailureModel struct {
 	Delegated           *ipld.Node //Any
 	Delegation          *ipld.Node //Delegation
 	DelegationErrors    *[]FailureModel
-	Did                 *did.DID
+	Did                 *[]byte //DID
 	ExpiredAt           *int64
 	FailedProofs        *[]FailureModel
 	InvalidProofs       *[]FailureModel
