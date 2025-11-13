@@ -75,7 +75,7 @@ func RandomMultiaddr(t *testing.T) multiaddr.Multiaddr {
 	return multiaddr.Join(maddr, port)
 }
 
-func RandomCID(t *testing.T) datamodel.Link {
+func RandomCID(t *testing.T) cidlink.Link {
 	return cidlink.Link{Cid: cid.NewCidV1(cid.Raw, RandomMultihash(t))}
 }
 
