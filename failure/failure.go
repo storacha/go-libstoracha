@@ -43,7 +43,7 @@ type FailureModel struct {
 	Link                *datamodel.Link
 	UnknownCapabilities *[]ipld.Node //[]Capability
 	ValidAt             *int64
-	ErrorString         *bool
+	IsError             *bool
 }
 
 func (f FailureModel) Error() string {
