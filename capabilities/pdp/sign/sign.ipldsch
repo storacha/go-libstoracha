@@ -21,6 +21,7 @@ type PiecesAddCaveats struct {
   firstAdded BigInt
   pieceData [Bytes]
   metadata [{String:String}]
+  proofs [[Link]]
 }
 
 type PiecesRemoveScheduleCaveats struct {
