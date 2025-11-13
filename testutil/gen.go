@@ -211,9 +211,9 @@ func RandomBitswapProviderResult(t *testing.T) model.ProviderResult {
 
 func RandomIndexClaimProviderResult(t *testing.T) model.ProviderResult {
 	indexMeta := metadata.IndexClaimMetadata{
-		Index:      RandomCID(t).(cidlink.Link).Cid,
+		Index:      RandomCID(t).Cid,
 		Expiration: 0,
-		Claim:      RandomCID(t).(cidlink.Link).Cid,
+		Claim:      RandomCID(t).Cid,
 	}
 	metaBytes := Must(indexMeta.MarshalBinary())(t)
 
@@ -223,12 +223,12 @@ func RandomIndexClaimProviderResult(t *testing.T) model.ProviderResult {
 }
 
 func RandomLocationCommitmentProviderResult(t *testing.T) model.ProviderResult {
-	shard := RandomCID(t).(cidlink.Link).Cid
+	shard := RandomCID(t).Cid
 	locationMeta := metadata.LocationCommitmentMetadata{
 		Shard:      &shard,
 		Range:      &metadata.Range{Offset: 128},
 		Expiration: 0,
-		Claim:      RandomCID(t).(cidlink.Link).Cid,
+		Claim:      RandomCID(t).Cid,
 	}
 	metaBytes := Must(locationMeta.MarshalBinary())(t)
 
