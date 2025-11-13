@@ -1,0 +1,39 @@
+type Address bytes
+type Hash bytes
+
+type AuthSignature struct {
+  signature Bytes
+	v Int
+	r Hash
+	s Hash
+	signedData Bytes
+	signer Address
+}
+
+type DataSetCreateCaveats struct {
+  dataSet BigInt
+  payee Address
+  metadata {String:String}
+}
+
+type PiecesAddCaveats struct {
+  dataSet BigInt
+  firstAdded BigInt
+  pieceData [Bytes]
+  metadata [{String:String}]
+  proofs [[Link]]
+}
+
+type PiecesRemoveScheduleCaveats struct {
+  dataSet BigInt
+  pieces [BigInt]
+}
+
+type DataSetDeleteCaveats struct {
+  dataSet BigInt
+}
+
+type SignError struct {
+  errorName String (rename "name")
+  message String
+}

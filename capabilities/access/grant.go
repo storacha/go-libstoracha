@@ -13,7 +13,25 @@ import (
 	"github.com/storacha/go-ucanto/validator"
 )
 
-const GrantAbility = "access/grant"
+const (
+	GrantAbility = "access/grant"
+	// UnknownAbilityErrorName is the name given to an error where the ability
+	// requested to be granted is unknown to the service.
+	UnknownAbilityErrorName = "UnknownAbility"
+	// UnknownCauseErrorName is the name given to an error where the cause
+	// invocation sent as context for the delegation is not recognised.
+	UnknownCauseErrorName = "UnknownCause"
+	// MissingCauseErrorName is the name given to an error where a required cause
+	// invocation has not been provided in the invocation to request a grant.
+	MissingCauseErrorName = "MissingCause"
+	// InvalidCauseErrorName is the name given to an error where the cause
+	// invocation has been determined to be invalid is some way. See the error
+	// message for details.
+	InvalidCauseErrorName = "InvalidCause"
+	// UnauthorizedCauseErrorName is the name given to an error where the cause
+	// invocation failed UCAN validation.
+	UnauthorizedCauseErrorName = "UnauthorizedCause"
+)
 
 // GrantCaveats are the caveats required to perform an access/grant invocation.
 type GrantCaveats struct {
@@ -44,6 +62,41 @@ var GrantOkReader = schema.Struct[GrantOk](GrantOkType(), nil, types.Converters.
 type GrantError struct {
 	ErrorName string
 	Message   string
+}
+
+func NewUnknownAbilityError(ability string) GrantError {
+	return GrantError{
+		ErrorName: UnknownAbilityErrorName,
+		Message:   fmt.Sprintf("unknown ability: %s", ability),
+	}
+}
+
+func NewMissingCauseError() GrantError {
+	return GrantError{
+		ErrorName: MissingCauseErrorName,
+		Message:   "grant requires supporting contextual invocation",
+	}
+}
+
+func NewUnknownCauseError() GrantError {
+	return GrantError{
+		ErrorName: UnknownCauseErrorName,
+		Message:   "unknown cause invocation",
+	}
+}
+
+func NewInvalidCauseError(msg string) GrantError {
+	return GrantError{
+		ErrorName: InvalidCauseErrorName,
+		Message:   fmt.Sprintf("invalid cause invocation: %s", msg),
+	}
+}
+
+func NewUnauthorizedCauseError(err validator.Unauthorized) GrantError {
+	return GrantError{
+		ErrorName: UnauthorizedCauseErrorName,
+		Message:   err.Error(),
+	}
 }
 
 func (ge GrantError) Name() string {

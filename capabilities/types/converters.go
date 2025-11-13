@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"math/big"
 	"net/http"
 	"net/url"
 	"slices"
@@ -22,7 +23,10 @@ import (
 	"github.com/storacha/go-ucanto/did"
 )
 
-var ErrWrongLength = errors.New("length must be 32")
+var (
+	ErrWrongLength = errors.New("length must be 32")
+	ErrInvalidSign = errors.New("big int sign must be 0 or 1")
+)
 
 var MultiaddrConverter = options.NamedBytesConverter("Multiaddr", multiaddr.NewMultiaddrBytes, func(m multiaddr.Multiaddr) ([]byte, error) {
 	return m.Bytes(), nil
@@ -125,6 +129,37 @@ var UnixTimeMilliConverter = options.NamedIntConverter("UnixTimeMilli",
 		return t.UnixMilli(), nil
 	})
 
+var BigIntConverter = options.NamedBytesConverter("BigInt",
+	func(b []byte) (big.Int, error) {
+		if len(b) == 0 {
+			return *big.NewInt(0), nil
+		}
+		var negative bool
+		switch b[0] {
+		case 0:
+			negative = false
+		case 1:
+			negative = true
+		default:
+			return *big.NewInt(0), ErrInvalidSign
+		}
+		n := big.NewInt(0).SetBytes(b[1:])
+		if negative {
+			n.Neg(n)
+		}
+		return *n, nil
+	},
+	func(n big.Int) ([]byte, error) {
+		switch {
+		case n.Sign() > 0:
+			return append([]byte{0}, n.Bytes()...), nil
+		case n.Sign() < 0:
+			return append([]byte{1}, n.Bytes()...), nil
+		default:
+			return []byte{0}, nil
+		}
+	})
+
 var Converters = []bindnode.Option{
 	MultiaddrConverter,
 	HasMultihashConverter,
@@ -136,4 +171,5 @@ var Converters = []bindnode.Option{
 	MerkleNodeConverter,
 	ISO8601DateConverter,
 	UnixTimeMilliConverter,
+	BigIntConverter,
 }

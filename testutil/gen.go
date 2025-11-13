@@ -4,6 +4,7 @@ import (
 	crand "crypto/rand"
 	"fmt"
 	"io"
+	"math/big"
 	"math/rand"
 	"net"
 	"net/url"
@@ -240,4 +241,13 @@ func RandomShardedDagIndexView(t *testing.T, size int) (mh.Multihash, blobindex.
 	root, digest, bytes := RandomCAR(t, size)
 	shard := Must(blobindex.FromShardArchives(root, [][]byte{bytes}))(t)
 	return digest, shard
+}
+
+func RandomBigInt(t *testing.T) *big.Int {
+	// Max random value, a 130-bits integer, i.e 2^130 - 1
+	max := new(big.Int)
+	max.Exp(big.NewInt(2), big.NewInt(130), nil).Sub(max, big.NewInt(1))
+	n, err := crand.Int(crand.Reader, max)
+	require.NoError(t, err)
+	return n
 }

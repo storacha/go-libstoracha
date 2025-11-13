@@ -28,3 +28,4 @@ type PieceLink link
 type MerkleNode bytes
 type ISO8601Date string
 type UnixTimeMilli int
+type BigInt bytes
