@@ -18,6 +18,9 @@ const (
 	// UnknownAbilityErrorName is the name given to an error where the ability
 	// requested to be granted is unknown to the service.
 	UnknownAbilityErrorName = "UnknownAbility"
+	// MissingCapabilityErrorName is the name given to an error caused by the list
+	// of requested capabilities being empty.
+	MissingCapabilityErrorName = "MissingCapability"
 	// UnknownCauseErrorName is the name given to an error where the cause
 	// invocation sent as context for the delegation is not recognised.
 	UnknownCauseErrorName = "UnknownCause"
@@ -68,6 +71,13 @@ func NewUnknownAbilityError(ability string) GrantError {
 	return GrantError{
 		ErrorName: UnknownAbilityErrorName,
 		Message:   fmt.Sprintf("unknown ability: %s", ability),
+	}
+}
+
+func NewMissingCapabilityError() GrantError {
+	return GrantError{
+		ErrorName: MissingCapabilityErrorName,
+		Message:   "grant requires one or more capabilities",
 	}
 }
 
