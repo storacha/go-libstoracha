@@ -1,6 +1,7 @@
 type OfferCaveats struct {
     content Link
     piece Link
+    PDP optional V1Link
 }
 
 type OfferOk struct {
