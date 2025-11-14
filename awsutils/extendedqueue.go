@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/google/uuid"
+	"github.com/storacha/go-libstoracha/queuepoller"
 )
 
 // queueMessage is the struct that is serialized onto an SQS message queue in JSON
@@ -22,7 +23,6 @@ type queueMessage[Message any] struct {
 
 // SerializedJob represents a job that has been serialized for transport over SQS + S3
 type SerializedJob[Message any] struct {
-	ID       string
 	GroupID  *string
 	Message  Message
 	Extended io.Reader
@@ -31,7 +31,6 @@ type SerializedJob[Message any] struct {
 type JobMarshaller[Job any, Message any] interface {
 	Marshall(job Job) (SerializedJob[Message], error)
 	Unmarshall(SerializedJob[Message]) (Job, error)
-	Empty() Job
 }
 
 // SQSExtendedQueue implements a queue interface using SQS that can store extended data to an S3 bucket
@@ -115,7 +114,7 @@ func (s *SQSExtendedQueue[Job, Message]) sendMessage(ctx context.Context, groupI
 // Read reads a batch of jobs from the SQS queue.
 // Returns an empty slice if no jobs are available.
 // The caller must process jobs and delete them from the queue when done.
-func (s *SQSExtendedQueue[Job, Message]) Read(ctx context.Context, maxJobs int) ([]Job, error) {
+func (s *SQSExtendedQueue[Job, Message]) Read(ctx context.Context, maxJobs int) ([]queuepoller.WithID[Job], error) {
 	receiveOutput, err := s.sqsClient.ReceiveMessage(ctx, &sqs.ReceiveMessageInput{
 		QueueUrl:            aws.String(s.queueID),
 		MaxNumberOfMessages: int32(maxJobs),
@@ -126,10 +125,10 @@ func (s *SQSExtendedQueue[Job, Message]) Read(ctx context.Context, maxJobs int) 
 	}
 
 	if len(receiveOutput.Messages) == 0 {
-		return []Job{}, nil
+		return []queuepoller.WithID[Job]{}, nil
 	}
 
-	jobs := make([]Job, 0, len(receiveOutput.Messages))
+	jobs := make([]queuepoller.WithID[Job], 0, len(receiveOutput.Messages))
 	for _, msg := range receiveOutput.Messages {
 		job, err := s.decoder.DecodeMessage(ctx, aws.ToString(msg.ReceiptHandle), aws.ToString(msg.Body))
 		if err != nil {
@@ -179,23 +178,26 @@ func NewSQSDecoder[Job any, Message any](cfg aws.Config, bucket string, marshall
 }
 
 // DecodeMessage decodes a provider caching job from the SQS message body, reading the stored index from S3
-func (s *SQSDecoder[Job, Message]) DecodeMessage(ctx context.Context, receiptHandle string, messageBody string) (Job, error) {
+func (s *SQSDecoder[Job, Message]) DecodeMessage(ctx context.Context, receiptHandle string, messageBody string) (queuepoller.WithID[Job], error) {
 	var msg queueMessage[Message]
 	err := json.Unmarshal([]byte(messageBody), &msg)
 	if err != nil {
-		return s.marshaller.Empty(), fmt.Errorf("deserializing message: %w", err)
+		return queuepoller.WithID[Job]{}, fmt.Errorf("deserializing message: %w", err)
 	}
 	received, err := s.s3Client.GetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(s.bucket),
 		Key:    aws.String(msg.JobID.String()),
 	})
 	if err != nil {
-		return s.marshaller.Empty(), fmt.Errorf("reading stored index CAR: %w", err)
+		return queuepoller.WithID[Job]{}, fmt.Errorf("reading stored index CAR: %w", err)
 	}
 	defer received.Body.Close()
-	return s.marshaller.Unmarshall(SerializedJob[Message]{
-		ID:       receiptHandle,
+	job, err := s.marshaller.Unmarshall(SerializedJob[Message]{
 		Message:  msg.Message,
 		Extended: received.Body,
 	})
+	if err != nil {
+		return queuepoller.WithID[Job]{}, fmt.Errorf("unmarshalling job: %w", err)
+	}
+	return queuepoller.WithID[Job]{ID: receiptHandle, Job: job}, nil
 }

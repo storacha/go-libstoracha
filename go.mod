@@ -1,6 +1,6 @@
 module github.com/storacha/go-libstoracha
 
-go 1.24.4
+go 1.25.3
 
 require (
 	github.com/aws/aws-sdk-go v1.55.7

@@ -3,6 +3,7 @@ package publisher_test
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"errors"
 	"io"
 	"math/rand/v2"
@@ -137,6 +138,8 @@ func TestPublish(t *testing.T) {
 		ms.beforeReplace = func() {
 			ms.beforeReplace = nil
 			ctxid := testutil.RandomCID(t).String()
+			base64CtxID := base64.StdEncoding.EncodeToString([]byte(ctxid))
+			t.Logf("test ctxid: %s", base64CtxID)
 			digests := testutil.RandomMultihashes(t, 1+rand.IntN(100))
 			l, err := p.Publish(ctx, provInfo, ctxid, slices.Values(digests), metadata.Default.New(&metadata.IpfsGatewayHttp{}))
 			require.NoError(t, err)
