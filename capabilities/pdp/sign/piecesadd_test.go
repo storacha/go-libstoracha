@@ -18,9 +18,9 @@ import (
 
 func TestPiecesAdd(t *testing.T) {
 	piecesAddCaveats := sign.PiecesAddCaveats{
-		DataSet:    testutil.RandomBigInt(t),
-		FirstAdded: testutil.RandomBigInt(t),
-		PieceData:  [][]byte{testutil.RandomBytes(t, 32), testutil.RandomBytes(t, 32)},
+		DataSet:   testutil.RandomBigInt(t),
+		Nonce:     testutil.RandomBigInt(t),
+		PieceData: [][]byte{testutil.RandomBytes(t, 32), testutil.RandomBytes(t, 32)},
 		Metadata: []sign.Metadata{
 			{
 				Keys:   []string{"foo"},
