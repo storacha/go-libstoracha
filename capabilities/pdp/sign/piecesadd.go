@@ -11,10 +11,10 @@ import (
 const PiecesAddAbility = "pdp/sign/pieces/add"
 
 type PiecesAddCaveats struct {
-	DataSet    *big.Int
-	FirstAdded *big.Int
-	PieceData  [][]byte
-	Metadata   []Metadata
+	DataSet   *big.Int
+	Nonce     *big.Int
+	PieceData [][]byte
+	Metadata  []Metadata
 	// Proofs are links to `blob/accept` receipts for sub-pieces included in each
 	// piece. They are proofs that the sub-pieces were requested to be stored by
 	// the node. They correspond to items in `PieceData` i.e. Proofs[0] is the

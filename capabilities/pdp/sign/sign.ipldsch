@@ -18,7 +18,7 @@ type DataSetCreateCaveats struct {
 
 type PiecesAddCaveats struct {
   dataSet BigInt
-  firstAdded BigInt
+  nonce BigInt
   pieceData [Bytes]
   metadata [{String:String}]
   proofs [[Link]]
