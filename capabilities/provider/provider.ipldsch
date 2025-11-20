@@ -1,0 +1,13 @@
+# Schema for the provider capabilities
+
+# Caveats for the provider/add capability
+type AddCaveats struct {
+  provider String
+  consumer String
+}
+
+# Success response for the provider/add capability
+type AddOk struct {
+  consumer String
+  provider String
+}
