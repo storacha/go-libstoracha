@@ -33,7 +33,6 @@ func (jm jobMarshaller) Marshall(job queue.PublishingJob) (awsutils.SerializedJo
 	}
 	base64contextID := base64.StdEncoding.EncodeToString([]byte(job.ContextID))
 	return awsutils.SerializedJob[model.ProviderResult]{
-		ID: job.ID,
 		Message: model.ProviderResult{
 			Provider:  &job.ProviderInfo,
 			ContextID: []byte(job.ContextID),
@@ -58,16 +57,11 @@ func (jm jobMarshaller) Unmarshall(sj awsutils.SerializedJob[model.ProviderResul
 	}
 
 	return queue.PublishingJob{
-		ID:           sj.ID,
 		ProviderInfo: *sj.Message.Provider,
 		ContextID:    string(sj.Message.ContextID),
 		Meta:         metadata,
 		Digests:      slices.Values(digests),
 	}, nil
-}
-
-func (jm jobMarshaller) Empty() queue.PublishingJob {
-	return queue.PublishingJob{}
 }
 
 // NewSQSPublishingQueue returns a new SQSPublishingQueue for the given aws config
