@@ -16,8 +16,9 @@ import (
 type advMarshaller schema.Advertisement
 
 func (a advMarshaller) MarshalJSON() ([]byte, error) {
-	return ipldjson.Encode(schema.Advertisement(a), schema.AdvertisementPrototype.Type())
+	return ipldjson.Encode((*schema.Advertisement)(&a), schema.AdvertisementPrototype.Type())
 }
+
 func (a *advMarshaller) UnmarshalJSON(data []byte) error {
 	var adv schema.Advertisement
 	err := ipldjson.Decode(data, &adv, schema.AdvertisementPrototype.Type())
