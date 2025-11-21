@@ -62,8 +62,9 @@ func (s *SQSAdvertisementPublishingQueue) Queue(ctx context.Context, adv schema.
 		return fmt.Errorf("serializing message json: %w", err)
 	}
 	message := &sqs.SendMessageInput{
-		QueueUrl:    aws.String(s.queueID),
-		MessageBody: aws.String(string(messageJSON)),
+		QueueUrl:       aws.String(s.queueID),
+		MessageBody:    aws.String(string(messageJSON)),
+		MessageGroupId: aws.String("default"),
 	}
 	_, err = s.sqsClient.SendMessage(ctx, message)
 	if err != nil {
