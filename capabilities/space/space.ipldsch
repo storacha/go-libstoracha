@@ -1,0 +1,10 @@
+# Schema for the space capabilities
+
+# Caveats for the space/info capability (no caveats needed)
+type InfoCaveats struct {}
+
+# Success response for the space/info capability
+type InfoOk struct {
+  did String
+  providers [String]
+}
