@@ -8,6 +8,5 @@ type AddCaveats struct {
 
 # Success response for the provider/add capability
 type AddOk struct {
-  consumer String
-  provider String
+  id String
 }

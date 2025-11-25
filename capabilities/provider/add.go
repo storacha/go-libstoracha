@@ -25,8 +25,7 @@ func (ac AddCaveats) ToIPLD() (datamodel.Node, error) {
 var AddCaveatsReader = schema.Struct[AddCaveats](AddCaveatsType(), nil, types.Converters...)
 
 type AddOk struct {
-	Consumer string
-	Provider string
+	Id string
 }
 
 func (ao AddOk) ToIPLD() (datamodel.Node, error) {
