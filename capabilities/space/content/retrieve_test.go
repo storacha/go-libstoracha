@@ -8,6 +8,7 @@ import (
 	"github.com/storacha/go-libstoracha/testutil"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	fdm "github.com/storacha/go-ucanto/core/result/failure/datamodel"
+	"github.com/storacha/go-ucanto/ucan"
 
 	"github.com/stretchr/testify/require"
 )
@@ -118,5 +119,143 @@ func TestReadInvalidRangeNotSatisfiableError(t *testing.T) {
 		_, err = content.RangeNotSatisfiableErrorReader.Read(node)
 		require.Error(t, err)
 		t.Log(err)
+	})
+}
+
+// TestRetrieveDerive tests the RetrieveDerive function in isolation
+func TestRetrieveDerive(t *testing.T) {
+	digest := testutil.RandomMultihash(t)
+	spaceDID := "did:example:space"
+
+	delegatedCaveats := content.RetrieveCaveats{
+		Blob: content.BlobDigest{Digest: digest},
+		Range: content.Range{
+			Start: 0,
+			End:   1024,
+		},
+	}
+
+	delegated := ucan.NewCapability(
+		content.RetrieveAbility,
+		spaceDID,
+		delegatedCaveats,
+	)
+
+	t.Run("accepts an identical capability", func(t *testing.T) {
+		claimed := ucan.NewCapability(
+			delegated.Can(),
+			delegated.With(),
+			delegated.Nb(),
+		)
+
+		fail := content.RetrieveDerive(claimed, delegated)
+		require.NoError(t, fail)
+	})
+
+	t.Run("rejects the wrong space", func(t *testing.T) {
+		claimed := ucan.NewCapability(
+			delegated.Can(),
+			"did:example:different-space",
+			delegated.Nb(),
+		)
+
+		fail := content.RetrieveDerive(claimed, delegated)
+		require.ErrorContains(t, fail, "Resource 'did:example:different-space' doesn't match delegated 'did:example:space'")
+	})
+
+	t.Run("rejects a different blob digest", func(t *testing.T) {
+		differentDigest := testutil.RandomMultihash(t)
+		claimed := ucan.NewCapability(
+			delegated.Can(),
+			delegated.With(),
+			content.RetrieveCaveats{
+				Blob:  content.BlobDigest{Digest: differentDigest},
+				Range: delegated.Nb().Range,
+			},
+		)
+
+		fail := content.RetrieveDerive(claimed, delegated)
+		require.Error(t, fail)
+		require.ErrorContains(t, fail, "Digest")
+	})
+
+	t.Run("accepts a subset range", func(t *testing.T) {
+		claimed := ucan.NewCapability(
+			delegated.Can(),
+			delegated.With(),
+			content.RetrieveCaveats{
+				Blob: delegated.Nb().Blob,
+				Range: content.Range{
+					Start: 100,
+					End:   500,
+				},
+			},
+		)
+
+		fail := content.RetrieveDerive(claimed, delegated)
+		require.NoError(t, fail)
+	})
+
+	t.Run("rejects range exceeding upper bound", func(t *testing.T) {
+		claimed := ucan.NewCapability(
+			delegated.Can(),
+			delegated.With(),
+			content.RetrieveCaveats{
+				Blob: delegated.Nb().Blob,
+				Range: content.Range{
+					Start: 512,
+					End:   2048, // Exceeds delegated end of 1024
+				},
+			},
+		)
+
+		fail := content.RetrieveDerive(claimed, delegated)
+		require.ErrorContains(t, fail, "End offset 2048 violates imposed 1024 constraint")
+	})
+
+	t.Run("rejects range below lower bound", func(t *testing.T) {
+		delegatedWithOffset := ucan.NewCapability(
+			content.RetrieveAbility,
+			spaceDID,
+			content.RetrieveCaveats{
+				Blob: content.BlobDigest{Digest: digest},
+				Range: content.Range{
+					Start: 100,
+					End:   1024,
+				},
+			},
+		)
+
+		claimed := ucan.NewCapability(
+			delegatedWithOffset.Can(),
+			delegatedWithOffset.With(),
+			content.RetrieveCaveats{
+				Blob: delegatedWithOffset.Nb().Blob,
+				Range: content.Range{
+					Start: 0, // Starts before delegated start of 100
+					End:   500,
+				},
+			},
+		)
+
+		fail := content.RetrieveDerive(claimed, delegatedWithOffset)
+		require.ErrorContains(t, fail, "Start offset 0 violates imposed 100 constraint")
+	})
+
+	t.Run("accepts range equal to bounds", func(t *testing.T) {
+		claimed := ucan.NewCapability(
+			delegated.Can(),
+			delegated.With(),
+			content.RetrieveCaveats{
+				Blob: delegated.Nb().Blob,
+				Range: content.Range{
+					Start: 0,
+					End:   1024,
+				},
+			},
+		)
+
+		fail := content.RetrieveDerive(claimed, delegated)
+		require.NoError(t, fail)
 	})
 }

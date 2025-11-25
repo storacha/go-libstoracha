@@ -137,20 +137,22 @@ var Retrieve = validator.NewCapability(
 	RetrieveAbility,
 	schema.DIDString(),
 	RetrieveCaveatsReader,
-	func(claimed, delegated ucan.Capability[RetrieveCaveats]) failure.Failure {
-		fail := equalWith(claimed, delegated)
-		if fail != nil {
-			return fail
-		}
-
-		fail = equalDigest(claimed, delegated)
-		if fail != nil {
-			return fail
-		}
-
-		return validRange(claimed, delegated)
-	},
+	RetrieveDerive,
 )
+
+func RetrieveDerive(claimed, delegated ucan.Capability[RetrieveCaveats]) failure.Failure {
+	fail := equalWith(claimed, delegated)
+	if fail != nil {
+		return fail
+	}
+
+	fail = equalDigest(claimed, delegated)
+	if fail != nil {
+		return fail
+	}
+
+	return validRange(claimed, delegated)
+}
 
 // equalWith validates that the claimed capability's `with` field matches the delegated one.
 func equalWith(claimed, delegated ucan.Capability[RetrieveCaveats]) failure.Failure {
