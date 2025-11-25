@@ -15,6 +15,10 @@ import (
 
 const AllocateAbility = "blob/replica/allocate"
 
+// AllocateSiteSelector is the selector for extracting the location commitment
+// link for a new site from a "blob/replica/transfer" receipt.
+const AllocateSiteSelector = ".out.ok.site"
+
 var _ ipld.Builder = (*AllocateCaveats)(nil)
 
 type AllocateCaveats struct {
@@ -33,8 +37,8 @@ type AllocateOk struct {
 	// Size is the number of bytes allocated for a Blob.
 	Size uint64
 	// Site resolves to an additional location for the blob.
-	// The selector MUST be ".out.ok.site" and it links to a receipt of a
-	// "blob/replica/transfer" task.
+	// The selector MUST be ".out.ok.site" i.e. [AllocateSiteSelector] and it
+	// links to a receipt of a "blob/replica/transfer" task.
 	Site types.Promise
 }
 
