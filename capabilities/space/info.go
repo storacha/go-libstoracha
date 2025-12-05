@@ -35,7 +35,7 @@ type InfoReceipt receipt.Receipt[InfoOk, failure.Failure]
 type InfoReceiptReader receipt.ReceiptReader[InfoOk, failure.Failure]
 
 func NewInfoReceiptReader() (InfoReceiptReader, error) {
-	return receipt.NewReceiptReader[InfoOk, failure.Failure](spaceSchema)
+	return receipt.NewReceiptReader[InfoOk, failure.Failure](spaceSchema, types.Converters...)
 }
 
 var InfoOkReader = schema.Struct[InfoOk](InfoOkType(), nil, types.Converters...)

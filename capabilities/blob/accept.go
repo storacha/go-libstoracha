@@ -47,7 +47,7 @@ type AcceptReceipt receipt.Receipt[AcceptOk, failure.Failure]
 type AcceptReceiptReader receipt.ReceiptReader[AcceptOk, failure.Failure]
 
 func NewAcceptReceiptReader() (AcceptReceiptReader, error) {
-	return receipt.NewReceiptReader[AcceptOk, failure.Failure](blobSchema)
+	return receipt.NewReceiptReader[AcceptOk, failure.Failure](blobSchema, types.Converters...)
 }
 
 var AcceptCaveatsReader = schema.Struct[AcceptCaveats](AcceptCaveatsType(), nil, types.Converters...)

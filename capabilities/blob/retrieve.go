@@ -65,7 +65,7 @@ type RetrieveReceipt receipt.Receipt[RetrieveOk, RetrieveError]
 type RetrieveReceiptReader receipt.ReceiptReader[RetrieveOk, RetrieveError]
 
 func NewRetrieveReceiptReader() (RetrieveReceiptReader, error) {
-	return receipt.NewReceiptReaderFromTypes[RetrieveOk, RetrieveError](RetrieveOkType(), RetrieveErrorType())
+	return receipt.NewReceiptReaderFromTypes[RetrieveOk, RetrieveError](RetrieveOkType(), RetrieveErrorType(), types.Converters...)
 }
 
 // Retrieve is a service capability that allows an authorized agent to retrieve

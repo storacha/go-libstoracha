@@ -71,7 +71,7 @@ type TransferReceipt receipt.Receipt[TransferOk, failure.Failure]
 type TransferReceiptReader receipt.ReceiptReader[TransferOk, failure.Failure]
 
 func NewTransferReceiptReader() (TransferReceiptReader, error) {
-	return receipt.NewReceiptReader[TransferOk, failure.Failure](replicaSchema)
+	return receipt.NewReceiptReader[TransferOk, failure.Failure](replicaSchema, types.Converters...)
 }
 
 var TransferCaveatsReader = schema.Struct[TransferCaveats](TransferCaveatsType(), nil, types.Converters...)

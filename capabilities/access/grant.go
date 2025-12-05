@@ -125,7 +125,7 @@ type GrantReceipt receipt.Receipt[GrantOk, GrantError]
 type GrantReceiptReader receipt.ReceiptReader[GrantOk, GrantError]
 
 func NewGrantReceiptReader() (GrantReceiptReader, error) {
-	return receipt.NewReceiptReaderFromTypes[GrantOk, GrantError](GrantOkType(), GrantErrorType())
+	return receipt.NewReceiptReaderFromTypes[GrantOk, GrantError](GrantOkType(), GrantErrorType(), types.Converters...)
 }
 
 // Grant is a capability that allows an agent to request capabilities from the

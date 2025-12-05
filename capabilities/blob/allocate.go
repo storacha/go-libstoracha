@@ -47,7 +47,7 @@ type AllocateReceipt receipt.Receipt[AllocateOk, failure.Failure]
 type AllocateReceiptReader receipt.ReceiptReader[AllocateOk, failure.Failure]
 
 func NewAllocateReceiptReader() (AllocateReceiptReader, error) {
-	return receipt.NewReceiptReader[AllocateOk, failure.Failure](blobSchema)
+	return receipt.NewReceiptReader[AllocateOk, failure.Failure](blobSchema, types.Converters...)
 }
 
 var AllocateCaveatsReader = schema.Struct[AllocateCaveats](AllocateCaveatsType(), nil, types.Converters...)

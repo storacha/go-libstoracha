@@ -41,7 +41,7 @@ type InfoReceipt receipt.Receipt[InfoOk, failure.Failure]
 type InfoReceiptReader receipt.ReceiptReader[InfoOk, failure.Failure]
 
 func NewInfoReceiptReader() (InfoReceiptReader, error) {
-	return receipt.NewReceiptReader[InfoOk, failure.Failure](pdpSchema)
+	return receipt.NewReceiptReader[InfoOk, failure.Failure](pdpSchema, types.Converters...)
 }
 
 var InfoCaveatsReader = schema.Struct[InfoCaveats](InfoCaveatsType(), nil, types.Converters...)

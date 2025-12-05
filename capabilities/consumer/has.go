@@ -35,7 +35,7 @@ type HasReceipt receipt.Receipt[HasOk, failure.Failure]
 type HasReceiptReader receipt.ReceiptReader[HasOk, failure.Failure]
 
 func NewHasReceiptReader() (HasReceiptReader, error) {
-	return receipt.NewReceiptReader[HasOk, failure.Failure](consumerSchema)
+	return receipt.NewReceiptReader[HasOk, failure.Failure](consumerSchema, types.Converters...)
 }
 
 var HasOkReader = schema.Struct[HasOk](HasOkType(), nil, types.Converters...)

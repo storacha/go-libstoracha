@@ -45,7 +45,7 @@ type AddReceipt receipt.Receipt[AddOk, failure.Failure]
 type AddReceiptReader receipt.ReceiptReader[AddOk, failure.Failure]
 
 func NewAddReceiptReader() (AddReceiptReader, error) {
-	return receipt.NewReceiptReader[AddOk, failure.Failure](blobSchema)
+	return receipt.NewReceiptReader[AddOk, failure.Failure](blobSchema, types.Converters...)
 }
 
 var AddOkReader = schema.Struct[AddOk](AddOkType(), nil, types.Converters...)

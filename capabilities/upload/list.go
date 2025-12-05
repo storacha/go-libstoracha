@@ -52,7 +52,7 @@ type ListReceipt receipt.Receipt[ListOk, failure.Failure]
 type ListReceiptReader receipt.ReceiptReader[ListOk, failure.Failure]
 
 func NewListReceiptReader() (ListReceiptReader, error) {
-	return receipt.NewReceiptReader[ListOk, failure.Failure](uploadSchema)
+	return receipt.NewReceiptReader[ListOk, failure.Failure](uploadSchema, types.Converters...)
 }
 
 var ListOkReader = schema.Struct[ListOk](ListOkType(), nil, types.Converters...)
