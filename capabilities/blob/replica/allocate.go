@@ -58,7 +58,7 @@ type AllocateReceipt receipt.Receipt[AllocateOk, failure.Failure]
 type AllocateReceiptReader receipt.ReceiptReader[AllocateOk, failure.Failure]
 
 func NewAllocateReceiptReader() (AllocateReceiptReader, error) {
-	return receipt.NewReceiptReader[AllocateOk, failure.Failure](replicaSchema)
+	return receipt.NewReceiptReader[AllocateOk, failure.Failure](replicaSchema, types.Converters...)
 }
 
 // Allocate is a capability that allows an agent to allocate a Blob for replication

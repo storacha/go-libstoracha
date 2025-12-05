@@ -45,7 +45,7 @@ type RemoveReceipt receipt.Receipt[RemoveOk, failure.Failure]
 type RemoveReceiptReader receipt.ReceiptReader[RemoveOk, failure.Failure]
 
 func NewRemoveReceiptReader() (RemoveReceiptReader, error) {
-	return receipt.NewReceiptReader[RemoveOk, failure.Failure](blobSchema)
+	return receipt.NewReceiptReader[RemoveOk, failure.Failure](blobSchema, types.Converters...)
 }
 
 var RemoveOkReader = schema.Struct[RemoveOk](RemoveOkType(), nil, types.Converters...)

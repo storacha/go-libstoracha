@@ -1,36 +1,30 @@
-package pdp
+package space
 
 import (
-	"github.com/filecoin-project/go-data-segment/merkletree"
 	"github.com/ipld/go-ipld-prime/datamodel"
-	mh "github.com/multiformats/go-multihash"
-	"github.com/storacha/go-libstoracha/capabilities/types"
-	"github.com/storacha/go-libstoracha/piece/piece"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/receipt"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/validator"
+
+	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
-const InfoAbility = "pdp/info"
+const InfoAbility = "space/info"
 
-type InfoCaveats struct {
-	Blob mh.Multihash
-}
+// InfoCaveats represents the caveats for space/info (no caveats needed)
+type InfoCaveats struct{}
 
 func (ic InfoCaveats) ToIPLD() (datamodel.Node, error) {
 	return ipld.WrapWithRecovery(&ic, InfoCaveatsType(), types.Converters...)
 }
 
-type InfoAcceptedAggregate struct {
-	Aggregate      piece.PieceLink
-	InclusionProof merkletree.ProofData
-}
+var InfoCaveatsReader = schema.Struct[InfoCaveats](InfoCaveatsType(), nil, types.Converters...)
 
 type InfoOk struct {
-	Piece      piece.PieceLink
-	Aggregates []InfoAcceptedAggregate
+	Did       string
+	Providers []string
 }
 
 func (io InfoOk) ToIPLD() (datamodel.Node, error) {
@@ -41,10 +35,8 @@ type InfoReceipt receipt.Receipt[InfoOk, failure.Failure]
 type InfoReceiptReader receipt.ReceiptReader[InfoOk, failure.Failure]
 
 func NewInfoReceiptReader() (InfoReceiptReader, error) {
-	return receipt.NewReceiptReader[InfoOk, failure.Failure](pdpSchema, types.Converters...)
+	return receipt.NewReceiptReader[InfoOk, failure.Failure](spaceSchema, types.Converters...)
 }
-
-var InfoCaveatsReader = schema.Struct[InfoCaveats](InfoCaveatsType(), nil, types.Converters...)
 
 var InfoOkReader = schema.Struct[InfoOk](InfoOkType(), nil, types.Converters...)
 
@@ -52,5 +44,5 @@ var Info = validator.NewCapability(
 	InfoAbility,
 	schema.DIDString(),
 	InfoCaveatsReader,
-	validator.DefaultDerives,
+	validator.DefaultDerives[InfoCaveats],
 )

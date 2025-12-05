@@ -48,5 +48,5 @@ type AcceptReceipt receipt.Receipt[AcceptOk, failure.Failure]
 type AcceptReceiptReader receipt.ReceiptReader[AcceptOk, failure.Failure]
 
 func NewAcceptReceiptReader() (AcceptReceiptReader, error) {
-	return receipt.NewReceiptReader[AcceptOk, failure.Failure](pdpSchema)
+	return receipt.NewReceiptReader[AcceptOk, failure.Failure](pdpSchema, types.Converters...)
 }

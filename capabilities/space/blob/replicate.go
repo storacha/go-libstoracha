@@ -48,7 +48,7 @@ type ReplicateReceipt receipt.Receipt[ReplicateOk, failure.Failure]
 type ReplicateReceiptReader receipt.ReceiptReader[ReplicateOk, failure.Failure]
 
 func NewReplicateReceiptReader() (ReplicateReceiptReader, error) {
-	return receipt.NewReceiptReader[ReplicateOk, failure.Failure](blobSchema)
+	return receipt.NewReceiptReader[ReplicateOk, failure.Failure](blobSchema, types.Converters...)
 }
 
 var ReplicateOkReader = schema.Struct[ReplicateOk](ReplicateOkType(), nil, types.Converters...)

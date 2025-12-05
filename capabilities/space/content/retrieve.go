@@ -55,7 +55,7 @@ type RetrieveReceipt receipt.Receipt[RetrieveOk, failure.Failure]
 type RetrieveReceiptReader receipt.ReceiptReader[RetrieveOk, failure.Failure]
 
 func NewRetrieveReceiptReader() (RetrieveReceiptReader, error) {
-	return receipt.NewReceiptReader[RetrieveOk, failure.Failure](contentSchema)
+	return receipt.NewReceiptReader[RetrieveOk, failure.Failure](contentSchema, types.Converters...)
 }
 
 var RetrieveOkReader = schema.Struct[RetrieveOk](RetrieveOkType(), nil, types.Converters...)

@@ -52,7 +52,7 @@ type GetReceipt receipt.Receipt[GetOk, failure.Failure]
 type GetReceiptReader receipt.ReceiptReader[GetOk, failure.Failure]
 
 func NewGetReceiptReader() (GetReceiptReader, error) {
-	return receipt.NewReceiptReader[GetOk, failure.Failure](blobSchema)
+	return receipt.NewReceiptReader[GetOk, failure.Failure](blobSchema, types.Converters...)
 }
 
 var GetOkReader = schema.Struct[GetOk](GetOkType(), nil, types.Converters...)

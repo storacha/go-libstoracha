@@ -52,7 +52,7 @@ type PutReceipt receipt.Receipt[PutOk, failure.Failure]
 type PutReceiptReader receipt.ReceiptReader[PutOk, failure.Failure]
 
 func NewPutReceiptReader() (PutReceiptReader, error) {
-	return receipt.NewReceiptReader[PutOk, failure.Failure](httpSchema)
+	return receipt.NewReceiptReader[PutOk, failure.Failure](httpSchema, types.Converters...)
 }
 
 var PutOkReader = schema.Struct[PutOk](PutOkType(), nil, types.Converters...)

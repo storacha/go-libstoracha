@@ -50,7 +50,7 @@ type AddReceipt receipt.Receipt[AddOk, failure.Failure]
 type AddReceiptReader receipt.ReceiptReader[AddOk, failure.Failure]
 
 func NewAddReceiptReader() (AddReceiptReader, error) {
-	return receipt.NewReceiptReader[AddOk, failure.Failure](indexSchema)
+	return receipt.NewReceiptReader[AddOk, failure.Failure](indexSchema, types.Converters...)
 }
 
 var AddOkReader = schema.Struct[AddOk](AddOkType(), nil, types.Converters...)

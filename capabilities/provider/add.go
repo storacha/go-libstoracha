@@ -1,4 +1,4 @@
-package upload
+package provider
 
 import (
 	"github.com/ipld/go-ipld-prime/datamodel"
@@ -6,17 +6,16 @@ import (
 	"github.com/storacha/go-ucanto/core/receipt"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
-	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
 
 	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
-const AddAbility = "upload/add"
+const AddAbility = "provider/add"
 
 type AddCaveats struct {
-	Root   ipld.Link
-	Shards []ipld.Link
+	Provider string
+	Consumer string
 }
 
 func (ac AddCaveats) ToIPLD() (datamodel.Node, error) {
@@ -26,8 +25,7 @@ func (ac AddCaveats) ToIPLD() (datamodel.Node, error) {
 var AddCaveatsReader = schema.Struct[AddCaveats](AddCaveatsType(), nil, types.Converters...)
 
 type AddOk struct {
-	Root   ipld.Link
-	Shards []ipld.Link
+	Id string
 }
 
 func (ao AddOk) ToIPLD() (datamodel.Node, error) {
@@ -38,7 +36,7 @@ type AddReceipt receipt.Receipt[AddOk, failure.Failure]
 type AddReceiptReader receipt.ReceiptReader[AddOk, failure.Failure]
 
 func NewAddReceiptReader() (AddReceiptReader, error) {
-	return receipt.NewReceiptReader[AddOk, failure.Failure](uploadSchema, types.Converters...)
+	return receipt.NewReceiptReader[AddOk, failure.Failure](providerSchema, types.Converters...)
 }
 
 var AddOkReader = schema.Struct[AddOk](AddOkType(), nil, types.Converters...)
@@ -47,24 +45,5 @@ var Add = validator.NewCapability(
 	AddAbility,
 	schema.DIDString(),
 	AddCaveatsReader,
-	func(claimed, delegated ucan.Capability[AddCaveats]) failure.Failure {
-		if err := validateSpaceDID(claimed.With()); err != nil {
-			return err
-		}
-
-		if fail := validator.DefaultDerives(claimed, delegated); fail != nil {
-			return fail
-		}
-
-		if fail := equalRoot(claimed.Nb().Root, delegated.Nb().Root); fail != nil {
-			return fail
-		}
-
-		if len(delegated.Nb().Shards) > 0 {
-			if fail := equalShards(claimed.Nb().Shards, delegated.Nb().Shards); fail != nil {
-				return fail
-			}
-		}
-		return nil
-	},
+	validator.DefaultDerives[AddCaveats],
 )
