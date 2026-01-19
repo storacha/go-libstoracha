@@ -55,7 +55,7 @@ func TestNewGetReceiptReader(t *testing.T) {
 
 func TestRoundTripGetOk(t *testing.T) {
 	space1 := testutil.RandomDID(t)
-	
+
 	ok := egress.GetOk{
 		Total: 1000,
 		Spaces: egress.SpacesModel{

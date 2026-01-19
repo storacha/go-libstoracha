@@ -113,30 +113,30 @@ var Get = validator.NewCapability(
 
 func getDerives(claimed, delegated ucan.Capability[GetCaveats]) failure.Failure {
 	if claimed.With() != delegated.With() {
-		return failure.FromError(fmt.Errorf("Can not derive %s with %s from %s", claimed.Can(), claimed.With(), delegated.With()))
+		return failure.FromError(fmt.Errorf("can not derive %s with %s from %s", claimed.Can(), claimed.With(), delegated.With()))
 	}
 
 	if delegated.Nb().Spaces != nil {
 		if claimed.Nb().Spaces == nil {
-			return failure.FromError(fmt.Errorf("Constraint violation: violates imposed spaces constraint %v because it asks for all spaces", delegated.Nb().Spaces))
+			return failure.FromError(fmt.Errorf("constraint violation: violates imposed spaces constraint %v because it asks for all spaces", delegated.Nb().Spaces))
 		}
 
 		for _, s := range claimed.Nb().Spaces {
 			if !slices.Contains(delegated.Nb().Spaces, s) {
-				return failure.FromError(fmt.Errorf("Constraint violation: violates imposed spaces constraint %v because it asks for space %s", delegated.Nb().Spaces, s))
+				return failure.FromError(fmt.Errorf("constraint violation: violates imposed spaces constraint %v because it asks for space %s", delegated.Nb().Spaces, s))
 			}
 		}
 	}
 
 	if delegated.Nb().Period != nil {
 		if claimed.Nb().Period == nil {
-			return failure.FromError(fmt.Errorf("Constraint violation: violates imposed period constraint %v because it doesn't have a period constraint", delegated.Nb().Period))
+			return failure.FromError(fmt.Errorf("constraint violation: violates imposed period constraint %v because it doesn't have a period constraint", delegated.Nb().Period))
 		}
 		if claimed.Nb().Period.From.Before(delegated.Nb().Period.From) {
-			return failure.FromError(fmt.Errorf("Constraint violation: violates imposed period constraint because it requests dates before %s", delegated.Nb().Period.From))
+			return failure.FromError(fmt.Errorf("constraint violation: violates imposed period constraint because it requests dates before %s", delegated.Nb().Period.From))
 		}
 		if claimed.Nb().Period.To.After(delegated.Nb().Period.To) {
-			return failure.FromError(fmt.Errorf("Constraint violation: violates imposed period constraint because it requests dates after %s", delegated.Nb().Period.To))
+			return failure.FromError(fmt.Errorf("constraint violation: violates imposed period constraint because it requests dates after %s", delegated.Nb().Period.To))
 		}
 	}
 
