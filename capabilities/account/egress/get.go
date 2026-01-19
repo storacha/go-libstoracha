@@ -19,11 +19,18 @@ import (
 
 const GetAbility = "account/egress/get"
 
+// Period is a time range to filter egress results (optional)
+// From is inclusive and To is exclusive.
+// Currently only the date portion of `time.Time` is used because the resolution of the data is always daily.
 type Period struct {
 	From time.Time
 	To   time.Time
 }
 
+// GetCaveats allows filtering the egress results.
+// Both caveats are optional.
+// An empty `Spaces` will return egress stats for all spaces owned by the account.
+// A nil `Period` will return egress stats from the first day of the last complete month to today by default.
 type GetCaveats struct {
 	Spaces []did.DID
 	Period *Period
@@ -35,11 +42,16 @@ func (gc GetCaveats) ToIPLD() (datamodel.Node, error) {
 
 var GetCaveatsReader = schema.Struct[GetCaveats](GetCaveatsType(), nil, types.Converters...)
 
+// DailyStats contains the egress stats for a single day, in number of bytes.
+// Only the date part of `time.Time` is used.
 type DailyStats struct {
 	Date   time.Time
 	Egress uint64
 }
 
+// SpaceEgress contains the egress stats for a single space.
+// Total is the total egress in bytes for the given period.
+// DailyStats contains the stats for each day in the period. Sorted by date ascending.
 type SpaceEgress struct {
 	Total      uint64
 	DailyStats []DailyStats
@@ -50,6 +62,9 @@ type SpacesModel struct {
 	Values map[did.DID]SpaceEgress
 }
 
+// GetOk contains the egress stats for the given period.
+// Total is the total egress in bytes for the requested period.
+// Spaces offers a detailed daily breakdown of the egress for each space in the requested period.
 type GetOk struct {
 	Total  uint64
 	Spaces SpacesModel
