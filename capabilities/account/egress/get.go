@@ -88,6 +88,24 @@ func NewAccountNotFoundError(msg string) GetError {
 	}
 }
 
+const SpaceUnauthorizedErrorName = "SpaceUnauthorizedError"
+
+func NewSpaceUnauthorizedError(msg string) GetError {
+	return GetError{
+		ErrorName: SpaceUnauthorizedErrorName,
+		Message:   msg,
+	}
+}
+
+const PeriodNotAcceptableErrorName = "PeriodNotAcceptableError"
+
+func NewPeriodNotAcceptableError(msg string) GetError {
+	return GetError{
+		ErrorName: PeriodNotAcceptableErrorName,
+		Message:   msg,
+	}
+}
+
 func (ge GetError) Name() string {
 	return ge.ErrorName
 }
