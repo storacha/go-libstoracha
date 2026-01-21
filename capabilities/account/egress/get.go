@@ -79,7 +79,7 @@ type GetError struct {
 	Message   string
 }
 
-const AccountNotFoundErrorName = "AccountNotFoundError"
+const AccountNotFoundErrorName = "AccountNotFound"
 
 func NewAccountNotFoundError(msg string) GetError {
 	return GetError{
@@ -88,7 +88,7 @@ func NewAccountNotFoundError(msg string) GetError {
 	}
 }
 
-const SpaceUnauthorizedErrorName = "SpaceUnauthorizedError"
+const SpaceUnauthorizedErrorName = "SpaceUnauthorized"
 
 func NewSpaceUnauthorizedError(msg string) GetError {
 	return GetError{
@@ -97,7 +97,7 @@ func NewSpaceUnauthorizedError(msg string) GetError {
 	}
 }
 
-const PeriodNotAcceptableErrorName = "PeriodNotAcceptableError"
+const PeriodNotAcceptableErrorName = "PeriodNotAcceptable"
 
 func NewPeriodNotAcceptableError(msg string) GetError {
 	return GetError{
