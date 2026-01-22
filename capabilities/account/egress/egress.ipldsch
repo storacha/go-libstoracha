@@ -1,0 +1,29 @@
+type GetCaveats struct {
+	spaces optional [DID]
+	period optional Period
+}
+
+type Period struct {
+	from ISO8601Date
+	to ISO8601Date
+}
+
+type GetOk struct {
+	total Int
+	spaces {DID:SpaceEgress}
+}
+
+type SpaceEgress struct {
+	total Int
+	dailyStats [DailyStat]
+}
+
+type DailyStat struct {
+	date ISO8601Date
+	egress Int
+}
+
+type GetError struct {
+	errorName String (rename "name")
+	message String
+}
