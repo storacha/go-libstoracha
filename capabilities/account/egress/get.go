@@ -58,8 +58,8 @@ type SpaceEgress struct {
 }
 
 type SpacesModel struct {
-	Keys   []did.DID
-	Values map[did.DID]SpaceEgress
+	Keys   []string
+	Values map[string]SpaceEgress
 }
 
 // GetOk contains the egress stats for the given period.

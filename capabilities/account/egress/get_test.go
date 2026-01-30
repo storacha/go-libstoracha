@@ -57,13 +57,13 @@ func TestNewGetReceiptReader(t *testing.T) {
 }
 
 func TestRoundTripGetOk(t *testing.T) {
-	space1 := testutil.RandomDID(t)
+	space1 := testutil.RandomDID(t).String()
 
 	ok := egress.GetOk{
 		Total: 1000,
 		Spaces: egress.SpacesModel{
-			Keys: []did.DID{space1},
-			Values: map[did.DID]egress.SpaceEgress{
+			Keys: []string{space1},
+			Values: map[string]egress.SpaceEgress{
 				space1: {
 					Total: 500,
 					DailyStats: []egress.DailyStats{
