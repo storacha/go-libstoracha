@@ -1,9 +1,12 @@
 package egress_test
 
 import (
+	"bytes"
 	"testing"
 	"time"
 
+	"github.com/ipld/go-ipld-prime/codec/dagcbor"
+	basicnode "github.com/ipld/go-ipld-prime/node/basic"
 	"github.com/storacha/go-libstoracha/capabilities/account/egress"
 	"github.com/storacha/go-libstoracha/testutil"
 	"github.com/storacha/go-ucanto/did"
@@ -81,8 +84,18 @@ func TestRoundTripGetOk(t *testing.T) {
 	node, err := ok.ToIPLD()
 	require.NoError(t, err)
 
-	rok, err := egress.GetOkReader.Read(node)
+	var buf bytes.Buffer
+
+	err = dagcbor.Encode(node, &buf)
 	require.NoError(t, err)
+
+	builder := basicnode.Prototype.Any.NewBuilder()
+	err = dagcbor.Decode(builder, &buf)
+	require.NoError(t, err)
+
+	rok, err := egress.GetOkReader.Read(builder.Build())
+	require.NoError(t, err)
+
 	require.Equal(t, ok.Total, rok.Total)
 	require.Equal(t, len(ok.Spaces.Keys), len(rok.Spaces.Keys))
 	require.Equal(t, ok.Spaces.Values[space1].Total, rok.Spaces.Values[space1].Total)
