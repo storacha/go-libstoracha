@@ -10,7 +10,7 @@ type Period struct {
 
 type GetOk struct {
 	total Int
-	spaces {DID:SpaceEgress}
+	spaces {String:SpaceEgress}
 }
 
 type SpaceEgress struct {
