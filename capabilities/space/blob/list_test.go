@@ -35,6 +35,7 @@ func TestRoundTripListOk(t *testing.T) {
 				Digest: testutil.RandomMultihash(t),
 				Size:   uint64(1024),
 			},
+			Cause:      testutil.RandomCID(t),
 			InsertedAt: time.Now().UTC().Truncate(time.Second),
 		},
 		{
@@ -42,6 +43,7 @@ func TestRoundTripListOk(t *testing.T) {
 				Digest: testutil.RandomMultihash(t),
 				Size:   uint64(2048),
 			},
+			Cause:      testutil.RandomCID(t),
 			InsertedAt: time.Now().UTC().Truncate(time.Second),
 		},
 	}

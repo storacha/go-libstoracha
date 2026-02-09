@@ -29,6 +29,7 @@ type ListOk struct {
 
 type ListBlobItem struct {
     blob Blob
+    cause Link
     insertedAt ISO8601Date
 }
 
