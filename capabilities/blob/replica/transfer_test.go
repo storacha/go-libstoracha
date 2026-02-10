@@ -3,6 +3,7 @@ package replica_test
 import (
 	"testing"
 
+	"github.com/ipld/go-ipld-prime"
 	"github.com/stretchr/testify/require"
 
 	"github.com/storacha/go-libstoracha/capabilities/blob/replica"
@@ -36,7 +37,7 @@ func TestRoundTripTransferCaveats(t *testing.T) {
 func TestRoundTripTransfeOk(t *testing.T) {
 	t.Run("with PDP link", func(t *testing.T) {
 		expectedLocation := testutil.RandomCID(t)
-		expectedPDP := testutil.RandomCID(t)
+		var expectedPDP ipld.Link = testutil.RandomCID(t)
 
 		expectedOk := replica.TransferOk{
 			Site: expectedLocation,
