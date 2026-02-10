@@ -41,14 +41,18 @@ type ListOk struct {
 	Results []ListBlobItem
 }
 
+func (lo ListOk) ToIPLD() (datamodel.Node, error) {
+	return ipld.WrapWithRecovery(&lo, ListOkType(), types.Converters...)
+}
+
 type ListBlobItem struct {
 	Blob       types.Blob
 	Cause      ipld.Link
 	InsertedAt time.Time
 }
 
-func (lo ListOk) ToIPLD() (datamodel.Node, error) {
-	return ipld.WrapWithRecovery(&lo, ListOkType(), types.Converters...)
+func (lbi ListBlobItem) ToIPLD() (datamodel.Node, error) {
+	return ipld.WrapWithRecovery(&lbi, ListBlobItemType(), types.Converters...)
 }
 
 type ListReceipt receipt.Receipt[ListOk, failure.Failure]
