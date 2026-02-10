@@ -43,6 +43,7 @@ type ListOk struct {
 
 type ListBlobItem struct {
 	Blob       types.Blob
+	Cause      ipld.Link
 	InsertedAt time.Time
 }
 
