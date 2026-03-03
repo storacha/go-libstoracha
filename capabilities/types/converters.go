@@ -115,10 +115,10 @@ var MerkleNodeConverter = options.NamedBytesConverter("MerkleNode", func(b []byt
 
 var ISO8601DateConverter = options.NamedStringConverter("ISO8601Date",
 	func(s string) (time.Time, error) {
-		return time.Parse(time.RFC3339, s)
+		return time.Parse(time.RFC3339Nano, s)
 	},
 	func(t time.Time) (string, error) {
-		return t.Format(time.RFC3339), nil
+		return t.Format(time.RFC3339Nano), nil
 	})
 
 var UnixTimeMilliConverter = options.NamedIntConverter("UnixTimeMilli",
