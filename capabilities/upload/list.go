@@ -30,7 +30,10 @@ func (lc ListCaveats) ToIPLD() (datamodel.Node, error) {
 var ListCaveatsReader = schema.Struct[ListCaveats](ListCaveatsType(), nil, types.Converters...)
 
 type ListItem struct {
-	Root       ipld.Link
+	Root ipld.Link
+	// DEPRECATED: Shards is no longer used and will be removed in a future
+	// release. Use the `upload/shard/list` capability to list the shards of an
+	// upload.
 	Shards     []ipld.Link
 	InsertedAt time.Time
 	UpdatedAt  time.Time

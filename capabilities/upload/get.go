@@ -27,7 +27,10 @@ func (gc GetCaveats) ToIPLD() (datamodel.Node, error) {
 var GetCaveatsReader = schema.Struct[GetCaveats](GetCaveatsType(), nil, types.Converters...)
 
 type GetOk struct {
-	Root       ipld.Link
+	Root ipld.Link
+	// DEPRECATED: Shards is no longer used and will be removed in a future
+	// release. Use the `upload/shard/list` capability to list the shards of an
+	// upload.
 	Shards     []ipld.Link
 	InsertedAt time.Time
 	UpdatedAt  time.Time
