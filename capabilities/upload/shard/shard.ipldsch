@@ -1,0 +1,20 @@
+# Schema for the upload/shard/* capabilities
+
+# Caveats for the upload/shard/list capability
+type ListCaveats struct {
+  root Link
+  cursor optional String
+  size optional Int
+}
+
+# Success response for the upload/shard/list capability
+type ListOk struct {
+  cursor optional String
+  size Int
+  results [Link]
+}
+
+type ListError struct {
+  errorName String (rename "name")
+  message String
+}
