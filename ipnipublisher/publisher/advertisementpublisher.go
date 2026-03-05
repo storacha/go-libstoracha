@@ -137,10 +137,13 @@ func (p *AdvertisementPublisher) commit(ctx context.Context, pendingAds []schema
 	log.Info("Updated reference to the latest advertisement successfully")
 
 	if p.sender != nil {
-		err = announce.Send(ctx, lnk.(cidlink.Link).Cid, p.pubHTTPAnnounceAddrs, p.sender)
-		if err != nil {
-			log.Warnw("Failed to announce advertisement", "err", err)
-		}
+		// no need to wait for the announcement to complete
+		go func() {
+			err = announce.Send(ctx, lnk.(cidlink.Link).Cid, p.pubHTTPAnnounceAddrs, p.sender)
+			if err != nil {
+				log.Warnw("Failed to announce advertisement", "err", err)
+			}
+		}()
 	}
 
 	return lnk, nil
