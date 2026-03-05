@@ -3,6 +3,7 @@ package publisher
 import (
 	"context"
 	"fmt"
+	"time"
 
 	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
 	"github.com/ipni/go-libipni/announce"
@@ -11,6 +12,7 @@ import (
 	"github.com/ipni/go-libipni/ingest/schema"
 	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/peer"
+	rannounce "github.com/storacha/go-libstoracha/ipnipublisher/announce"
 	"github.com/storacha/go-libstoracha/ipnipublisher/store"
 	"github.com/storacha/go-ucanto/core/ipld"
 )
@@ -25,7 +27,8 @@ type AdvertisementPublisher struct {
 
 func NewAdvertisementPublisher(id crypto.PrivKey, store store.PublisherStore, opts ...Option) (*AdvertisementPublisher, error) {
 	o := &options{
-		topic: "/indexer/ingest/mainnet",
+		topic:                 "/indexer/ingest/mainnet",
+		announceThrottleDelay: time.Second,
 	}
 	for _, opt := range opts {
 		err := opt(o)
@@ -43,11 +46,13 @@ func NewAdvertisementPublisher(id crypto.PrivKey, store store.PublisherStore, op
 		store:   store,
 	}
 	if len(o.announceURLs) > 0 {
-		sender, err := httpsender.New(o.announceURLs, peer)
+		var sender announce.Sender
+		sender, err = httpsender.New(o.announceURLs, peer)
 		if err != nil {
 			return nil, fmt.Errorf("cannot create http announce sender: %w", err)
 		}
-		log.Info("HTTP announcements enabled")
+		sender = rannounce.NewThrottlingSender(sender, o.announceThrottleDelay)
+		log.Infow("HTTP announcements enabled", "throttleDelay", o.announceThrottleDelay)
 		batchPublisher.sender = sender
 	}
 	return batchPublisher, nil
@@ -132,10 +137,13 @@ func (p *AdvertisementPublisher) commit(ctx context.Context, pendingAds []schema
 	log.Info("Updated reference to the latest advertisement successfully")
 
 	if p.sender != nil {
-		err = announce.Send(ctx, lnk.(cidlink.Link).Cid, p.pubHTTPAnnounceAddrs, p.sender)
-		if err != nil {
-			log.Warnw("Failed to announce advertisement", "err", err)
-		}
+		// no need to wait for the announcement to complete
+		go func() {
+			err = announce.Send(ctx, lnk.(cidlink.Link).Cid, p.pubHTTPAnnounceAddrs, p.sender)
+			if err != nil {
+				log.Warnw("Failed to announce advertisement", "err", err)
+			}
+		}()
 	}
 
 	return lnk, nil

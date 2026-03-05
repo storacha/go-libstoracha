@@ -2,6 +2,7 @@ package publisher
 
 import (
 	"net/url"
+	"time"
 
 	"github.com/multiformats/go-multiaddr"
 )
@@ -10,9 +11,10 @@ import (
 type Option func(cfg *options) error
 
 type options struct {
-	pubHTTPAnnounceAddrs []multiaddr.Multiaddr
-	topic                string
-	announceURLs         []*url.URL
+	pubHTTPAnnounceAddrs  []multiaddr.Multiaddr
+	topic                 string
+	announceURLs          []*url.URL
+	announceThrottleDelay time.Duration
 }
 
 // WithDirectAnnounce sets indexer URLs to send direct HTTP announcements to.
@@ -49,6 +51,13 @@ func WithAnnounceAddrs(addrs ...string) Option {
 func WithTopic(topic string) Option {
 	return func(opts *options) error {
 		opts.topic = topic
+		return nil
+	}
+}
+
+func WithAnnounceThrottleDelay(delay time.Duration) Option {
+	return func(opts *options) error {
+		opts.announceThrottleDelay = delay
 		return nil
 	}
 }
