@@ -84,11 +84,11 @@ func TestShardCID(t *testing.T) {
 			caveats: assert.LocationCaveats{
 				Content: types.FromHash(testMhs[0]),
 				Location: []url.URL{
-					*baseUrl.JoinPath("blob", testCid.String(), digestutil.Format(testCid.(cidlink.Link).Cid.Hash())),
+					*baseUrl.JoinPath("blob", testCid.String(), digestutil.Format(testCid.Cid.Hash())),
 				},
 			},
 			expected: func() *cid.Cid {
-				cid := testCid.(cidlink.Link).Cid
+				cid := testCid.Cid
 				return &cid
 			}(),
 			expectErr: false,
