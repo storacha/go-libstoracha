@@ -5,6 +5,7 @@ import (
 
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-libstoracha/capabilities/types"
+	"github.com/storacha/go-libstoracha/capabilities/utils"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
@@ -36,7 +37,7 @@ var Attest = validator.NewCapability(
 	AttestCaveatsReader,
 	func(claimed, delegated ucan.Capability[AttestCaveats]) failure.Failure {
 		// Check if the with field matches
-		if fail := equalWith(claimed, delegated); fail != nil {
+		if fail := utils.EqualWith(claimed, delegated); fail != nil {
 			return fail
 		}
 		// Check if the proof matches

@@ -1,0 +1,18 @@
+type SetupCaveats struct {
+  location optional String
+  keyring  optional String
+}
+
+type SetupOk struct {
+  publicKey String
+  provider  String
+  algorithm String
+}
+
+type KeyDecryptCaveats struct {
+  key Bytes
+}
+
+type KeyDecryptOk struct {
+  decryptedSymmetricKey String
+}

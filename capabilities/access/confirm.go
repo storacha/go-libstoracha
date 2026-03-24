@@ -3,6 +3,7 @@ package access
 import (
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-libstoracha/capabilities/types"
+	"github.com/storacha/go-libstoracha/capabilities/utils"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
@@ -52,7 +53,7 @@ var Confirm = validator.NewCapability(
 )
 
 func ConfirmDerive(claimed, delegated ucan.Capability[ConfirmCaveats]) failure.Failure {
-	if fail := equalWith(claimed, delegated); fail != nil {
+	if fail := utils.EqualWith(claimed, delegated); fail != nil {
 		return fail
 	}
 

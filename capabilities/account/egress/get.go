@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/ipld/go-ipld-prime/datamodel"
+	"github.com/storacha/go-libstoracha/capabilities/types"
+	"github.com/storacha/go-libstoracha/capabilities/utils"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/receipt"
 	"github.com/storacha/go-ucanto/core/result/failure"
@@ -13,8 +15,6 @@ import (
 	"github.com/storacha/go-ucanto/did"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
-
-	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
 const GetAbility = "account/egress/get"
@@ -145,8 +145,8 @@ var Get = validator.NewCapability(
 )
 
 func getDerives(claimed, delegated ucan.Capability[GetCaveats]) failure.Failure {
-	if claimed.With() != delegated.With() {
-		return failure.FromError(fmt.Errorf("can not derive %s with %s from %s", claimed.Can(), claimed.With(), delegated.With()))
+	if fail := utils.EqualWith(claimed, delegated); fail != nil {
+		return fail
 	}
 
 	if delegated.Nb().Spaces != nil {

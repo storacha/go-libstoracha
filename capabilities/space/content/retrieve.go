@@ -7,14 +7,14 @@ import (
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/multiformats/go-multibase"
 	mh "github.com/multiformats/go-multihash"
+	"github.com/storacha/go-libstoracha/capabilities/types"
+	"github.com/storacha/go-libstoracha/capabilities/utils"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/receipt"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
-
-	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
 const RetrieveAbility = "space/content/retrieve"
@@ -138,31 +138,17 @@ var Retrieve = validator.NewCapability(
 	schema.DIDString(),
 	RetrieveCaveatsReader,
 	func(claimed, delegated ucan.Capability[RetrieveCaveats]) failure.Failure {
-		fail := equalWith(claimed, delegated)
-		if fail != nil {
+		if fail := utils.EqualWith(claimed, delegated); fail != nil {
 			return fail
 		}
 
-		fail = equalDigest(claimed, delegated)
-		if fail != nil {
+		if fail := equalDigest(claimed, delegated); fail != nil {
 			return fail
 		}
 
 		return validRange(claimed, delegated)
 	},
 )
-
-// equalWith validates that the claimed capability's `with` field matches the delegated one.
-func equalWith(claimed, delegated ucan.Capability[RetrieveCaveats]) failure.Failure {
-	if claimed.With() != delegated.With() {
-		return schema.NewSchemaError(fmt.Sprintf(
-			"Resource '%s' doesn't match delegated '%s'",
-			claimed.With(), delegated.With(),
-		))
-	}
-
-	return nil
-}
 
 // equalDigest validates that the claimed digest capability matches the delegated one.
 func equalDigest(claimed, delegated ucan.Capability[RetrieveCaveats]) failure.Failure {

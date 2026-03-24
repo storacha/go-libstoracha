@@ -4,6 +4,7 @@ import (
 	_ "embed"
 
 	"github.com/storacha/go-libstoracha/capabilities/types"
+	"github.com/storacha/go-libstoracha/capabilities/utils"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
@@ -21,6 +22,6 @@ var Index = validator.NewCapability(
 	schema.DIDString(),
 	schema.Struct[struct{}](nil, nil, types.Converters...),
 	func(claimed, delegated ucan.Capability[struct{}]) failure.Failure {
-		return equalWith(claimed, delegated)
+		return utils.EqualWith(claimed, delegated)
 	},
 )

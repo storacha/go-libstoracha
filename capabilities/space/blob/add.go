@@ -6,14 +6,14 @@ import (
 
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/multiformats/go-multibase"
+	"github.com/storacha/go-libstoracha/capabilities/types"
+	"github.com/storacha/go-libstoracha/capabilities/utils"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/receipt"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
-
-	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
 const AddAbility = "space/blob/add"
@@ -58,26 +58,13 @@ var Add = validator.NewCapability(
 	schema.DIDString(),
 	AddCaveatsReader,
 	func(claimed, delegated ucan.Capability[AddCaveats]) failure.Failure {
-		fail := equalWith(claimed, delegated)
-		if fail != nil {
+		if fail := utils.EqualWith(claimed, delegated); fail != nil {
 			return fail
 		}
 
 		return equalBlob(claimed, delegated)
 	},
 )
-
-// equalWith validates that the claimed capability's `with` field matches the delegated one.
-func equalWith(claimed, delegated ucan.Capability[AddCaveats]) failure.Failure {
-	if claimed.With() != delegated.With() {
-		return schema.NewSchemaError(fmt.Sprintf(
-			"Resource '%s' doesn't match delegated '%s'",
-			claimed.With(), delegated.With(),
-		))
-	}
-
-	return nil
-}
 
 // equalBlob validates that the claimed blob capability matches the delegated one.
 func equalBlob(claimed, delegated ucan.Capability[AddCaveats]) failure.Failure {

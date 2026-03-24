@@ -6,6 +6,7 @@ import (
 
 	"github.com/ipld/go-ipld-prime"
 	"github.com/storacha/go-libstoracha/capabilities/types"
+	"github.com/storacha/go-libstoracha/capabilities/utils"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
@@ -27,14 +28,7 @@ var Filecoin = validator.NewCapability(
 	schema.DIDString(),
 	schema.Struct[struct{}](nil, nil, types.Converters...),
 	func(claimed, delegated ucan.Capability[struct{}]) failure.Failure {
-		// Only check if the DID matches
-		if claimed.With() != delegated.With() {
-			return schema.NewSchemaError(fmt.Sprintf(
-				"resource '%s' doesn't match delegated '%s'",
-				claimed.With(), delegated.With(),
-			))
-		}
-		return nil
+		return utils.EqualWith(claimed, delegated)
 	},
 )
 
