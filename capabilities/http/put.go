@@ -8,6 +8,7 @@ import (
 	"github.com/multiformats/go-multibase"
 	"github.com/multiformats/go-multihash"
 	"github.com/storacha/go-libstoracha/capabilities/types"
+	"github.com/storacha/go-libstoracha/capabilities/utils"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/receipt"
 	"github.com/storacha/go-ucanto/core/result/failure"
@@ -64,7 +65,7 @@ var Put = validator.NewCapability(
 	PutCaveatsReader,
 	func(claimed, delegated ucan.Capability[PutCaveats]) failure.Failure {
 		// Check if the space matches
-		if fail := equalWith(claimed, delegated); fail != nil {
+		if fail := utils.EqualWith(claimed, delegated); fail != nil {
 			return fail
 		}
 
@@ -86,18 +87,6 @@ var Put = validator.NewCapability(
 		return nil
 	},
 )
-
-// equalWith validates that the claimed capability's `with` field matches the delegated one.
-func equalWith(claimed, delegated ucan.Capability[PutCaveats]) failure.Failure {
-	if claimed.With() != delegated.With() {
-		return schema.NewSchemaError(fmt.Sprintf(
-			"resource '%s' doesn't match delegated '%s'",
-			claimed.With(), delegated.With(),
-		))
-	}
-
-	return nil
-}
 
 // equalURL checks if the URL matches between two capabilities.
 func equalURL(claimed, delegated ucan.Capability[PutCaveats]) failure.Failure {

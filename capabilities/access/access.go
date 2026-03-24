@@ -40,18 +40,6 @@ type CapabilityRequest struct {
 	Can string
 }
 
-// equalWith validates that the claimed capability's `with` field matches the delegated one.
-func equalWith[Caveats any](claimed, delegated ucan.Capability[Caveats]) failure.Failure {
-	if claimed.With() != delegated.With() {
-		return schema.NewSchemaError(fmt.Sprintf(
-			"resource '%s' doesn't match delegated '%s'",
-			claimed.With(), delegated.With(),
-		))
-	}
-
-	return nil
-}
-
 // equal checks if the values are equal. constraint should describe the field,
 // and is used in the error message if the values don't match.
 func equal(claimed, delegated any, constraint string) failure.Failure {

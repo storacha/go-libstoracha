@@ -8,14 +8,14 @@ import (
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/multiformats/go-multibase"
 	"github.com/multiformats/go-multihash"
+	"github.com/storacha/go-libstoracha/capabilities/types"
+	"github.com/storacha/go-libstoracha/capabilities/utils"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/receipt"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
 	"github.com/storacha/go-ucanto/ucan"
 	"github.com/storacha/go-ucanto/validator"
-
-	"github.com/storacha/go-libstoracha/capabilities/types"
 )
 
 const GetAbility = "space/blob/get/0/1"
@@ -64,11 +64,8 @@ var Get = validator.NewCapability(
 	GetCaveatsReader,
 	func(claimed, delegated ucan.Capability[GetCaveats]) failure.Failure {
 		// Check if the space matches
-		if claimed.With() != delegated.With() {
-			return schema.NewSchemaError(fmt.Sprintf(
-				"Expected 'with: %s' instead got '%s'",
-				delegated.With(), claimed.With(),
-			))
+		if fail := utils.EqualWith(claimed, delegated); fail != nil {
+			return fail
 		}
 
 		// Check if the blob digest matches

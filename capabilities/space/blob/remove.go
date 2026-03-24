@@ -8,6 +8,7 @@ import (
 	"github.com/multiformats/go-multibase"
 	"github.com/multiformats/go-multihash"
 	"github.com/storacha/go-libstoracha/capabilities/types"
+	"github.com/storacha/go-libstoracha/capabilities/utils"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/receipt"
 	"github.com/storacha/go-ucanto/core/result/failure"
@@ -57,11 +58,8 @@ var Remove = validator.NewCapability(
 	RemoveCaveatsReader,
 	func(claimed, delegated ucan.Capability[RemoveCaveats]) failure.Failure {
 		// Check if the space matches
-		if claimed.With() != delegated.With() {
-			return schema.NewSchemaError(fmt.Sprintf(
-				"Resource '%s' doesn't match delegated '%s'",
-				claimed.With(), delegated.With(),
-			))
+		if fail := utils.EqualWith(claimed, delegated); fail != nil {
+			return fail
 		}
 
 		// Check if the blob digest matches

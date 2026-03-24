@@ -6,6 +6,7 @@ import (
 
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/storacha/go-libstoracha/capabilities/types"
+	"github.com/storacha/go-libstoracha/capabilities/utils"
 	"github.com/storacha/go-ucanto/core/ipld"
 	"github.com/storacha/go-ucanto/core/result/failure"
 	"github.com/storacha/go-ucanto/core/schema"
@@ -46,7 +47,7 @@ var Conclude = validator.NewCapability(
 	ConcludeCaveatsReader,
 	func(claimed, delegated ucan.Capability[ConcludeCaveats]) failure.Failure {
 		// Check if the with field matches
-		if fail := equalWith(claimed, delegated); fail != nil {
+		if fail := utils.EqualWith(claimed, delegated); fail != nil {
 			return fail
 		}
 
@@ -58,18 +59,6 @@ var Conclude = validator.NewCapability(
 		return nil
 	},
 )
-
-// equalWith validates that the claimed capability's `with` field matches the delegated one.
-func equalWith(claimed, delegated ucan.UnknownCapability) failure.Failure {
-	if claimed.With() != delegated.With() {
-		return schema.NewSchemaError(fmt.Sprintf(
-			"Resource '%s' doesn't match delegated '%s'",
-			claimed.With(), delegated.With(),
-		))
-	}
-
-	return nil
-}
 
 // equalReceipt checks if the receipt matches between two capabilities.
 func equalReceipt(claimed, delegated ucan.Capability[ConcludeCaveats]) failure.Failure {
